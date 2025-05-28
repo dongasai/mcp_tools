@@ -1,0 +1,508 @@
+# Task 任务模块使用示例
+
+## 概述
+
+本文档提供了Task任务模块的详细使用示例，展示主任务和子任务的完整工作流程。
+
+## 典型使用场景
+
+### 场景1：用户创建主任务，Agent自动分解为子任务
+
+#### 1. 用户创建主任务
+
+```php
+// 用户通过Web界面创建主任务
+$mainTask = Task::create([
+    'title' => '修复用户登录Bug',
+    'description' => '用户反馈无法通过GitHub OAuth登录，需要调查并修复',
+    'priority' => Task::PRIORITY_HIGH,
+    'project_id' => 1,
+    'created_by' => $user->id,
+    'due_date' => now()->addDays(3),
+    'status' => Task::STATUS_PENDING,
+]);
+```
+
+#### 2. Agent认领主任务
+
+```json
+// Agent通过MCP协议认领任务
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "task_management",
+    "arguments": {
+      "action": "claim_task",
+      "task_id": 123
+    }
+  },
+  "id": 1
+}
+```
+
+#### 3. Agent分析并创建子任务
+
+```php
+// Agent分析主任务后，创建多个子任务
+$subTasks = [
+    [
+        'title' => '检查GitHub OAuth配置',
+        'type' => SubTask::TYPE_VALIDATION,
+        'description' => '验证GitHub OAuth应用配置是否正确',
+        'execution_data' => [
+            'check_items' => ['client_id', 'client_secret', 'callback_url']
+        ]
+    ],
+    [
+        'title' => '分析错误日志',
+        'type' => SubTask::TYPE_CODE_ANALYSIS,
+        'description' => '查看最近的登录错误日志',
+        'execution_data' => [
+            'log_files' => ['/var/log/app.log'],
+            'time_range' => '24h'
+        ]
+    ],
+    [
+        'title' => '测试OAuth流程',
+        'type' => SubTask::TYPE_API_CALL,
+        'description' => '模拟完整的OAuth登录流程',
+        'execution_data' => [
+            'test_user' => 'test@example.com',
+            'environment' => 'staging'
+        ]
+    ],
+    [
+        'title' => '修复代码问题',
+        'type' => SubTask::TYPE_FILE_OPERATION,
+        'description' => '根据分析结果修复代码',
+        'execution_data' => [
+            'files_to_check' => [
+                'app/Http/Controllers/Auth/GitHubController.php',
+                'config/services.php'
+            ]
+        ]
+    ]
+];
+
+// 批量创建子任务
+foreach ($subTasks as $subTaskData) {
+    $subTask = SubTask::create([
+        'parent_task_id' => $mainTask->id,
+        'agent_id' => $agent->id,
+        'title' => $subTaskData['title'],
+        'type' => $subTaskData['type'],
+        'description' => $subTaskData['description'],
+        'execution_data' => $subTaskData['execution_data'],
+        'status' => SubTask::STATUS_PENDING,
+    ]);
+}
+```
+
+#### 4. Agent执行子任务
+
+```php
+// 子任务1：检查GitHub OAuth配置
+$subTask1 = SubTask::find(1);
+$subTask1->start();
+
+// 执行检查逻辑
+$configCheck = [
+    'client_id' => env('GITHUB_CLIENT_ID') ? 'OK' : 'MISSING',
+    'client_secret' => env('GITHUB_CLIENT_SECRET') ? 'OK' : 'MISSING',
+    'callback_url' => 'OK'
+];
+
+$subTask1->complete([
+    'check_results' => $configCheck,
+    'issues_found' => ['client_secret' => 'MISSING'],
+    'recommendation' => '需要设置GITHUB_CLIENT_SECRET环境变量'
+]);
+
+// 子任务2：分析错误日志
+$subTask2 = SubTask::find(2);
+$subTask2->start();
+
+$logAnalysis = [
+    'error_count' => 15,
+    'common_errors' => [
+        'invalid_client' => 12,
+        'redirect_uri_mismatch' => 3
+    ],
+    'pattern' => '大部分错误是invalid_client，说明client_secret配置有问题'
+];
+
+$subTask2->complete([
+    'analysis_results' => $logAnalysis,
+    'root_cause' => 'GitHub client_secret配置错误'
+]);
+
+// 子任务3：测试OAuth流程
+$subTask3 = SubTask::find(3);
+$subTask3->start();
+
+// 模拟测试失败
+$subTask3->fail('OAuth测试失败：invalid_client错误', true);
+
+// 子任务4：修复代码问题
+$subTask4 = SubTask::find(4);
+$subTask4->start();
+
+$codeChanges = [
+    'files_modified' => [
+        '.env.example' => '添加GITHUB_CLIENT_SECRET示例',
+        'config/services.php' => '修复GitHub配置读取逻辑'
+    ],
+    'changes_made' => [
+        '更新环境变量配置',
+        '修复services配置中的GitHub client_secret读取'
+    ]
+];
+
+$subTask4->complete([
+    'changes' => $codeChanges,
+    'verification' => 'OAuth流程测试通过'
+]);
+```
+
+#### 5. 主任务自动完成
+
+```php
+// 当所有子任务完成后，主任务自动标记为完成
+// 这通过事件监听器自动处理
+
+class CheckTaskCompletion
+{
+    public function handle(SubTaskCompleted $event): void
+    {
+        $parentTask = $event->subTask->parentTask;
+        
+        if ($parentTask->canBeCompleted()) {
+            $parentTask->update([
+                'status' => Task::STATUS_COMPLETED,
+                'completion_percentage' => 100.0,
+                'completed_at' => now(),
+            ]);
+            
+            // 通知用户任务完成
+            event(new TaskCompleted($parentTask));
+        }
+    }
+}
+```
+
+## MCP协议交互示例
+
+### Agent通过MCP创建子任务
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "task_management",
+    "arguments": {
+      "action": "create_sub_task",
+      "task_id": 123,
+      "title": "检查数据库连接",
+      "description": "验证数据库连接配置是否正确",
+      "type": "validation",
+      "execution_data": {
+        "database": "mysql",
+        "checks": ["connection", "permissions", "schema"]
+      }
+    }
+  },
+  "id": 2
+}
+```
+
+**响应：**
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "sub_task_id": 456,
+    "status": "pending",
+    "message": "子任务创建成功"
+  },
+  "id": 2
+}
+```
+
+### Agent完成子任务
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "task_management",
+    "arguments": {
+      "action": "complete_sub_task",
+      "task_id": 456,
+      "result_data": {
+        "connection_status": "success",
+        "permissions_check": "passed",
+        "schema_version": "1.2.3",
+        "issues_found": [],
+        "execution_time": 2.5
+      }
+    }
+  },
+  "id": 3
+}
+```
+
+**响应：**
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "sub_task_id": 456,
+    "status": "completed",
+    "parent_task_progress": 75.0,
+    "message": "子任务完成"
+  },
+  "id": 3
+}
+```
+
+### 查询任务进度
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "resources/read",
+  "params": {
+    "uri": "task://123"
+  },
+  "id": 4
+}
+```
+
+**响应：**
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "contents": [
+      {
+        "uri": "task://123",
+        "mimeType": "application/json",
+        "text": "{\"id\":123,\"title\":\"修复用户登录Bug\",\"status\":\"in_progress\",\"progress\":75.0,\"sub_tasks\":[{\"id\":456,\"title\":\"检查数据库连接\",\"status\":\"completed\"},{\"id\":457,\"title\":\"修复认证逻辑\",\"status\":\"running\"}]}"
+      }
+    ]
+  },
+  "id": 4
+}
+```
+
+## 复杂场景示例
+
+### 场景2：子任务失败和重试机制
+
+```php
+// 子任务执行失败
+$subTask = SubTask::find(789);
+$subTask->start();
+
+try {
+    // 尝试执行某个操作
+    $result = $this->performComplexOperation();
+    $subTask->complete($result);
+} catch (Exception $e) {
+    // 操作失败，标记为失败并允许重试
+    $subTask->fail($e->getMessage(), true);
+    
+    if ($subTask->canRetry()) {
+        // 可以重试，稍后重新执行
+        dispatch(new RetrySubTaskJob($subTask))->delay(now()->addMinutes(5));
+    } else {
+        // 重试次数用完，通知用户
+        event(new SubTaskFailed($subTask));
+    }
+}
+```
+
+### 场景3：依赖关系处理
+
+```php
+// 创建有依赖关系的子任务
+$subTask1 = SubTask::create([
+    'title' => '下载源代码',
+    'type' => SubTask::TYPE_FILE_OPERATION,
+    'parent_task_id' => $mainTask->id,
+    'agent_id' => $agent->id,
+]);
+
+$subTask2 = SubTask::create([
+    'title' => '分析代码结构',
+    'type' => SubTask::TYPE_CODE_ANALYSIS,
+    'parent_task_id' => $mainTask->id,
+    'agent_id' => $agent->id,
+    'execution_data' => [
+        'depends_on' => [$subTask1->id] // 依赖子任务1
+    ]
+]);
+
+// 在子任务1完成后自动触发子任务2
+class HandleSubTaskDependencies
+{
+    public function handle(SubTaskCompleted $event): void
+    {
+        $completedSubTask = $event->subTask;
+        
+        // 查找依赖此子任务的其他子任务
+        $dependentSubTasks = SubTask::where('parent_task_id', $completedSubTask->parent_task_id)
+            ->where('status', SubTask::STATUS_PENDING)
+            ->get()
+            ->filter(function ($subTask) use ($completedSubTask) {
+                $dependencies = $subTask->execution_data['depends_on'] ?? [];
+                return in_array($completedSubTask->id, $dependencies);
+            });
+            
+        foreach ($dependentSubTasks as $dependentSubTask) {
+            // 检查所有依赖是否都完成
+            $dependencies = $dependentSubTask->execution_data['depends_on'] ?? [];
+            $completedDependencies = SubTask::whereIn('id', $dependencies)
+                ->where('status', SubTask::STATUS_COMPLETED)
+                ->count();
+                
+            if ($completedDependencies === count($dependencies)) {
+                // 所有依赖都完成，可以开始执行
+                dispatch(new ExecuteSubTaskJob($dependentSubTask));
+            }
+        }
+    }
+}
+```
+
+## 任务进度计算
+
+```php
+// 实时计算主任务进度
+class TaskProgressService
+{
+    public function calculateProgress(Task $task): float
+    {
+        $subTasks = $task->subTasks;
+        
+        if ($subTasks->isEmpty()) {
+            return $task->status === Task::STATUS_COMPLETED ? 100.0 : 0.0;
+        }
+        
+        $totalWeight = $subTasks->sum('weight') ?: $subTasks->count();
+        $completedWeight = $subTasks->where('status', SubTask::STATUS_COMPLETED)
+            ->sum('weight') ?: $subTasks->where('status', SubTask::STATUS_COMPLETED)->count();
+            
+        return round(($completedWeight / $totalWeight) * 100, 2);
+    }
+    
+    public function getDetailedProgress(Task $task): array
+    {
+        $subTasks = $task->subTasks;
+        
+        return [
+            'total_sub_tasks' => $subTasks->count(),
+            'completed_sub_tasks' => $subTasks->where('status', SubTask::STATUS_COMPLETED)->count(),
+            'running_sub_tasks' => $subTasks->where('status', SubTask::STATUS_RUNNING)->count(),
+            'failed_sub_tasks' => $subTasks->where('status', SubTask::STATUS_FAILED)->count(),
+            'progress_percentage' => $this->calculateProgress($task),
+            'estimated_completion' => $this->estimateCompletion($task),
+        ];
+    }
+}
+```
+
+## 最佳实践
+
+### 1. 子任务设计原则
+
+```php
+// 好的子任务设计
+$goodSubTasks = [
+    [
+        'title' => '验证API端点可访问性',
+        'type' => SubTask::TYPE_API_CALL,
+        'estimated_duration' => 30, // 30秒
+        'description' => '检查GitHub API是否可以正常访问',
+    ],
+    [
+        'title' => '解析配置文件',
+        'type' => SubTask::TYPE_FILE_OPERATION,
+        'estimated_duration' => 60, // 1分钟
+        'description' => '读取并解析.env配置文件',
+    ]
+];
+
+// 避免的子任务设计
+$badSubTasks = [
+    [
+        'title' => '修复整个登录系统', // 太宽泛
+        'type' => 'general',
+        'description' => '修复所有登录相关问题', // 不具体
+    ]
+];
+```
+
+### 2. 错误处理策略
+
+```php
+class SubTaskExecutor
+{
+    public function execute(SubTask $subTask): void
+    {
+        try {
+            $subTask->start();
+            
+            $result = match($subTask->type) {
+                SubTask::TYPE_API_CALL => $this->executeApiCall($subTask),
+                SubTask::TYPE_FILE_OPERATION => $this->executeFileOperation($subTask),
+                SubTask::TYPE_CODE_ANALYSIS => $this->executeCodeAnalysis($subTask),
+                default => throw new UnsupportedSubTaskTypeException()
+            };
+            
+            $subTask->complete($result);
+            
+        } catch (RetryableException $e) {
+            // 可重试的错误
+            $subTask->fail($e->getMessage(), true);
+            
+        } catch (FatalException $e) {
+            // 致命错误，不可重试
+            $subTask->fail($e->getMessage(), false);
+            
+        } catch (Exception $e) {
+            // 未知错误，允许重试
+            $subTask->fail('未知错误: ' . $e->getMessage(), true);
+        }
+    }
+}
+```
+
+### 3. 性能优化
+
+```php
+// 并行执行独立的子任务
+class ParallelSubTaskExecutor
+{
+    public function executeParallel(Collection $subTasks): void
+    {
+        $independentSubTasks = $subTasks->filter(function ($subTask) {
+            return empty($subTask->execution_data['depends_on'] ?? []);
+        });
+        
+        foreach ($independentSubTasks as $subTask) {
+            dispatch(new ExecuteSubTaskJob($subTask));
+        }
+    }
+}
+```
+
+---
+
+**相关文档**：
+- [任务模块文档](./task.md)
+- [MCP协议模块](./mcp.md)
+- [Agent代理模块](./agent.md)

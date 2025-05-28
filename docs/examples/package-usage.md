@@ -1,0 +1,724 @@
+# 包使用示例
+
+## 概述
+
+本文档提供了MCP Tools项目中各个核心包的详细使用示例，展示如何在实际开发中集成和使用这些包。
+
+## 1. php-mcp/laravel 使用示例
+
+### 安装和配置
+
+```bash
+# 安装包
+composer require php-mcp/laravel
+
+# 发布配置文件
+php artisan vendor:publish --provider="PhpMcp\Laravel\McpServiceProvider"
+```
+
+### MCP服务器启动
+
+```php
+<?php
+
+// routes/mcp.php
+use App\Modules\Mcp\Server\McpServer;
+
+Route::get('/mcp/server', function () {
+    $server = app(McpServer::class);
+    return $server->start();
+});
+
+// 或者通过命令行启动
+// php artisan mcp:serve --host=localhost --port=8000
+```
+
+### 创建MCP资源
+
+```php
+<?php
+
+namespace App\Modules\Mcp\Resources;
+
+use PhpMcp\Laravel\Resources\Resource;
+use PhpMcp\Laravel\Contracts\ResourceInterface;
+
+class TaskResource extends Resource implements ResourceInterface
+{
+    public function getUriPattern(): string
+    {
+        return 'task://';
+    }
+    
+    public function read(string $uri, array $params = []): array
+    {
+        // 解析URI：task://123 或 task://list
+        $segments = explode('/', trim(str_replace('task://', '', $uri), '/'));
+        
+        if (empty($segments[0])) {
+            return $this->listTasks($params);
+        }
+        
+        if ($segments[0] === 'list') {
+            return $this->listTasks($params);
+        }
+        
+        if (is_numeric($segments[0])) {
+            return $this->getTask((int)$segments[0], $params);
+        }
+        
+        throw new InvalidArgumentException("Invalid task URI: {$uri}");
+    }
+    
+    private function listTasks(array $params): array
+    {
+        $agent = $this->getCurrentAgent();
+        $tasks = Task::whereIn('project_id', $agent->allowed_projects ?? [])
+            ->with(['subTasks', 'project'])
+            ->get();
+            
+        return [
+            'tasks' => $tasks->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'status' => $task->status,
+                    'progress' => $task->completion_percentage,
+                    'sub_tasks_count' => $task->subTasks->count(),
+                    'project' => $task->project->name,
+                ];
+            })->toArray(),
+        ];
+    }
+    
+    private function getTask(int $taskId, array $params): array
+    {
+        $task = Task::with(['subTasks', 'project', 'creator', 'assignee'])
+            ->findOrFail($taskId);
+            
+        return [
+            'id' => $task->id,
+            'title' => $task->title,
+            'description' => $task->description,
+            'status' => $task->status,
+            'priority' => $task->priority,
+            'progress' => $task->completion_percentage,
+            'project' => [
+                'id' => $task->project->id,
+                'name' => $task->project->name,
+            ],
+            'sub_tasks' => $task->subTasks->map(function ($subTask) {
+                return [
+                    'id' => $subTask->id,
+                    'title' => $subTask->title,
+                    'status' => $subTask->status,
+                    'type' => $subTask->type,
+                ];
+            })->toArray(),
+        ];
+    }
+}
+```
+
+### 创建MCP工具
+
+```php
+<?php
+
+namespace App\Modules\Mcp\Tools;
+
+use PhpMcp\Laravel\Tools\Tool;
+use PhpMcp\Laravel\Contracts\ToolInterface;
+
+class TaskManagementTool extends Tool implements ToolInterface
+{
+    public function getName(): string
+    {
+        return 'task_management';
+    }
+    
+    public function getDescription(): string
+    {
+        return 'Comprehensive task management tool for creating, updating, and managing tasks and subtasks';
+    }
+    
+    public function getInputSchema(): array
+    {
+        return [
+            'type' => 'object',
+            'properties' => [
+                'action' => [
+                    'type' => 'string',
+                    'enum' => [
+                        'create_main_task',
+                        'create_sub_task',
+                        'start_sub_task',
+                        'complete_sub_task',
+                        'fail_sub_task',
+                        'get_task_progress',
+                        'list_my_tasks'
+                    ],
+                    'description' => 'The action to perform'
+                ],
+                'task_id' => [
+                    'type' => 'integer',
+                    'description' => 'Task ID for operations on existing tasks'
+                ],
+                'title' => [
+                    'type' => 'string',
+                    'description' => 'Task or subtask title'
+                ],
+                'description' => [
+                    'type' => 'string',
+                    'description' => 'Detailed description'
+                ],
+                'type' => [
+                    'type' => 'string',
+                    'enum' => ['code_analysis', 'file_operation', 'api_call', 'data_processing', 'github_operation', 'validation'],
+                    'description' => 'Subtask type'
+                ],
+                'project_id' => [
+                    'type' => 'integer',
+                    'description' => 'Project ID for new tasks'
+                ],
+                'execution_data' => [
+                    'type' => 'object',
+                    'description' => 'Data needed for subtask execution'
+                ],
+                'result_data' => [
+                    'type' => 'object',
+                    'description' => 'Results from subtask completion'
+                ]
+            ],
+            'required' => ['action']
+        ];
+    }
+    
+    public function execute(array $arguments): array
+    {
+        $agent = $this->getCurrentAgent();
+        
+        // 验证输入
+        $validatedArgs = app(ValidationService::class)
+            ->validateToolArguments($arguments, $this->getInputSchema());
+        
+        return match($validatedArgs['action']) {
+            'create_main_task' => $this->createMainTask($agent, $validatedArgs),
+            'create_sub_task' => $this->createSubTask($agent, $validatedArgs),
+            'start_sub_task' => $this->startSubTask($agent, $validatedArgs),
+            'complete_sub_task' => $this->completeSubTask($agent, $validatedArgs),
+            'fail_sub_task' => $this->failSubTask($agent, $validatedArgs),
+            'get_task_progress' => $this->getTaskProgress($validatedArgs),
+            'list_my_tasks' => $this->listMyTasks($agent),
+            default => throw new InvalidArgumentException('Invalid action')
+        };
+    }
+    
+    private function createSubTask(Agent $agent, array $args): array
+    {
+        $parentTask = Task::findOrFail($args['task_id']);
+        
+        // 验证权限
+        if (!$agent->canAccessProject($parentTask->project_id)) {
+            throw new UnauthorizedException('Agent无权访问此项目');
+        }
+        
+        $subTask = app(SubTaskService::class)->createForTask(
+            $parentTask,
+            [
+                'title' => $args['title'],
+                'description' => $args['description'] ?? '',
+                'type' => $args['type'],
+                'execution_data' => $args['execution_data'] ?? [],
+            ],
+            $agent
+        );
+        
+        return [
+            'success' => true,
+            'sub_task_id' => $subTask->id,
+            'status' => $subTask->status,
+            'parent_task_progress' => $parentTask->fresh()->completion_percentage,
+            'message' => "子任务 '{$subTask->title}' 创建成功",
+        ];
+    }
+    
+    private function completeSubTask(Agent $agent, array $args): array
+    {
+        $subTask = SubTask::where('id', $args['task_id'])
+            ->where('agent_id', $agent->id)
+            ->firstOrFail();
+            
+        app(SubTaskService::class)->complete(
+            $subTask,
+            $args['result_data'] ?? []
+        );
+        
+        $parentTask = $subTask->parentTask->fresh();
+        
+        return [
+            'success' => true,
+            'sub_task_id' => $subTask->id,
+            'status' => $subTask->fresh()->status,
+            'parent_task_progress' => $parentTask->completion_percentage,
+            'parent_task_status' => $parentTask->status,
+            'message' => "子任务 '{$subTask->title}' 完成",
+            'parent_completed' => $parentTask->status === Task::STATUS_COMPLETED,
+        ];
+    }
+}
+```
+
+## 2. dcat/laravel-admin 使用示例
+
+### 安装和配置
+
+```bash
+# 安装包
+composer require dcat/laravel-admin:2.0.x-dev
+
+# 发布资源和配置
+php artisan admin:publish
+
+# 创建管理员账户
+php artisan admin:create-user
+```
+
+### 创建Admin控制器
+
+```php
+<?php
+
+namespace App\Modules\Admin\Controllers;
+
+use Dcat\Admin\Controllers\AdminController;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Form;
+use Dcat\Admin\Show;
+use Dcat\Admin\Widgets\Card;
+use Dcat\Admin\Widgets\Chart\Line;
+
+class TaskController extends AdminController
+{
+    protected $title = '任务管理';
+    
+    protected function grid(): Grid
+    {
+        return Grid::make(Task::with(['project', 'creator', 'assignee', 'subTasks']), function (Grid $grid) {
+            $grid->column('id', 'ID')->sortable();
+            $grid->column('title', '标题')->limit(30)->copyable();
+            
+            $grid->column('status', '状态')->using([
+                'pending' => '待处理',
+                'in_progress' => '进行中',
+                'completed' => '已完成',
+                'cancelled' => '已取消',
+            ])->label([
+                'pending' => 'warning',
+                'in_progress' => 'primary',
+                'completed' => 'success',
+                'cancelled' => 'danger',
+            ]);
+            
+            $grid->column('priority', '优先级')->using([
+                'low' => '低',
+                'medium' => '中',
+                'high' => '高',
+                'urgent' => '紧急',
+            ])->label([
+                'low' => 'secondary',
+                'medium' => 'info',
+                'high' => 'warning',
+                'urgent' => 'danger',
+            ]);
+            
+            $grid->column('completion_percentage', '完成度')->progressBar([
+                'style' => 'primary',
+                'size' => 'sm',
+            ]);
+            
+            $grid->column('sub_tasks_count', '子任务数')->display(function () {
+                return $this->subTasks->count();
+            });
+            
+            $grid->column('project.name', '项目')->label('info');
+            $grid->column('creator.name', '创建者');
+            $grid->column('assignee.name', '负责人');
+            $grid->column('due_date', '截止时间');
+            $grid->column('created_at', '创建时间');
+            
+            // 筛选器
+            $grid->filter(function (Grid\Filter $filter) {
+                $filter->equal('status', '状态')->select([
+                    'pending' => '待处理',
+                    'in_progress' => '进行中',
+                    'completed' => '已完成',
+                    'cancelled' => '已取消',
+                ]);
+                
+                $filter->equal('priority', '优先级')->select([
+                    'low' => '低',
+                    'medium' => '中',
+                    'high' => '高',
+                    'urgent' => '紧急',
+                ]);
+                
+                $filter->equal('project_id', '项目')->select(
+                    Project::pluck('name', 'id')
+                );
+                
+                $filter->between('created_at', '创建时间')->datetime();
+            });
+            
+            // 快速搜索
+            $grid->quickSearch(['title', 'description']);
+            
+            // 批量操作
+            $grid->batchActions([
+                new BatchCompleteAction(),
+                new BatchCancelAction(),
+            ]);
+        });
+    }
+    
+    protected function form(): Form
+    {
+        return Form::make(Task::class, function (Form $form) {
+            $form->text('title', '标题')->required()->help('任务的简短描述');
+            $form->textarea('description', '描述')->rows(4);
+            
+            $form->select('status', '状态')->options([
+                'pending' => '待处理',
+                'in_progress' => '进行中',
+                'completed' => '已完成',
+                'cancelled' => '已取消',
+            ])->default('pending');
+            
+            $form->select('priority', '优先级')->options([
+                'low' => '低',
+                'medium' => '中',
+                'high' => '高',
+                'urgent' => '紧急',
+            ])->default('medium');
+            
+            $form->select('project_id', '项目')->options(
+                Project::pluck('name', 'id')
+            )->required()->load('assigned_to', '/admin/api/project-members');
+            
+            $form->select('assigned_to', '负责人')->options(
+                User::pluck('name', 'id')
+            );
+            
+            $form->datetime('due_date', '截止时间');
+            $form->number('estimated_hours', '预估工时')->min(0)->step(0.5);
+            
+            // 保存后回调
+            $form->saved(function (Form $form) {
+                if ($form->model()->status === 'completed') {
+                    // 发送完成通知
+                    event(new TaskCompleted($form->model()));
+                }
+            });
+        });
+    }
+    
+    protected function detail($id): Show
+    {
+        return Show::make($id, Task::with(['subTasks', 'project', 'creator', 'assignee']), function (Show $show) {
+            $show->field('title', '标题');
+            $show->field('description', '描述');
+            $show->field('status', '状态')->using([
+                'pending' => '待处理',
+                'in_progress' => '进行中',
+                'completed' => '已完成',
+                'cancelled' => '已取消',
+            ]);
+            $show->field('priority', '优先级');
+            $show->field('completion_percentage', '完成度')->as(function ($value) {
+                return $value . '%';
+            });
+            
+            $show->divider();
+            
+            // 子任务列表
+            $show->relation('subTasks', '子任务', function ($model) {
+                $grid = new Grid($model);
+                $grid->column('title', '标题');
+                $grid->column('status', '状态')->label();
+                $grid->column('type', '类型');
+                $grid->column('agent.name', 'Agent');
+                $grid->column('started_at', '开始时间');
+                $grid->column('completed_at', '完成时间');
+                return $grid;
+            });
+            
+            // 进度图表
+            $show->panel()
+                ->title('任务进度')
+                ->body(function ($model) {
+                    $chart = new Line();
+                    // 添加进度数据
+                    return $chart->render();
+                });
+        });
+    }
+}
+```
+
+## 3. inhere/php-validate 使用示例
+
+### 创建验证服务
+
+```php
+<?php
+
+namespace App\Modules\Core\Services;
+
+use Inhere\Validate\Validation;
+use Inhere\Validate\Validators\RequiredValidator;
+
+class ValidationService
+{
+    /**
+     * 验证任务创建数据
+     */
+    public function validateTaskCreation(array $data): array
+    {
+        $v = Validation::make($data, [
+            'title' => 'required|string|minLen:3|maxLen:255',
+            'description' => 'string|maxLen:1000',
+            'priority' => 'string|in:low,medium,high,urgent',
+            'project_id' => 'required|int|min:1',
+            'assigned_to' => 'int|min:1',
+            'due_date' => 'date',
+            'estimated_hours' => 'float|min:0',
+        ]);
+        
+        // 自定义错误消息
+        $v->addMessages([
+            'title.required' => '任务标题不能为空',
+            'title.minLen' => '任务标题至少需要3个字符',
+            'title.maxLen' => '任务标题不能超过255个字符',
+            'project_id.required' => '必须选择一个项目',
+            'project_id.int' => '项目ID必须是整数',
+            'priority.in' => '优先级必须是: low, medium, high, urgent 中的一个',
+        ]);
+        
+        // 自定义验证规则
+        $v->addValidator('project_exists', function ($value) {
+            return Project::where('id', $value)->exists();
+        }, '选择的项目不存在');
+        
+        $v->addRule('project_id', 'project_exists');
+        
+        if (!$v->validate()) {
+            throw new ValidationException('数据验证失败', $v->getErrors());
+        }
+        
+        return $v->getSafeData();
+    }
+    
+    /**
+     * 验证MCP工具参数
+     */
+    public function validateToolArguments(array $data, array $schema): array
+    {
+        $rules = $this->convertJsonSchemaToRules($schema);
+        
+        $v = Validation::make($data, $rules);
+        
+        if (!$v->validate()) {
+            throw new ValidationException('工具参数验证失败', $v->getErrors());
+        }
+        
+        return $v->getSafeData();
+    }
+    
+    /**
+     * 将JSON Schema转换为验证规则
+     */
+    private function convertJsonSchemaToRules(array $schema): array
+    {
+        $rules = [];
+        
+        if (isset($schema['properties'])) {
+            foreach ($schema['properties'] as $field => $definition) {
+                $rule = [];
+                
+                // 必填字段
+                if (in_array($field, $schema['required'] ?? [])) {
+                    $rule[] = 'required';
+                }
+                
+                // 类型验证
+                if (isset($definition['type'])) {
+                    switch ($definition['type']) {
+                        case 'string':
+                            $rule[] = 'string';
+                            break;
+                        case 'integer':
+                            $rule[] = 'int';
+                            break;
+                        case 'number':
+                            $rule[] = 'float';
+                            break;
+                        case 'boolean':
+                            $rule[] = 'bool';
+                            break;
+                        case 'array':
+                            $rule[] = 'array';
+                            break;
+                    }
+                }
+                
+                // 枚举值
+                if (isset($definition['enum'])) {
+                    $rule[] = 'in:' . implode(',', $definition['enum']);
+                }
+                
+                $rules[$field] = implode('|', $rule);
+            }
+        }
+        
+        return $rules;
+    }
+}
+```
+
+## 4. spatie/laravel-route-attributes 使用示例
+
+### 配置路由属性
+
+```php
+// config/route-attributes.php
+return [
+    'directories' => [
+        app_path('Modules/*/Controllers'),
+    ],
+    
+    'middleware' => [
+        'api' => [
+            \App\Http\Middleware\ForceJsonResponse::class,
+        ],
+        'agent.auth' => [
+            \App\Modules\Agent\Middleware\AgentAuthMiddleware::class,
+        ],
+    ],
+];
+```
+
+### 使用路由属性
+
+```php
+<?php
+
+namespace App\Modules\Task\Controllers;
+
+use Spatie\RouteAttributes\Attributes\Route;
+use Spatie\RouteAttributes\Attributes\Prefix;
+use Spatie\RouteAttributes\Attributes\Middleware;
+use Spatie\RouteAttributes\Attributes\Where;
+
+#[Prefix('api/v1/tasks')]
+#[Middleware(['api', 'auth:sanctum'])]
+class TaskApiController extends Controller
+{
+    #[Route('GET', '/', name: 'api.tasks.index')]
+    public function index(Request $request): JsonResponse
+    {
+        $validatedData = app(ValidationService::class)->validateListRequest($request->all());
+        
+        $tasks = app(TaskService::class)->getUserTasks(
+            $request->user(),
+            $validatedData
+        );
+        
+        return TaskResource::collection($tasks)->response();
+    }
+    
+    #[Route('POST', '/', name: 'api.tasks.store')]
+    public function store(Request $request): JsonResponse
+    {
+        $validatedData = app(ValidationService::class)->validateTaskCreation($request->all());
+        
+        $task = app(TaskService::class)->create($validatedData, $request->user());
+        
+        return new TaskResource($task);
+    }
+    
+    #[Route('GET', '/{task}', name: 'api.tasks.show')]
+    #[Where('task', '[0-9]+')]
+    public function show(Task $task): JsonResponse
+    {
+        $this->authorize('view', $task);
+        
+        return new TaskResource($task->load(['subTasks', 'project']));
+    }
+    
+    #[Route('PUT', '/{task}', name: 'api.tasks.update')]
+    #[Where('task', '[0-9]+')]
+    public function update(Request $request, Task $task): JsonResponse
+    {
+        $this->authorize('update', $task);
+        
+        $validatedData = app(ValidationService::class)->validateTaskCreation($request->all());
+        
+        $task = app(TaskService::class)->update($task, $validatedData);
+        
+        return new TaskResource($task);
+    }
+}
+
+#[Prefix('api/v1/agent')]
+#[Middleware(['api', 'agent.auth'])]
+class AgentTaskController extends Controller
+{
+    #[Route('GET', '/tasks', name: 'api.agent.tasks')]
+    public function myTasks(Request $request): JsonResponse
+    {
+        $agent = $request->agent();
+        
+        $tasks = app(TaskService::class)->getAgentTasks($agent, $request->all());
+        
+        return TaskResource::collection($tasks)->response();
+    }
+    
+    #[Route('POST', '/tasks/{task}/subtasks', name: 'api.agent.subtasks.create')]
+    #[Where('task', '[0-9]+')]
+    public function createSubTask(Request $request, Task $task): JsonResponse
+    {
+        $agent = $request->agent();
+        
+        $validatedData = app(ValidationService::class)->validateSubTaskCreation($request->all());
+        
+        $subTask = app(SubTaskService::class)->createForTask($task, $validatedData, $agent);
+        
+        return new SubTaskResource($subTask);
+    }
+    
+    #[Route('POST', '/subtasks/{subTask}/complete', name: 'api.agent.subtasks.complete')]
+    #[Where('subTask', '[0-9]+')]
+    public function completeSubTask(Request $request, SubTask $subTask): JsonResponse
+    {
+        $agent = $request->agent();
+        
+        if ($subTask->agent_id !== $agent->id) {
+            abort(403, '只能操作自己的子任务');
+        }
+        
+        $subTask = app(SubTaskService::class)->complete(
+            $subTask,
+            $request->input('result_data', [])
+        );
+        
+        return new SubTaskResource($subTask);
+    }
+}
+```
+
+---
+
+**相关文档**：
+- [包集成架构](../architecture/package-integration.md)
+- [模块架构概述](../modules/README.md)
+- [开发指南](../modules/development-guide.md)

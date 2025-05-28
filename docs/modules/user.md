@@ -1,0 +1,843 @@
+# User 用户模块
+
+## 概述
+
+User用户模块负责管理系统中的用户账户、身份认证、个人资料和用户偏好设置。该模块是MCP Tools系统的基础模块之一，为其他模块提供用户身份和权限基础。
+
+## 职责范围
+
+### 1. 用户账户管理
+- 用户注册和激活
+- 用户信息维护
+- 账户状态管理
+- 用户删除和恢复
+
+### 2. 身份认证
+- 用户登录和登出
+- 密码管理和重置
+- 多因素认证(MFA)
+- 第三方登录集成
+
+### 3. 个人资料管理
+- 基本信息维护
+- 头像和个人设置
+- 偏好配置
+- 隐私设置
+
+### 4. 权限和角色管理
+- 用户角色分配
+- 权限控制
+- 访问控制列表
+- 角色继承机制
+
+## 目录结构
+
+```
+app/Modules/User/
+├── Models/
+│   ├── User.php                    # 用户模型
+│   ├── UserProfile.php             # 用户资料模型
+│   ├── UserPreference.php          # 用户偏好模型
+│   ├── UserSession.php             # 用户会话模型
+│   ├── Role.php                    # 角色模型
+│   ├── Permission.php              # 权限模型
+│   └── UserLoginLog.php            # 登录日志模型
+├── Services/
+│   ├── UserService.php             # 用户核心服务
+│   ├── AuthService.php             # 认证服务
+│   ├── ProfileService.php          # 资料管理服务
+│   ├── PreferenceService.php       # 偏好设置服务
+│   ├── RoleService.php             # 角色管理服务
+│   └── PermissionService.php       # 权限管理服务
+├── Controllers/
+│   ├── UserController.php          # 用户控制器
+│   ├── AuthController.php          # 认证控制器
+│   ├── ProfileController.php       # 资料控制器
+│   ├── PreferenceController.php    # 偏好控制器
+│   └── RoleController.php          # 角色控制器
+├── Resources/
+│   ├── UserResource.php            # 用户API资源
+│   ├── UserCollection.php          # 用户集合资源
+│   ├── ProfileResource.php         # 资料API资源
+│   └── RoleResource.php            # 角色API资源
+├── Requests/
+│   ├── RegisterRequest.php         # 注册请求
+│   ├── LoginRequest.php            # 登录请求
+│   ├── UpdateProfileRequest.php    # 更新资料请求
+│   ├── ChangePasswordRequest.php   # 修改密码请求
+│   └── AssignRoleRequest.php       # 分配角色请求
+├── Events/
+│   ├── UserRegistered.php          # 用户注册事件
+│   ├── UserLoggedIn.php            # 用户登录事件
+│   ├── UserLoggedOut.php           # 用户登出事件
+│   ├── ProfileUpdated.php          # 资料更新事件
+│   ├── PasswordChanged.php         # 密码修改事件
+│   └── RoleAssigned.php            # 角色分配事件
+├── Listeners/
+│   ├── SendWelcomeEmail.php        # 发送欢迎邮件
+│   ├── LogUserActivity.php         # 记录用户活动
+│   ├── UpdateLastLogin.php         # 更新最后登录时间
+│   └── NotifyRoleChange.php        # 通知角色变更
+├── Middleware/
+│   ├── AuthenticateUser.php        # 用户认证中间件
+│   ├── CheckUserStatus.php         # 检查用户状态中间件
+│   ├── RequireRole.php             # 角色要求中间件
+│   └── RequirePermission.php       # 权限要求中间件
+├── Policies/
+│   ├── UserPolicy.php              # 用户访问策略
+│   ├── ProfilePolicy.php           # 资料访问策略
+│   └── RolePolicy.php              # 角色管理策略
+├── Notifications/
+│   ├── WelcomeNotification.php     # 欢迎通知
+│   ├── PasswordResetNotification.php # 密码重置通知
+│   └── AccountActivationNotification.php # 账户激活通知
+├── Commands/
+│   ├── CreateUserCommand.php       # 创建用户命令
+│   ├── DeactivateUserCommand.php   # 停用用户命令
+│   └── CleanupSessionsCommand.php  # 清理会话命令
+└── Contracts/
+    ├── UserServiceInterface.php    # 用户服务接口
+    ├── AuthServiceInterface.php    # 认证服务接口
+    └── RoleServiceInterface.php    # 角色服务接口
+```
+
+## 核心服务
+
+### 1. UserService
+
+```php
+<?php
+
+namespace App\Modules\User\Services;
+
+use App\Modules\User\Contracts\UserServiceInterface;
+
+class UserService implements UserServiceInterface
+{
+    /**
+     * 创建新用户
+     */
+    public function create(array $data): User;
+    
+    /**
+     * 获取用户信息
+     */
+    public function getUser(int $userId): ?User;
+    
+    /**
+     * 通过邮箱获取用户
+     */
+    public function getUserByEmail(string $email): ?User;
+    
+    /**
+     * 更新用户信息
+     */
+    public function update(User $user, array $data): User;
+    
+    /**
+     * 激活用户账户
+     */
+    public function activate(User $user): bool;
+    
+    /**
+     * 停用用户账户
+     */
+    public function deactivate(User $user, string $reason = ''): bool;
+    
+    /**
+     * 删除用户
+     */
+    public function delete(User $user): bool;
+    
+    /**
+     * 恢复已删除用户
+     */
+    public function restore(int $userId): bool;
+    
+    /**
+     * 获取用户列表
+     */
+    public function getUsers(array $filters = [], int $perPage = 15): LengthAwarePaginator;
+    
+    /**
+     * 搜索用户
+     */
+    public function searchUsers(string $query, array $filters = []): Collection;
+}
+```
+
+### 2. AuthService
+
+```php
+<?php
+
+namespace App\Modules\User\Services;
+
+use App\Modules\User\Contracts\AuthServiceInterface;
+
+class AuthService implements AuthServiceInterface
+{
+    /**
+     * 用户登录
+     */
+    public function login(string $email, string $password, bool $remember = false): array;
+    
+    /**
+     * 用户登出
+     */
+    public function logout(User $user): bool;
+    
+    /**
+     * 刷新认证令牌
+     */
+    public function refreshToken(string $refreshToken): array;
+    
+    /**
+     * 验证用户凭据
+     */
+    public function validateCredentials(string $email, string $password): bool;
+    
+    /**
+     * 发送密码重置链接
+     */
+    public function sendPasswordResetLink(string $email): bool;
+    
+    /**
+     * 重置密码
+     */
+    public function resetPassword(string $token, string $password): bool;
+    
+    /**
+     * 修改密码
+     */
+    public function changePassword(User $user, string $currentPassword, string $newPassword): bool;
+    
+    /**
+     * 启用多因素认证
+     */
+    public function enableMFA(User $user): array;
+    
+    /**
+     * 验证MFA代码
+     */
+    public function verifyMFA(User $user, string $code): bool;
+    
+    /**
+     * 记录登录尝试
+     */
+    public function logLoginAttempt(string $email, string $ip, bool $successful): void;
+}
+```
+
+### 3. ProfileService
+
+```php
+<?php
+
+namespace App\Modules\User\Services;
+
+class ProfileService
+{
+    /**
+     * 获取用户资料
+     */
+    public function getProfile(User $user): UserProfile;
+    
+    /**
+     * 更新用户资料
+     */
+    public function updateProfile(User $user, array $data): UserProfile;
+    
+    /**
+     * 上传用户头像
+     */
+    public function uploadAvatar(User $user, UploadedFile $file): string;
+    
+    /**
+     * 删除用户头像
+     */
+    public function deleteAvatar(User $user): bool;
+    
+    /**
+     * 更新用户偏好设置
+     */
+    public function updatePreferences(User $user, array $preferences): bool;
+    
+    /**
+     * 获取用户偏好设置
+     */
+    public function getPreferences(User $user): array;
+    
+    /**
+     * 设置用户时区
+     */
+    public function setTimezone(User $user, string $timezone): bool;
+    
+    /**
+     * 设置用户语言
+     */
+    public function setLanguage(User $user, string $language): bool;
+    
+    /**
+     * 获取用户活动统计
+     */
+    public function getActivityStats(User $user): array;
+}
+```
+
+### 4. RoleService
+
+```php
+<?php
+
+namespace App\Modules\User\Services;
+
+class RoleService
+{
+    /**
+     * 创建角色
+     */
+    public function createRole(array $data): Role;
+    
+    /**
+     * 更新角色
+     */
+    public function updateRole(Role $role, array $data): Role;
+    
+    /**
+     * 删除角色
+     */
+    public function deleteRole(Role $role): bool;
+    
+    /**
+     * 为用户分配角色
+     */
+    public function assignRole(User $user, Role $role): bool;
+    
+    /**
+     * 移除用户角色
+     */
+    public function removeRole(User $user, Role $role): bool;
+    
+    /**
+     * 获取用户角色
+     */
+    public function getUserRoles(User $user): Collection;
+    
+    /**
+     * 检查用户是否有角色
+     */
+    public function hasRole(User $user, string $roleName): bool;
+    
+    /**
+     * 为角色分配权限
+     */
+    public function assignPermission(Role $role, Permission $permission): bool;
+    
+    /**
+     * 移除角色权限
+     */
+    public function removePermission(Role $role, Permission $permission): bool;
+    
+    /**
+     * 获取角色权限
+     */
+    public function getRolePermissions(Role $role): Collection;
+    
+    /**
+     * 获取用户有效权限
+     */
+    public function getUserPermissions(User $user): Collection;
+}
+```
+
+## 数据模型
+
+### User模型扩展
+
+```php
+<?php
+
+namespace App\Modules\User\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+
+class User extends Authenticatable
+{
+    use HasApiTokens;
+    
+    protected $fillable = [
+        'name',
+        'email',
+        'email_verified_at',
+        'password',
+        'status',
+        'last_login_at',
+        'last_login_ip',
+    ];
+    
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+    
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
+    ];
+    
+    /**
+     * 用户状态常量
+     */
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_SUSPENDED = 'suspended';
+    public const STATUS_PENDING = 'pending';
+    
+    /**
+     * 获取用户资料
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+    
+    /**
+     * 获取用户偏好设置
+     */
+    public function preferences(): HasMany
+    {
+        return $this->hasMany(UserPreference::class);
+    }
+    
+    /**
+     * 获取用户角色
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_roles');
+    }
+    
+    /**
+     * 获取用户会话
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(UserSession::class);
+    }
+    
+    /**
+     * 获取登录日志
+     */
+    public function loginLogs(): HasMany
+    {
+        return $this->hasMany(UserLoginLog::class);
+    }
+    
+    /**
+     * 检查用户是否活跃
+     */
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+    
+    /**
+     * 检查用户是否有权限
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return $this->roles()
+            ->whereHas('permissions', function ($query) use ($permission) {
+                $query->where('name', $permission);
+            })
+            ->exists();
+    }
+    
+    /**
+     * 检查用户是否有角色
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
+    
+    /**
+     * 获取用户偏好设置值
+     */
+    public function getPreference(string $key, mixed $default = null): mixed
+    {
+        $preference = $this->preferences()->where('key', $key)->first();
+        return $preference ? $preference->value : $default;
+    }
+    
+    /**
+     * 设置用户偏好
+     */
+    public function setPreference(string $key, mixed $value): void
+    {
+        $this->preferences()->updateOrCreate(
+            ['key' => $key],
+            ['value' => $value]
+        );
+    }
+}
+```
+
+### UserProfile模型
+
+```php
+<?php
+
+namespace App\Modules\User\Models;
+
+class UserProfile extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'first_name',
+        'last_name',
+        'avatar',
+        'bio',
+        'phone',
+        'address',
+        'city',
+        'country',
+        'timezone',
+        'language',
+        'birth_date',
+        'gender',
+    ];
+    
+    protected $casts = [
+        'birth_date' => 'date',
+    ];
+    
+    /**
+     * 获取用户
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+    
+    /**
+     * 获取完整姓名
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+    
+    /**
+     * 获取头像URL
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar) {
+            return Storage::url($this->avatar);
+        }
+        
+        return $this->getGravatarUrl();
+    }
+    
+    /**
+     * 获取Gravatar头像
+     */
+    private function getGravatarUrl(): string
+    {
+        $hash = md5(strtolower(trim($this->user->email)));
+        return "https://www.gravatar.com/avatar/{$hash}?d=identicon&s=200";
+    }
+    
+    /**
+     * 获取年龄
+     */
+    public function getAgeAttribute(): ?int
+    {
+        return $this->birth_date ? $this->birth_date->age : null;
+    }
+}
+```
+
+### Role模型
+
+```php
+<?php
+
+namespace App\Modules\User\Models;
+
+class Role extends Model
+{
+    protected $fillable = [
+        'name',
+        'display_name',
+        'description',
+        'is_system',
+        'level',
+    ];
+    
+    protected $casts = [
+        'is_system' => 'boolean',
+    ];
+    
+    /**
+     * 系统角色常量
+     */
+    public const ROLE_SUPER_ADMIN = 'super_admin';
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_MANAGER = 'manager';
+    public const ROLE_USER = 'user';
+    
+    /**
+     * 获取角色用户
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_roles');
+    }
+    
+    /**
+     * 获取角色权限
+     */
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'role_permissions');
+    }
+    
+    /**
+     * 检查是否有权限
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return $this->permissions()->where('name', $permission)->exists();
+    }
+    
+    /**
+     * 检查是否为系统角色
+     */
+    public function isSystem(): bool
+    {
+        return $this->is_system;
+    }
+    
+    /**
+     * 获取角色级别
+     */
+    public function getLevel(): int
+    {
+        return $this->level ?? 0;
+    }
+}
+```
+
+## API控制器
+
+### AuthController
+
+```php
+<?php
+
+namespace App\Modules\User\Controllers;
+
+class AuthController extends Controller
+{
+    public function __construct(
+        private AuthService $authService
+    ) {}
+    
+    /**
+     * 用户登录
+     */
+    public function login(LoginRequest $request): JsonResponse
+    {
+        try {
+            $result = $this->authService->login(
+                $request->email,
+                $request->password,
+                $request->boolean('remember')
+            );
+            
+            return response()->json([
+                'message' => 'Login successful',
+                'data' => $result,
+            ]);
+        } catch (AuthenticationException $e) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+    }
+    
+    /**
+     * 用户登出
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $this->authService->logout($request->user());
+        
+        return response()->json([
+            'message' => 'Logout successful',
+        ]);
+    }
+    
+    /**
+     * 刷新令牌
+     */
+    public function refresh(Request $request): JsonResponse
+    {
+        $result = $this->authService->refreshToken($request->refresh_token);
+        
+        return response()->json([
+            'data' => $result,
+        ]);
+    }
+    
+    /**
+     * 获取当前用户信息
+     */
+    public function me(Request $request): JsonResponse
+    {
+        return new UserResource($request->user()->load('profile', 'roles'));
+    }
+    
+    /**
+     * 发送密码重置链接
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+        
+        $sent = $this->authService->sendPasswordResetLink($request->email);
+        
+        return response()->json([
+            'message' => $sent ? 'Password reset link sent' : 'Email not found',
+        ], $sent ? 200 : 404);
+    }
+    
+    /**
+     * 重置密码
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'token' => 'required',
+            'password' => 'required|min:8|confirmed',
+        ]);
+        
+        $reset = $this->authService->resetPassword(
+            $request->token,
+            $request->password
+        );
+        
+        return response()->json([
+            'message' => $reset ? 'Password reset successful' : 'Invalid token',
+        ], $reset ? 200 : 400);
+    }
+}
+```
+
+## 事件和通知
+
+### 用户事件
+
+```php
+<?php
+
+namespace App\Modules\User\Events;
+
+class UserRegistered
+{
+    public function __construct(
+        public readonly User $user
+    ) {}
+}
+
+class UserLoggedIn
+{
+    public function __construct(
+        public readonly User $user,
+        public readonly string $ipAddress,
+        public readonly string $userAgent
+    ) {}
+}
+
+class ProfileUpdated
+{
+    public function __construct(
+        public readonly User $user,
+        public readonly array $changes
+    ) {}
+}
+```
+
+### 用户通知
+
+```php
+<?php
+
+namespace App\Modules\User\Notifications;
+
+use Illuminate\Notifications\Notification;
+
+class WelcomeNotification extends Notification
+{
+    public function via($notifiable): array
+    {
+        return ['mail'];
+    }
+    
+    public function toMail($notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('Welcome to MCP Tools')
+            ->greeting("Hello {$notifiable->name}!")
+            ->line('Welcome to MCP Tools. Your account has been created successfully.')
+            ->action('Get Started', url('/dashboard'))
+            ->line('Thank you for joining us!');
+    }
+}
+```
+
+## 配置管理
+
+```php
+// config/user.php
+return [
+    'registration' => [
+        'enabled' => env('USER_REGISTRATION_ENABLED', true),
+        'email_verification' => env('USER_EMAIL_VERIFICATION', true),
+        'auto_activation' => env('USER_AUTO_ACTIVATION', false),
+        'default_role' => env('USER_DEFAULT_ROLE', 'user'),
+    ],
+    
+    'authentication' => [
+        'max_login_attempts' => env('USER_MAX_LOGIN_ATTEMPTS', 5),
+        'lockout_duration' => env('USER_LOCKOUT_DURATION', 900), // 15 minutes
+        'session_lifetime' => env('USER_SESSION_LIFETIME', 120), // 2 hours
+        'mfa_enabled' => env('USER_MFA_ENABLED', false),
+    ],
+    
+    'profile' => [
+        'avatar_max_size' => env('USER_AVATAR_MAX_SIZE', 2048), // KB
+        'allowed_avatar_types' => ['jpg', 'jpeg', 'png', 'gif'],
+        'default_timezone' => env('USER_DEFAULT_TIMEZONE', 'UTC'),
+        'default_language' => env('USER_DEFAULT_LANGUAGE', 'en'),
+    ],
+    
+    'security' => [
+        'password_min_length' => env('USER_PASSWORD_MIN_LENGTH', 8),
+        'password_require_special' => env('USER_PASSWORD_REQUIRE_SPECIAL', true),
+        'password_history_count' => env('USER_PASSWORD_HISTORY', 5),
+        'force_password_change' => env('USER_FORCE_PASSWORD_CHANGE', false),
+    ],
+];
+```
+
+---
+
+**相关文档**：
+- [Agent代理模块](./agent.md)
+- [项目模块](./project.md)
+- [核心模块](./core.md)

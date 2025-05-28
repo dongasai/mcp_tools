@@ -72,342 +72,160 @@ app/Modules/Core/
 
 ## 核心服务
 
-### 1. ConfigService
+### 1. ConfigService - 配置管理服务
 
-```php
-<?php
+**主要功能**：
+- 统一配置管理接口
+- 支持多层级配置结构
+- 配置缓存和热更新
+- 环境变量集成
+- 配置验证和类型转换
 
-namespace App\Modules\Core\Services;
+**服务接口**：
+- 配置值的获取和设置
+- 配置存在性检查
+- 批量配置操作
+- 配置缓存管理
+- 环境配置读取
 
-use App\Modules\Core\Contracts\ConfigInterface;
+### 2. CacheService - 缓存管理服务
 
-class ConfigService implements ConfigInterface
-{
-    /**
-     * 获取配置值
-     */
-    public function get(string $key, mixed $default = null): mixed;
-    
-    /**
-     * 设置配置值
-     */
-    public function set(string $key, mixed $value): void;
-    
-    /**
-     * 检查配置是否存在
-     */
-    public function has(string $key): bool;
-    
-    /**
-     * 获取所有配置
-     */
-    public function all(): array;
-    
-    /**
-     * 验证配置
-     */
-    public function validate(array $rules): bool;
-}
-```
+**主要功能**：
+- 多层缓存策略支持
+- 缓存键命名空间管理
+- TTL（生存时间）控制
+- 缓存标签和分组
+- 分布式缓存支持
 
-### 2. CacheService
+**服务接口**：
+- 缓存数据的存取操作
+- 缓存失效和清理
+- 缓存键生成和管理
+- 缓存统计和监控
+- 缓存预热机制
 
-```php
-<?php
+### 3. LogService - 日志管理服务
 
-namespace App\Modules\Core\Services;
+**主要功能**：
+- 结构化日志记录
+- 多渠道日志输出
+- 日志级别控制
+- 性能和审计日志
+- 日志轮转和归档
 
-use App\Modules\Core\Contracts\CacheInterface;
+**服务接口**：
+- 不同级别的日志记录
+- 上下文信息记录
+- 性能指标日志
+- 审计操作日志
+- 日志查询和分析
 
-class CacheService implements CacheInterface
-{
-    /**
-     * 获取缓存值
-     */
-    public function get(string $key, mixed $default = null): mixed;
-    
-    /**
-     * 设置缓存值
-     */
-    public function put(string $key, mixed $value, int $ttl = null): bool;
-    
-    /**
-     * 删除缓存
-     */
-    public function forget(string $key): bool;
-    
-    /**
-     * 清空缓存
-     */
-    public function flush(): bool;
-    
-    /**
-     * 记住缓存值
-     */
-    public function remember(string $key, int $ttl, callable $callback): mixed;
-    
-    /**
-     * 生成缓存键
-     */
-    public function generateKey(string $prefix, array $params): string;
-}
-```
+### 4. EventService - 事件管理服务
 
-### 3. LogService
+**主要功能**：
+- 事件的定义和分发
+- 异步事件处理
+- 事件监听器管理
+- 事件重试机制
+- 事件序列化存储
 
-```php
-<?php
-
-namespace App\Modules\Core\Services;
-
-use App\Modules\Core\Contracts\LogInterface;
-
-class LogService implements LogInterface
-{
-    /**
-     * 记录调试信息
-     */
-    public function debug(string $message, array $context = []): void;
-    
-    /**
-     * 记录信息
-     */
-    public function info(string $message, array $context = []): void;
-    
-    /**
-     * 记录警告
-     */
-    public function warning(string $message, array $context = []): void;
-    
-    /**
-     * 记录错误
-     */
-    public function error(string $message, array $context = []): void;
-    
-    /**
-     * 记录性能日志
-     */
-    public function performance(string $operation, float $duration, array $context = []): void;
-    
-    /**
-     * 记录审计日志
-     */
-    public function audit(string $action, string $user, array $data = []): void;
-}
-```
-
-### 4. EventService
-
-```php
-<?php
-
-namespace App\Modules\Core\Services;
-
-use App\Modules\Core\Contracts\EventInterface;
-
-class EventService implements EventInterface
-{
-    /**
-     * 分发事件
-     */
-    public function dispatch(object $event): void;
-    
-    /**
-     * 监听事件
-     */
-    public function listen(string $event, callable $listener): void;
-    
-    /**
-     * 订阅事件
-     */
-    public function subscribe(string $subscriber): void;
-    
-    /**
-     * 异步分发事件
-     */
-    public function dispatchAsync(object $event): void;
-    
-    /**
-     * 批量分发事件
-     */
-    public function dispatchBatch(array $events): void;
-}
-```
+**服务接口**：
+- 事件分发和监听
+- 事件订阅管理
+- 异步事件处理
+- 批量事件操作
+- 事件状态跟踪
 
 ## 配置管理
 
 ### 配置文件结构
 
-```php
-// config/core.php
-return [
-    'cache' => [
-        'default_ttl' => env('CORE_CACHE_TTL', 3600),
-        'prefix' => env('CORE_CACHE_PREFIX', 'mcp_core_'),
-        'tags' => env('CORE_CACHE_TAGS', true),
-    ],
-    
-    'logging' => [
-        'channels' => [
-            'performance' => 'daily',
-            'audit' => 'database',
-            'error' => 'stack',
-        ],
-        'level' => env('CORE_LOG_LEVEL', 'info'),
-    ],
-    
-    'events' => [
-        'async' => env('CORE_EVENTS_ASYNC', true),
-        'retry_attempts' => env('CORE_EVENTS_RETRY', 3),
-        'retry_delay' => env('CORE_EVENTS_DELAY', 5),
-    ],
-];
-```
+**核心配置项**：
+- **缓存配置**：默认TTL、缓存前缀、标签支持
+- **日志配置**：日志渠道、日志级别、输出格式
+- **事件配置**：异步处理、重试机制、延迟设置
+- **性能配置**：内存限制、超时设置、并发控制
+
+**环境变量支持**：
+- 支持通过环境变量覆盖默认配置
+- 提供配置验证和类型转换
+- 支持配置热更新和缓存
 
 ## 事件定义
 
 ### 系统事件
 
-```php
-<?php
+**SystemStarted - 系统启动事件**：
+- 系统版本信息
+- 加载的模块列表
+- 启动时间戳
+- 系统配置摘要
 
-namespace App\Modules\Core\Events;
+**ConfigUpdated - 配置更新事件**：
+- 配置键名
+- 旧值和新值
+- 更新操作者
+- 更新时间戳
 
-class SystemStarted
-{
-    public function __construct(
-        public readonly string $version,
-        public readonly array $modules,
-        public readonly \DateTime $startTime
-    ) {}
-}
-
-class ConfigUpdated
-{
-    public function __construct(
-        public readonly string $key,
-        public readonly mixed $oldValue,
-        public readonly mixed $newValue,
-        public readonly string $updatedBy
-    ) {}
-}
-
-class CacheCleared
-{
-    public function __construct(
-        public readonly string $pattern,
-        public readonly int $clearedCount,
-        public readonly string $reason
-    ) {}
-}
-```
+**CacheCleared - 缓存清理事件**：
+- 清理模式（全部/模式匹配）
+- 清理的缓存数量
+- 清理原因
+- 执行时间
 
 ## 异常处理
 
 ### 异常层次结构
 
-```php
-<?php
+**CoreException - 核心异常基类**：
+- 提供统一的错误码机制
+- 支持上下文信息记录
+- 集成日志记录功能
+- 支持异常链追踪
 
-namespace App\Modules\Core\Exceptions;
+**ConfigException - 配置异常**：
+- 配置文件解析错误
+- 配置验证失败
+- 配置访问权限问题
 
-abstract class CoreException extends \Exception
-{
-    protected string $errorCode;
-    protected array $context;
-    
-    public function getErrorCode(): string
-    {
-        return $this->errorCode;
-    }
-    
-    public function getContext(): array
-    {
-        return $this->context;
-    }
-}
-
-class ConfigException extends CoreException
-{
-    protected string $errorCode = 'CORE_CONFIG_ERROR';
-}
-
-class CacheException extends CoreException
-{
-    protected string $errorCode = 'CORE_CACHE_ERROR';
-}
-```
+**CacheException - 缓存异常**：
+- 缓存连接失败
+- 缓存操作超时
+- 缓存数据损坏
 
 ## 中间件
 
 ### 请求日志中间件
 
-```php
-<?php
+**功能特性**：
+- 记录请求开始和结束时间
+- 捕获请求基本信息（方法、URL、IP等）
+- 计算请求处理时间
+- 记录响应状态和内存使用
+- 支持性能分析和监控
 
-namespace App\Modules\Core\Middleware;
-
-class LogRequestMiddleware
-{
-    public function handle($request, \Closure $next)
-    {
-        $startTime = microtime(true);
-        
-        // 记录请求开始
-        app('core.log')->info('Request started', [
-            'method' => $request->method(),
-            'url' => $request->fullUrl(),
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
-        
-        $response = $next($request);
-        
-        $duration = microtime(true) - $startTime;
-        
-        // 记录请求完成
-        app('core.log')->performance('Request completed', $duration, [
-            'status' => $response->getStatusCode(),
-            'memory' => memory_get_peak_usage(true),
-        ]);
-        
-        return $response;
-    }
-}
-```
+**应用场景**：
+- API请求监控
+- 性能瓶颈分析
+- 用户行为追踪
+- 系统负载监控
 
 ## 工具类
 
-### 数组工具
+### 数组工具类
 
-```php
-<?php
+**主要功能**：
+- 深度数组合并
+- 嵌套值的获取和设置
+- 数组扁平化处理
+- 数组结构验证
+- 数组转换和格式化
 
-namespace App\Modules\Core\Helpers;
-
-class ArrayHelper
-{
-    /**
-     * 深度合并数组
-     */
-    public static function deepMerge(array $array1, array $array2): array;
-    
-    /**
-     * 获取嵌套值
-     */
-    public static function get(array $array, string $key, mixed $default = null): mixed;
-    
-    /**
-     * 设置嵌套值
-     */
-    public static function set(array &$array, string $key, mixed $value): void;
-    
-    /**
-     * 数组扁平化
-     */
-    public static function flatten(array $array, string $separator = '.'): array;
-}
-```
+**使用场景**：
+- 配置数据处理
+- API响应格式化
+- 数据结构转换
+- 嵌套数据操作
 
 ## 性能优化
 

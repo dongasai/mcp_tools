@@ -104,560 +104,236 @@ app/Modules/Mcp/
 
 ### 1. MCP服务器（基于php-mcp/laravel）
 
-```php
-<?php
+**主要功能**：
+- 基于php-mcp/laravel包的MCP服务器实现
+- 集成Agent认证和权限验证
+- 支持资源和工具的动态注册
+- 提供消息验证和路由功能
+- 支持多种传输协议（主要是SSE）
 
-namespace App\Modules\Mcp\Server;
-
-use PhpMcp\Laravel\McpServer as BaseMcpServer;
-use PhpMcp\Laravel\Contracts\ResourceInterface;
-use PhpMcp\Laravel\Contracts\ToolInterface;
-
-class McpServer extends BaseMcpServer
-{
-    public function __construct(
-        private AgentService $agentService,
-        private ValidationService $validationService
-    ) {
-        parent::__construct();
-    }
-
-    /**
-     * 注册MCP资源
-     */
-    protected function registerResources(): void
-    {
-        $this->addResource('task', app(TaskResource::class));
-        $this->addResource('project', app(ProjectResource::class));
-        $this->addResource('github', app(GitHubResource::class));
-    }
-
-    /**
-     * 注册MCP工具
-     */
-    protected function registerTools(): void
-    {
-        $this->addTool('task_management', app(TaskManagementTool::class));
-        $this->addTool('project_query', app(ProjectQueryTool::class));
-        $this->addTool('github_sync', app(GitHubSyncTool::class));
-    }
-
-    /**
-     * 处理Agent认证
-     */
-    protected function authenticateAgent(string $token): ?Agent
-    {
-        return $this->agentService->validateToken($token);
-    }
-
-    /**
-     * 验证MCP消息
-     */
-    protected function validateMessage(array $message): array
-    {
-        return $this->validationService->validateMcpMessage($message);
-    }
-
-    /**
-     * 处理MCP请求
-     */
-    public function handleRequest(array $request, ?Agent $agent = null): array
-    {
-        $validatedRequest = $this->validateMessage($request);
-
-        return match($validatedRequest['method']) {
-            'initialize' => $this->handleInitialize($validatedRequest['params']),
-            'resources/list' => $this->handleResourcesList(),
-            'resources/read' => $this->handleResourceRead($validatedRequest['params'], $agent),
-            'tools/list' => $this->handleToolsList(),
-            'tools/call' => $this->handleToolCall($validatedRequest['params'], $agent),
-            default => throw new UnsupportedMethodException($validatedRequest['method'])
-        };
-    }
-}
-```
+**核心职责**：
+- MCP协议消息处理
+- Agent身份验证和授权
+- 资源访问控制
+- 工具调用管理
+- 错误处理和响应
 
 ### 2. SSE传输层
 
-```php
-<?php
+**主要功能**：
+- 实现Server-Sent Events传输协议
+- 支持实时双向通信
+- 处理连接管理和心跳机制
+- 提供CORS支持和安全控制
+- 支持连接状态监控
 
-namespace App\Modules\Mcp\Transports;
-
-use App\Modules\Mcp\Contracts\TransportInterface;
-
-class SseTransport implements TransportInterface
-{
-    /**
-     * 启动SSE服务器
-     */
-    public function start(string $host, int $port): void;
-
-    /**
-     * 发送SSE消息
-     */
-    public function send(Connection $connection, Message $message): void;
-
-    /**
-     * 处理SSE连接
-     */
-    public function handleConnection(Request $request): Connection;
-
-    /**
-     * 设置CORS头
-     */
-    public function setCorsHeaders(Response $response): void;
-
-    /**
-     * 发送心跳
-     */
-    public function sendHeartbeat(Connection $connection): void;
-}
-```
+**核心特性**：
+- 长连接管理
+- 自动重连机制
+- 消息队列和缓冲
+- 连接池管理
+- 性能监控和优化
 
 ### 3. 消息路由器
 
-```php
-<?php
+**主要功能**：
+- MCP消息的路由和分发
+- 支持动态路由注册
+- 提供标准MCP方法处理
+- 支持中间件管道
+- 错误处理和响应格式化
 
-namespace App\Modules\Mcp\Server;
-
-class MessageRouter
-{
-    /**
-     * 路由消息到处理器
-     */
-    public function route(Message $message, Connection $connection): Response;
-
-    /**
-     * 注册路由
-     */
-    public function register(string $method, callable $handler): void;
-
-    /**
-     * 处理初始化请求
-     */
-    public function handleInitialize(InitializeRequest $request): InitializeResponse;
-
-    /**
-     * 处理资源请求
-     */
-    public function handleResourceRequest(ResourceRequest $request): ResourceResponse;
-
-    /**
-     * 处理工具调用
-     */
-    public function handleToolCall(ToolCallRequest $request): ToolCallResponse;
-}
-```
+**支持的路由**：
+- 初始化请求处理
+- 资源访问路由
+- 工具调用路由
+- 通知消息路由
+- 自定义扩展路由
 
 ## MCP资源实现
 
 ### 项目资源（基于php-mcp/laravel）
 
-```php
-<?php
+**资源URI模式**：`project://`
 
-namespace App\Modules\Mcp\Resources;
+**支持的URI格式**：
+- `project://list` - 获取项目列表
+- `project://{id}` - 获取单个项目详情
+- `project://{id}/members` - 获取项目成员
+- `project://{id}/repositories` - 获取项目仓库
 
-use PhpMcp\Laravel\Contracts\ResourceInterface;
-use PhpMcp\Laravel\Resources\Resource;
+**主要功能**：
+- 基于Agent权限的项目访问控制
+- 项目基本信息和统计数据提供
+- 项目成员和仓库信息查询
+- 支持分页和筛选参数
 
-class ProjectResource extends Resource implements ResourceInterface
-{
-    public function __construct(
-        private ProjectService $projectService,
-        private ValidationService $validationService
-    ) {}
-
-    /**
-     * 获取资源URI模式
-     */
-    public function getUriPattern(): string
-    {
-        return 'project://';
-    }
-
-    /**
-     * 读取资源
-     */
-    public function read(string $uri, array $params = []): array
-    {
-        $parsed = $this->parseUri($uri);
-
-        return match($parsed['type']) {
-            'list' => $this->listProjects($params),
-            'single' => $this->getProject($parsed['id'], $params),
-            'members' => $this->getProjectMembers($parsed['id'], $params),
-            'repositories' => $this->getProjectRepositories($parsed['id'], $params),
-            default => throw new InvalidUriException("Unsupported URI: {$uri}")
-        };
-    }
-
-    /**
-     * 列出项目
-     */
-    private function listProjects(array $params): array
-    {
-        $agent = $this->getCurrentAgent();
-        $projects = $this->projectService->getAgentProjects($agent);
-
-        return [
-            'projects' => $projects->map(function ($project) {
-                return [
-                    'id' => $project->id,
-                    'name' => $project->name,
-                    'description' => $project->description,
-                    'status' => $project->status,
-                    'created_at' => $project->created_at->toISOString(),
-                ];
-            })->toArray(),
-        ];
-    }
-
-    /**
-     * 获取单个项目详情
-     */
-    private function getProject(int $projectId, array $params): array
-    {
-        $agent = $this->getCurrentAgent();
-
-        if (!$agent->canAccessProject($projectId)) {
-            throw new UnauthorizedException('Agent无权访问此项目');
-        }
-
-        $project = Project::with(['members', 'repositories', 'tasks'])
-            ->findOrFail($projectId);
-
-        return [
-            'id' => $project->id,
-            'name' => $project->name,
-            'description' => $project->description,
-            'status' => $project->status,
-            'settings' => $project->settings,
-            'members_count' => $project->members->count(),
-            'repositories_count' => $project->repositories->count(),
-            'tasks_count' => $project->tasks->count(),
-            'active_tasks_count' => $project->activeTasks->count(),
-            'progress' => $project->getProgressPercentage(),
-            'created_at' => $project->created_at->toISOString(),
-        ];
-    }
-
-    /**
-     * 验证访问权限
-     */
-    public function checkAccess(string $agentId, string $uri): bool
-    {
-        $agent = Agent::findOrFail($agentId);
-        $parsed = $this->parseUri($uri);
-
-        if (isset($parsed['id'])) {
-            return $agent->canAccessProject($parsed['id']);
-        }
-
-        return true; // 列表访问总是允许的
-    }
-}
-```
+**权限控制**：
+- Agent只能访问被授权的项目
+- 支持细粒度的资源访问控制
+- 提供权限验证和错误处理
 
 ### 任务资源
 
-```php
-<?php
+**资源URI模式**：`task://`
 
-namespace App\Modules\Mcp\Resources;
+**支持的URI格式**：
+- `task://list` - 获取任务列表
+- `task://{id}` - 获取单个任务详情
+- `task://assigned/{agent_id}` - 获取分配给特定Agent的任务
+- `task://status/{status}` - 按状态筛选任务
 
-class TaskResource implements ResourceInterface
-{
-    /**
-     * 支持的URI模式
-     * - task://list
-     * - task://{id}
-     * - task://assigned/{agent_id}
-     * - task://status/{status}
-     */
-    public function getUriPattern(): string
-    {
-        return 'task://';
-    }
-
-    public function read(string $uri, array $params = []): array
-    {
-        $parsed = $this->parseUri($uri);
-
-        return match($parsed['type']) {
-            'list' => $this->listTasks($params),
-            'single' => $this->getTask($parsed['id'], $params),
-            'assigned' => $this->getAssignedTasks($parsed['agent_id'], $params),
-            'status' => $this->getTasksByStatus($parsed['status'], $params),
-            default => throw new InvalidUriException("Unsupported URI: {$uri}")
-        };
-    }
-}
-```
+**主要功能**：
+- 任务信息的结构化访问
+- 支持多种查询和筛选方式
+- 提供任务进度和状态信息
+- 集成子任务和依赖关系数据
 
 ## MCP工具实现
 
 ### 任务管理工具
 
-```php
-<?php
+**工具名称**：`task_management`
 
-namespace App\Modules\Mcp\Tools;
+**工具描述**：提供完整的任务管理功能，包括创建、更新、认领、完成和取消任务
 
-use App\Modules\Mcp\Contracts\ToolInterface;
-use App\Modules\Task\Services\TaskService;
-use App\Modules\Agent\Services\AuthorizationService;
+**支持的操作**：
+- `create` - 创建新任务
+- `update` - 更新任务信息
+- `claim` - 认领任务
+- `complete` - 完成任务
+- `cancel` - 取消任务
 
-class TaskTool implements ToolInterface
-{
-    public function __construct(
-        private TaskService $taskService,
-        private AuthorizationService $authService
-    ) {}
+**参数模式**：
+- `action` (必需) - 要执行的操作类型
+- `task_id` - 任务ID（更新、认领、完成、取消操作需要）
+- `title` - 任务标题（创建、更新操作需要）
+- `description` - 任务描述
+- `priority` - 任务优先级（low/medium/high/urgent）
+- `project_id` - 项目ID（创建操作需要）
 
-    /**
-     * 获取工具名称
-     */
-    public function getName(): string
-    {
-        return 'task_management';
-    }
-
-    /**
-     * 获取工具描述
-     */
-    public function getDescription(): string
-    {
-        return 'Manage tasks including creation, updates, and status changes';
-    }
-
-    /**
-     * 获取工具参数模式
-     */
-    public function getInputSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'action' => [
-                    'type' => 'string',
-                    'enum' => ['create', 'update', 'claim', 'complete', 'cancel']
-                ],
-                'task_id' => ['type' => 'integer'],
-                'title' => ['type' => 'string'],
-                'description' => ['type' => 'string'],
-                'priority' => [
-                    'type' => 'string',
-                    'enum' => ['low', 'medium', 'high', 'urgent']
-                ],
-                'project_id' => ['type' => 'integer']
-            ],
-            'required' => ['action']
-        ];
-    }
-
-    /**
-     * 执行工具 - 通过业务模块处理，MCP只负责协议层
-     */
-    public function execute(array $arguments, string $agentId): array
-    {
-        // 1. 验证Agent权限（委托给Agent模块）
-        $agent = $this->authService->getAgent($agentId);
-        if (!$agent) {
-            throw new McpException('Agent not found', 404);
-        }
-
-        // 2. 委托给Task模块处理具体业务逻辑
-        return match($arguments['action']) {
-            'create' => $this->taskService->createForAgent($agent, $arguments),
-            'update' => $this->taskService->updateForAgent($agent, $arguments),
-            'claim' => $this->taskService->claimForAgent($agent, $arguments['task_id']),
-            'complete' => $this->taskService->completeForAgent($agent, $arguments),
-            'cancel' => $this->taskService->cancelForAgent($agent, $arguments['task_id']),
-            default => throw new McpException('Invalid action', 400)
-        };
-    }
-}
-```
+**权限控制**：
+- 通过Agent模块验证Agent身份和权限
+- 委托给Task模块处理具体业务逻辑
+- 支持细粒度的操作权限控制
 
 ## 协议消息格式
 
 ### 初始化消息
 
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "initialize",
-  "params": {
-    "protocolVersion": "1.0",
-    "capabilities": {
-      "resources": {},
-      "tools": {},
-      "notifications": {}
-    },
-    "clientInfo": {
-      "name": "mcp-tools-server",
-      "version": "1.0.0"
-    }
-  },
-  "id": 1
-}
-```
+**消息类型**：`initialize`
+
+**主要参数**：
+- `protocolVersion` - MCP协议版本
+- `capabilities` - 客户端支持的能力
+- `clientInfo` - 客户端信息（名称、版本）
+
+**响应内容**：
+- 服务器能力声明
+- 支持的资源和工具列表
+- 协议版本确认
 
 ### 资源读取消息
 
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "resources/read",
-  "params": {
-    "uri": "project://123"
-  },
-  "id": 2
-}
-```
+**消息类型**：`resources/read`
+
+**主要参数**：
+- `uri` - 资源URI（如：project://123）
+- 可选的查询参数和筛选条件
+
+**响应内容**：
+- 资源数据内容
+- 资源元数据
+- 访问权限信息
 
 ### 工具调用消息
 
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "tools/call",
-  "params": {
-    "name": "task_management",
-    "arguments": {
-      "action": "create",
-      "title": "Fix authentication bug",
-      "description": "Users cannot login with GitHub OAuth",
-      "priority": "high",
-      "project_id": 1
-    }
-  },
-  "id": 3
-}
-```
+**消息类型**：`tools/call`
+
+**主要参数**：
+- `name` - 工具名称
+- `arguments` - 工具参数对象
+
+**响应内容**：
+- 工具执行结果
+- 操作状态信息
+- 错误信息（如有）
 
 ## 中间件系统
 
 ### 认证中间件
 
-```php
-<?php
+**主要功能**：
+- 验证Agent访问令牌
+- 设置Agent上下文信息
+- 处理认证失败情况
+- 支持多种认证方式
 
-namespace App\Modules\Mcp\Middleware;
-
-class AuthenticationMiddleware implements MiddlewareInterface
-{
-    public function handle(Message $message, Connection $connection, \Closure $next)
-    {
-        // 验证访问令牌
-        $token = $connection->getHeader('Authorization');
-        if (!$this->validateToken($token)) {
-            throw new AuthenticationException('Invalid access token');
-        }
-
-        // 设置Agent上下文
-        $agent = $this->getAgentByToken($token);
-        $connection->setAgent($agent);
-
-        return $next($message, $connection);
-    }
-}
-```
+**处理流程**：
+- 从连接头部提取访问令牌
+- 验证令牌有效性和权限
+- 设置Agent上下文到连接中
+- 传递给下一个中间件
 
 ### 授权中间件
 
-```php
-<?php
+**主要功能**：
+- 检查Agent资源访问权限
+- 验证操作权限
+- 实现细粒度权限控制
+- 记录权限检查日志
 
-namespace App\Modules\Mcp\Middleware;
-
-class AuthorizationMiddleware implements MiddlewareInterface
-{
-    public function handle(Message $message, Connection $connection, \Closure $next)
-    {
-        $agent = $connection->getAgent();
-        $resource = $message->getResource();
-
-        // 检查资源访问权限
-        if (!$this->checkResourceAccess($agent, $resource)) {
-            throw new AuthorizationException('Access denied to resource');
-        }
-
-        // 检查操作权限
-        if (!$this->checkActionPermission($agent, $message->getMethod())) {
-            throw new AuthorizationException('Action not permitted');
-        }
-
-        return $next($message, $connection);
-    }
-}
-```
+**权限检查**：
+- 资源级别的访问控制
+- 操作级别的权限验证
+- 基于Agent配置的权限矩阵
+- 支持动态权限更新
 
 ## 事件系统
 
 ### 连接事件
 
-```php
-<?php
+**ConnectionEstablished - 连接建立事件**：
+- 连接对象信息
+- Agent ID标识
+- 客户端能力声明
+- 连接建立时间戳
 
-namespace App\Modules\Mcp\Events;
+**MessageReceived - 消息接收事件**：
+- 接收到的消息对象
+- 消息来源连接
+- 消息接收时间戳
+- 消息处理状态
 
-class ConnectionEstablished
-{
-    public function __construct(
-        public readonly Connection $connection,
-        public readonly string $agentId,
-        public readonly array $capabilities,
-        public readonly \DateTime $timestamp
-    ) {}
-}
-
-class MessageReceived
-{
-    public function __construct(
-        public readonly Message $message,
-        public readonly Connection $connection,
-        public readonly \DateTime $timestamp
-    ) {}
-}
-```
+**其他事件**：
+- 连接断开事件
+- 消息发送事件
+- 错误处理事件
+- 性能监控事件
 
 ## 配置管理
 
-```php
-// config/mcp.php
-return [
-    'server' => [
-        'transport' => env('MCP_TRANSPORT', 'sse'),
-        'host' => env('MCP_HOST', 'localhost'),
-        'port' => env('MCP_PORT', 8000),
-        'timeout' => env('MCP_TIMEOUT', 300),
-    ],
+### 服务器配置
+- **传输协议**：SSE、WebSocket等传输方式
+- **网络设置**：主机地址、端口、超时时间
+- **性能参数**：连接池大小、并发限制
 
-    'sse' => [
-        'heartbeat_interval' => env('MCP_SSE_HEARTBEAT', 30),
-        'max_connections' => env('MCP_SSE_MAX_CONNECTIONS', 1000),
-        'cors_enabled' => env('MCP_SSE_CORS', true),
-    ],
+### SSE配置
+- **心跳间隔**：保持连接活跃的心跳频率
+- **连接限制**：最大并发连接数
+- **CORS设置**：跨域资源共享配置
 
-    'capabilities' => [
-        'resources' => true,
-        'tools' => true,
-        'notifications' => true,
-        'prompts' => false,
-    ],
+### 能力配置
+- **资源支持**：是否提供资源访问
+- **工具支持**：是否提供工具调用
+- **通知支持**：是否支持服务器推送通知
+- **提示支持**：是否支持交互式提示
 
-    'middleware' => [
-        'authentication' => true,
-        'authorization' => true,
-        'rate_limiting' => true,
-        'logging' => true,
-    ],
-];
-```
+### 中间件配置
+- **认证中间件**：启用Agent身份验证
+- **授权中间件**：启用权限检查
+- **限流中间件**：启用请求频率限制
+- **日志中间件**：启用请求日志记录
 
 ## 性能优化
 

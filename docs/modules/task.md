@@ -106,289 +106,88 @@ app/Modules/Task/
 
 ### Task 主任务模型
 
-```php
-<?php
+**核心属性**：
+- `title` - 任务标题
+- `description` - 任务描述
+- `status` - 任务状态
+- `priority` - 任务优先级
+- `project_id` - 所属项目ID
+- `created_by` - 创建者ID
+- `assigned_to` - 负责人ID
+- `due_date` - 截止时间
+- `estimated_hours` - 预估工时
+- `actual_hours` - 实际工时
+- `completion_percentage` - 完成百分比
+- `metadata` - 元数据信息
 
-namespace App\Modules\Task\Models;
+**状态定义**：
+- `pending` - 待处理
+- `in_progress` - 进行中
+- `blocked` - 阻塞
+- `completed` - 已完成
+- `cancelled` - 已取消
 
-class Task extends Model
-{
-    protected $fillable = [
-        'title',
-        'description',
-        'status',
-        'priority',
-        'project_id',
-        'created_by',
-        'assigned_to',
-        'due_date',
-        'estimated_hours',
-        'actual_hours',
-        'completion_percentage',
-        'metadata',
-    ];
+**优先级定义**：
+- `low` - 低优先级
+- `medium` - 中等优先级
+- `high` - 高优先级
+- `urgent` - 紧急
 
-    protected $casts = [
-        'due_date' => 'datetime',
-        'metadata' => 'array',
-        'completion_percentage' => 'float',
-    ];
+**关联关系**：
+- 与SubTask的一对多关系
+- 与Project的多对一关系
+- 与User的多对一关系（创建者和负责人）
 
-    /**
-     * 主任务状态常量
-     */
-    public const STATUS_PENDING = 'pending';        // 待处理
-    public const STATUS_IN_PROGRESS = 'in_progress'; // 进行中
-    public const STATUS_BLOCKED = 'blocked';         // 阻塞
-    public const STATUS_COMPLETED = 'completed';     // 已完成
-    public const STATUS_CANCELLED = 'cancelled';     // 已取消
-
-    /**
-     * 优先级常量
-     */
-    public const PRIORITY_LOW = 'low';
-    public const PRIORITY_MEDIUM = 'medium';
-    public const PRIORITY_HIGH = 'high';
-    public const PRIORITY_URGENT = 'urgent';
-
-    /**
-     * 获取子任务
-     */
-    public function subTasks(): HasMany
-    {
-        return $this->hasMany(SubTask::class, 'parent_task_id');
-    }
-
-    /**
-     * 获取活跃子任务
-     */
-    public function activeSubTasks(): HasMany
-    {
-        return $this->subTasks()->whereNotIn('status', [
-            SubTask::STATUS_COMPLETED,
-            SubTask::STATUS_CANCELLED
-        ]);
-    }
-
-    /**
-     * 获取已完成子任务
-     */
-    public function completedSubTasks(): HasMany
-    {
-        return $this->subTasks()->where('status', SubTask::STATUS_COMPLETED);
-    }
-
-    /**
-     * 获取项目
-     */
-    public function project(): BelongsTo
-    {
-        return $this->belongsTo(Project::class);
-    }
-
-    /**
-     * 获取创建者
-     */
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    /**
-     * 获取负责人
-     */
-    public function assignee(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'assigned_to');
-    }
-
-    /**
-     * 检查是否可以完成
-     */
-    public function canBeCompleted(): bool
-    {
-        // 所有子任务都必须完成
-        return $this->activeSubTasks()->count() === 0;
-    }
-
-    /**
-     * 计算完成百分比
-     */
-    public function calculateProgress(): float
-    {
-        $totalSubTasks = $this->subTasks()->count();
-
-        if ($totalSubTasks === 0) {
-            return $this->status === self::STATUS_COMPLETED ? 100.0 : 0.0;
-        }
-
-        $completedSubTasks = $this->completedSubTasks()->count();
-        return round(($completedSubTasks / $totalSubTasks) * 100, 2);
-    }
-
-    /**
-     * 更新进度
-     */
-    public function updateProgress(): void
-    {
-        $this->completion_percentage = $this->calculateProgress();
-        $this->save();
-    }
-
-    /**
-     * 检查是否过期
-     */
-    public function isOverdue(): bool
-    {
-        return $this->due_date &&
-               $this->due_date->isPast() &&
-               $this->status !== self::STATUS_COMPLETED;
-    }
-}
-```
+**核心方法**：
+- 子任务管理和查询
+- 完成条件检查
+- 进度计算和更新
+- 过期状态检查
 
 ### SubTask 子任务模型
 
-```php
-<?php
+**核心属性**：
+- `parent_task_id` - 父任务ID
+- `title` - 子任务标题
+- `description` - 子任务描述
+- `status` - 执行状态
+- `type` - 子任务类型
+- `agent_id` - 执行Agent ID
+- `execution_data` - 执行参数数据
+- `result_data` - 执行结果数据
+- `started_at` - 开始执行时间
+- `completed_at` - 完成时间
+- `estimated_duration` - 预估执行时长（秒）
+- `actual_duration` - 实际执行时长（秒）
+- `retry_count` - 重试次数
+- `max_retries` - 最大重试次数
 
-namespace App\Modules\Task\Models;
+**状态定义**：
+- `pending` - 待执行
+- `running` - 执行中
+- `completed` - 已完成
+- `failed` - 执行失败
+- `cancelled` - 已取消
+- `retrying` - 重试中
 
-class SubTask extends Model
-{
-    protected $fillable = [
-        'parent_task_id',
-        'title',
-        'description',
-        'status',
-        'type',
-        'agent_id',
-        'execution_data',
-        'result_data',
-        'started_at',
-        'completed_at',
-        'estimated_duration',
-        'actual_duration',
-        'retry_count',
-        'max_retries',
-    ];
+**类型定义**：
+- `code_analysis` - 代码分析
+- `file_operation` - 文件操作
+- `api_call` - API调用
+- `data_processing` - 数据处理
+- `github_operation` - GitHub操作
+- `validation` - 验证检查
 
-    protected $casts = [
-        'execution_data' => 'array',
-        'result_data' => 'array',
-        'started_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'estimated_duration' => 'integer', // 秒
-        'actual_duration' => 'integer',    // 秒
-    ];
+**关联关系**：
+- 与Task的多对一关系（父任务）
+- 与Agent的多对一关系（执行者）
 
-    /**
-     * 子任务状态常量
-     */
-    public const STATUS_PENDING = 'pending';        // 待执行
-    public const STATUS_RUNNING = 'running';        // 执行中
-    public const STATUS_COMPLETED = 'completed';    // 已完成
-    public const STATUS_FAILED = 'failed';          // 执行失败
-    public const STATUS_CANCELLED = 'cancelled';    // 已取消
-    public const STATUS_RETRYING = 'retrying';      // 重试中
-
-    /**
-     * 子任务类型常量
-     */
-    public const TYPE_CODE_ANALYSIS = 'code_analysis';     // 代码分析
-    public const TYPE_FILE_OPERATION = 'file_operation';   // 文件操作
-    public const TYPE_API_CALL = 'api_call';              // API调用
-    public const TYPE_DATA_PROCESSING = 'data_processing'; // 数据处理
-    public const TYPE_GITHUB_OPERATION = 'github_operation'; // GitHub操作
-    public const TYPE_VALIDATION = 'validation';           // 验证检查
-
-    /**
-     * 获取主任务
-     */
-    public function parentTask(): BelongsTo
-    {
-        return $this->belongsTo(Task::class, 'parent_task_id');
-    }
-
-    /**
-     * 获取执行Agent
-     */
-    public function agent(): BelongsTo
-    {
-        return $this->belongsTo(Agent::class);
-    }
-
-    /**
-     * 开始执行
-     */
-    public function start(): void
-    {
-        $this->update([
-            'status' => self::STATUS_RUNNING,
-            'started_at' => now(),
-        ]);
-    }
-
-    /**
-     * 标记完成
-     */
-    public function complete(array $resultData = []): void
-    {
-        $duration = $this->started_at ?
-            now()->diffInSeconds($this->started_at) : 0;
-
-        $this->update([
-            'status' => self::STATUS_COMPLETED,
-            'completed_at' => now(),
-            'result_data' => $resultData,
-            'actual_duration' => $duration,
-        ]);
-
-        // 触发主任务进度更新
-        $this->parentTask->updateProgress();
-    }
-
-    /**
-     * 标记失败
-     */
-    public function fail(string $reason = '', bool $canRetry = true): void
-    {
-        $this->update([
-            'status' => $canRetry && $this->canRetry() ?
-                self::STATUS_RETRYING : self::STATUS_FAILED,
-            'result_data' => ['error' => $reason],
-        ]);
-
-        if ($canRetry && $this->canRetry()) {
-            $this->increment('retry_count');
-        }
-    }
-
-    /**
-     * 检查是否可以重试
-     */
-    public function canRetry(): bool
-    {
-        return $this->retry_count < ($this->max_retries ?? 3);
-    }
-
-    /**
-     * 获取执行进度描述
-     */
-    public function getProgressDescription(): string
-    {
-        return match($this->status) {
-            self::STATUS_PENDING => '等待执行',
-            self::STATUS_RUNNING => '正在执行',
-            self::STATUS_COMPLETED => '执行完成',
-            self::STATUS_FAILED => '执行失败',
-            self::STATUS_CANCELLED => '已取消',
-            self::STATUS_RETRYING => "重试中 ({$this->retry_count}/{$this->max_retries})",
-            default => '未知状态'
-        };
-    }
-}
-```
+**核心功能**：
+- 执行状态管理
+- 重试机制控制
+- 执行时间统计
+- 结果数据存储
+- 进度描述生成
 
 ## 核心服务
 

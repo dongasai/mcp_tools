@@ -7,9 +7,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "inhere/php-validate": "^3.0",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
-        "php-mcp/laravel": "^1.1",
         "react/event-loop": "^1.5",
         "react/http": "^1.0",
         "react/socket": "^1.0"

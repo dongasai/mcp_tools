@@ -146,7 +146,7 @@ class AgentService
         // 分发事件
         $this->eventDispatcher->dispatch(new \App\Modules\Agent\Events\AgentDeleted($agent));
 
-        // 软删除
+        // 删除Agent
         return $agent->delete();
     }
 
@@ -247,18 +247,27 @@ class AgentService
      */
     public function getSystemStats(): array
     {
-        return [
-            'total_agents' => Agent::count(),
-            'active_agents' => Agent::active()->count(),
-            'inactive_agents' => Agent::byStatus(Agent::STATUS_INACTIVE)->count(),
-            'suspended_agents' => Agent::byStatus(Agent::STATUS_SUSPENDED)->count(),
-            'pending_agents' => Agent::byStatus(Agent::STATUS_PENDING)->count(),
-            'agents_by_user' => Agent::selectRaw('user_id, count(*) as count')
-                ->groupBy('user_id')
-                ->with('user:id,name')
-                ->get()
-                ->pluck('count', 'user.name'),
-        ];
+        try {
+            return [
+                'total_agents' => Agent::count(),
+                'active_agents' => Agent::active()->count(),
+                'inactive_agents' => Agent::byStatus(Agent::STATUS_INACTIVE)->count(),
+                'suspended_agents' => Agent::byStatus(Agent::STATUS_SUSPENDED)->count(),
+                'pending_agents' => Agent::byStatus(Agent::STATUS_PENDING)->count(),
+                'table_exists' => true,
+            ];
+        } catch (\Exception $e) {
+            // 如果表不存在，返回默认值
+            return [
+                'total_agents' => 0,
+                'active_agents' => 0,
+                'inactive_agents' => 0,
+                'suspended_agents' => 0,
+                'pending_agents' => 0,
+                'table_exists' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 
     /**
@@ -269,7 +278,7 @@ class AgentService
         // 基于名称生成基础ID
         $baseId = Str::slug($name, '_');
         $baseId = Str::limit($baseId, 20, '');
-        
+
         // 添加随机后缀确保唯一性
         $suffix = Str::random(8);
         $agentId = $baseId . '_' . $suffix;

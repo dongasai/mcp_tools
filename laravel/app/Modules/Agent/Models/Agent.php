@@ -3,14 +3,12 @@
 namespace App\Modules\Agent\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\User\Models\User;
 
 class Agent extends Model
 {
-    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -33,7 +31,6 @@ class Agent extends Model
 
     protected $dates = [
         'last_active_at',
-        'deleted_at',
     ];
 
     /**

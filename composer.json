@@ -1,7 +1,0 @@
-{
-    "require": {
-        "dcat/laravel-admin": "2.0.x-dev",
-        "inhere/php-validate": "^3.0",
-        "spatie/laravel-route-attributes": "^1.25"
-    }
-}

@@ -20,7 +20,7 @@ class ValidateRequestMiddleware
     }
 
     /**
-     * Handle an incoming request.
+     * 处理传入的请求
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -34,7 +34,7 @@ class ValidateRequestMiddleware
             ]);
 
             return response()->json([
-                'error' => 'Invalid request format',
+                'error' => '无效的请求格式',
                 'code' => 'INVALID_REQUEST_FORMAT'
             ], 400);
         }
@@ -42,7 +42,7 @@ class ValidateRequestMiddleware
         // 验证内容类型
         if (!$this->validateContentType($request)) {
             return response()->json([
-                'error' => 'Unsupported content type',
+                'error' => '不支持的内容类型',
                 'code' => 'UNSUPPORTED_CONTENT_TYPE'
             ], 415);
         }
@@ -50,7 +50,7 @@ class ValidateRequestMiddleware
         // 验证请求大小
         if (!$this->validateRequestSize($request)) {
             return response()->json([
-                'error' => 'Request too large',
+                'error' => '请求过大',
                 'code' => 'REQUEST_TOO_LARGE'
             ], 413);
         }

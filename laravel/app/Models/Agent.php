@@ -36,7 +36,7 @@ class Agent extends Model
     ];
 
     /**
-     * Get the user that owns the agent.
+     * 获取拥有此Agent的用户
      */
     public function user(): BelongsTo
     {
@@ -44,7 +44,7 @@ class Agent extends Model
     }
 
     /**
-     * Get the tasks assigned to this agent.
+     * 获取分配给此Agent的任务
      */
     public function tasks(): HasMany
     {
@@ -52,7 +52,7 @@ class Agent extends Model
     }
 
     /**
-     * Get active tasks for this agent.
+     * 获取此Agent的活跃任务
      */
     public function activeTasks(): HasMany
     {
@@ -61,7 +61,7 @@ class Agent extends Model
     }
 
     /**
-     * Scope a query to only include active agents.
+     * 查询范围：仅包含活跃的Agent
      */
     public function scopeActive($query)
     {
@@ -69,7 +69,7 @@ class Agent extends Model
     }
 
     /**
-     * Scope a query to only include online agents (active in last 5 minutes).
+     * 查询范围：仅包含在线的Agent（最近5分钟内活跃）
      */
     public function scopeOnline($query)
     {
@@ -78,7 +78,7 @@ class Agent extends Model
     }
 
     /**
-     * Check if agent has permission to access a project.
+     * 检查Agent是否有权限访问项目
      */
     public function canAccessProject(int $projectId): bool
     {
@@ -87,7 +87,7 @@ class Agent extends Model
     }
 
     /**
-     * Check if agent has permission to perform an action.
+     * 检查Agent是否有权限执行操作
      */
     public function canPerformAction(string $action): bool
     {
@@ -96,7 +96,7 @@ class Agent extends Model
     }
 
     /**
-     * Generate a new access token for the agent.
+     * 为Agent生成新的访问令牌
      */
     public function generateAccessToken(): string
     {
@@ -109,7 +109,7 @@ class Agent extends Model
     }
 
     /**
-     * Check if the agent's token is expired.
+     * 检查Agent的令牌是否已过期
      */
     public function isTokenExpired(): bool
     {
@@ -117,7 +117,7 @@ class Agent extends Model
     }
 
     /**
-     * Update the agent's last active timestamp.
+     * 更新Agent的最后活跃时间戳
      */
     public function updateLastActive(): void
     {
@@ -126,7 +126,7 @@ class Agent extends Model
     }
 
     /**
-     * Get projects this agent can access.
+     * 获取此Agent可以访问的项目
      */
     public function accessibleProjects()
     {

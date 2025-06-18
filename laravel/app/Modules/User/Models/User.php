@@ -14,7 +14,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes;
 
     /**
-     * The attributes that are mass assignable.
+     * 可批量赋值的属性
      */
     protected $fillable = [
         'name',
@@ -32,7 +32,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * 序列化时应隐藏的属性
      */
     protected $hidden = [
         'password',
@@ -40,7 +40,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * 获取应该被转换的属性
      */
     protected function casts(): array
     {

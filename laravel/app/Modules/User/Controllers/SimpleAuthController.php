@@ -27,7 +27,7 @@ class SimpleAuthController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $result,
-                'message' => 'Registration successful',
+                'message' => '注册成功',
             ], 201);
         } catch (\InvalidArgumentException $e) {
             return response()->json([
@@ -37,7 +37,7 @@ class SimpleAuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Registration failed: ' . $e->getMessage(),
+                'error' => '注册失败: ' . $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ], 500);
         }
@@ -58,7 +58,7 @@ class SimpleAuthController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $result,
-                'message' => 'Login successful',
+                'message' => '登录成功',
             ]);
         } catch (\InvalidArgumentException $e) {
             return response()->json([
@@ -68,7 +68,7 @@ class SimpleAuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Login failed: ' . $e->getMessage(),
+                'error' => '登录失败: ' . $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ], 500);
         }
@@ -84,12 +84,12 @@ class SimpleAuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Logout successful',
+                'message' => '登出成功',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Logout failed: ' . $e->getMessage(),
+                'error' => '登出失败: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -105,7 +105,7 @@ class SimpleAuthController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Unauthenticated',
+                    'error' => '未认证',
                 ], 401);
             }
 
@@ -116,7 +116,7 @@ class SimpleAuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Failed to get user information: ' . $e->getMessage(),
+                'error' => '获取用户信息失败: ' . $e->getMessage(),
             ], 500);
         }
     }

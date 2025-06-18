@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e67639462fb18c7ccbe8abb8513750f",
+    "content-hash": "e1a2c1be0d0363a9fd847b513e41fa68",
     "packages": [
         {
             "name": "brick/math",
@@ -1156,56 +1156,6 @@
                 }
             ],
             "time": "2025-02-03T10:55:03+00:00"
-        },
-        {
-            "name": "inhere/php-validate",
-            "version": "v3.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/inhere/php-validate.git",
-                "reference": "7db74fec9cf4fa041544e8569ee874e8529e4ad1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/inhere/php-validate/zipball/7db74fec9cf4fa041544e8569ee874e8529e4ad1",
-                "reference": "7db74fec9cf4fa041544e8569ee874e8529e4ad1",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">8.1.0",
-                "toolkit/stdlib": "~2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Inhere\\Validate\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "inhere",
-                    "email": "in.798@qq.com",
-                    "homepage": "https://github.com/inhere"
-                }
-            ],
-            "description": "generic data validate, filter library of the php",
-            "homepage": "https://github.com/inhere/php-validate",
-            "keywords": [
-                "form-validate",
-                "library",
-                "php-library",
-                "validate",
-                "validation"
-            ],
-            "support": {
-                "issues": "https://github.com/inhere/php-validate/issues",
-                "source": "https://github.com/inhere/php-validate/tree/v3.0.1"
-            },
-            "time": "2025-04-20T09:20:10+00:00"
         },
         {
             "name": "laravel/framework",
@@ -6264,66 +6214,6 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/v2.3.0"
             },
             "time": "2024-12-21T16:25:41+00:00"
-        },
-        {
-            "name": "toolkit/stdlib",
-            "version": "v2.0.14",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-toolkit/stdlib.git",
-                "reference": "e31d26b36d78fca1df54c1ba710c1e187b4b843f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-toolkit/stdlib/zipball/e31d26b36d78fca1df54c1ba710c1e187b4b843f",
-                "reference": "e31d26b36d78fca1df54c1ba710c1e187b4b843f",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "psr/container": "^2.0"
-            },
-            "suggest": {
-                "inhere/php-validate": "Very lightweight data validate tool"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/func.php"
-                ],
-                "psr-4": {
-                    "Toolkit\\Stdlib\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "inhere",
-                    "email": "in.798@qq.com",
-                    "homepage": "https://github.com/inhere/"
-                }
-            ],
-            "description": "some stdlib tool library of the php",
-            "homepage": "https://github.com/php-toolkit/stdlib",
-            "keywords": [
-                "array",
-                "library",
-                "object",
-                "php",
-                "string",
-                "tool"
-            ],
-            "support": {
-                "issues": "https://github.com/php-toolkit/stdlib/issues",
-                "source": "https://github.com/php-toolkit/stdlib/tree/v2.0.14"
-            },
-            "time": "2025-04-19T11:14:59+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

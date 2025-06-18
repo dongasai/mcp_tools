@@ -16,7 +16,7 @@ class TestController extends Controller
     {
         return response()->json([
             'success' => true,
-            'message' => 'User module test endpoint working',
+            'message' => '用户模块测试端点正常工作',
             'timestamp' => now()->toISOString(),
         ]);
     }
@@ -28,7 +28,7 @@ class TestController extends Controller
     {
         return response()->json([
             'success' => true,
-            'message' => 'POST request working',
+            'message' => 'POST请求正常工作',
             'data' => $request->all(),
             'timestamp' => now()->toISOString(),
         ]);
@@ -58,7 +58,7 @@ class TestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Validation passed',
+                'message' => '验证通过',
                 'validated_data' => $validator->validated(),
             ]);
         } catch (\Exception $e) {
@@ -80,7 +80,7 @@ class TestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Database connection working',
+                'message' => '数据库连接正常工作',
                 'user_count' => $userCount,
             ]);
         } catch (\Exception $e) {

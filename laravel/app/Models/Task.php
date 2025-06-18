@@ -29,7 +29,7 @@ class Task extends Model
     ];
 
     /**
-     * Get the project that owns the task.
+     * 获取拥有此任务的项目
      */
     public function project(): BelongsTo
     {
@@ -37,7 +37,7 @@ class Task extends Model
     }
 
     /**
-     * Get the user assigned to the task.
+     * 获取分配给此任务的用户
      */
     public function assignedUser(): BelongsTo
     {
@@ -45,7 +45,7 @@ class Task extends Model
     }
 
     /**
-     * Get the agent assigned to the task.
+     * 获取分配给此任务的Agent
      */
     public function agent(): BelongsTo
     {
@@ -53,7 +53,7 @@ class Task extends Model
     }
 
     /**
-     * Scope a query to only include pending tasks.
+     * 查询范围：仅包含待处理的任务
      */
     public function scopePending($query)
     {
@@ -61,7 +61,7 @@ class Task extends Model
     }
 
     /**
-     * Scope a query to only include claimed tasks.
+     * 查询范围：仅包含已认领的任务
      */
     public function scopeClaimed($query)
     {
@@ -69,7 +69,7 @@ class Task extends Model
     }
 
     /**
-     * Scope a query to only include completed tasks.
+     * 查询范围：仅包含已完成的任务
      */
     public function scopeCompleted($query)
     {
@@ -77,7 +77,7 @@ class Task extends Model
     }
 
     /**
-     * Scope a query to filter by priority.
+     * 查询范围：按优先级筛选
      */
     public function scopeByPriority($query, $priority)
     {
@@ -85,7 +85,7 @@ class Task extends Model
     }
 
     /**
-     * Scope a query to filter by agent.
+     * 查询范围：按Agent筛选
      */
     public function scopeByAgent($query, $agentId)
     {
@@ -93,7 +93,7 @@ class Task extends Model
     }
 
     /**
-     * Check if task is overdue.
+     * 检查任务是否已过期
      */
     public function isOverdue(): bool
     {
@@ -101,7 +101,7 @@ class Task extends Model
     }
 
     /**
-     * Get the task's labels.
+     * 获取任务的标签
      */
     public function getLabelsAttribute($value)
     {
@@ -109,7 +109,7 @@ class Task extends Model
     }
 
     /**
-     * Set the task's labels.
+     * 设置任务的标签
      */
     public function setLabelsAttribute($value)
     {

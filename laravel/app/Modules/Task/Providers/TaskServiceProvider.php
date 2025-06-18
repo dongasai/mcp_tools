@@ -12,14 +12,14 @@ class TaskServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // 注册Task服务
-        $this->app->singleton(TaskService::class);
+        // 暂时注释掉Task服务注册
+        // $this->app->singleton(TaskService::class);
 
-        // 注册配置文件
-        $this->mergeConfigFrom(
-            __DIR__ . '/../config/task.php',
-            'task'
-        );
+        // 暂时注释掉配置文件加载
+        // $this->mergeConfigFrom(
+        //     __DIR__ . '/../config/task.php',
+        //     'task'
+        // );
     }
 
     /**
@@ -35,14 +35,12 @@ class TaskServiceProvider extends ServiceProvider
         // 加载路由
         $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
-        // 加载迁移
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        // 暂时注释掉迁移文件加载
+        // $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-        // 注册事件监听器
-        $this->registerEventListeners();
-
-        // 注册中间件
-        $this->registerMiddleware();
+        // 暂时注释掉事件监听器和中间件注册
+        // $this->registerEventListeners();
+        // $this->registerMiddleware();
     }
 
     /**

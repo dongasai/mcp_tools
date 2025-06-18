@@ -24,7 +24,7 @@ class Project extends Model
     ];
 
     /**
-     * Get the user that owns the project.
+     * 获取拥有此项目的用户
      */
     public function user(): BelongsTo
     {
@@ -32,7 +32,7 @@ class Project extends Model
     }
 
     /**
-     * Get the tasks for the project.
+     * 获取项目的任务
      */
     public function tasks(): HasMany
     {
@@ -40,7 +40,7 @@ class Project extends Model
     }
 
     /**
-     * Get active tasks for the project.
+     * 获取项目的活跃任务
      */
     public function activeTasks(): HasMany
     {
@@ -48,7 +48,7 @@ class Project extends Model
     }
 
     /**
-     * Get completed tasks for the project.
+     * 获取项目的已完成任务
      */
     public function completedTasks(): HasMany
     {
@@ -56,7 +56,7 @@ class Project extends Model
     }
 
     /**
-     * Scope a query to only include active projects.
+     * 查询范围：仅包含活跃的项目
      */
     public function scopeActive($query)
     {
@@ -64,7 +64,7 @@ class Project extends Model
     }
 
     /**
-     * Get the project's GitHub repositories.
+     * 获取项目的GitHub仓库
      */
     public function getRepositoriesAttribute($value)
     {
@@ -72,7 +72,7 @@ class Project extends Model
     }
 
     /**
-     * Set the project's GitHub repositories.
+     * 设置项目的GitHub仓库
      */
     public function setRepositoriesAttribute($value)
     {

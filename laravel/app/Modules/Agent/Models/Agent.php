@@ -13,24 +13,28 @@ class Agent extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'description',
         'agent_id',
-        'capabilities',
-        'configuration',
+        'type',
+        'access_token',
+        'permissions',
+        'allowed_projects',
+        'allowed_actions',
         'status',
         'last_active_at',
-        'metadata',
+        'token_expires_at',
     ];
 
     protected $casts = [
-        'capabilities' => 'array',
-        'configuration' => 'array',
-        'metadata' => 'array',
+        'permissions' => 'array',
+        'allowed_projects' => 'array',
+        'allowed_actions' => 'array',
         'last_active_at' => 'datetime',
+        'token_expires_at' => 'datetime',
     ];
 
     protected $dates = [
         'last_active_at',
+        'token_expires_at',
     ];
 
     /**
@@ -141,51 +145,63 @@ class Agent extends Model
     }
 
     /**
-     * 检查Agent是否有指定能力
+     * 检查Agent是否有指定动作权限
      */
-    public function hasCapability(string $capability): bool
+    public function hasAction(string $action): bool
     {
-        return in_array($capability, $this->capabilities ?? []);
+        return in_array($action, $this->allowed_actions ?? []);
     }
 
     /**
-     * 添加能力
+     * 添加动作权限
      */
-    public function addCapability(string $capability): void
+    public function addAction(string $action): void
     {
-        $capabilities = $this->capabilities ?? [];
-        if (!in_array($capability, $capabilities)) {
-            $capabilities[] = $capability;
-            $this->update(['capabilities' => $capabilities]);
+        $actions = $this->allowed_actions ?? [];
+        if (!in_array($action, $actions)) {
+            $actions[] = $action;
+            $this->update(['allowed_actions' => $actions]);
         }
     }
 
     /**
-     * 移除能力
+     * 移除动作权限
      */
-    public function removeCapability(string $capability): void
+    public function removeAction(string $action): void
     {
-        $capabilities = $this->capabilities ?? [];
-        $capabilities = array_filter($capabilities, fn($cap) => $cap !== $capability);
-        $this->update(['capabilities' => array_values($capabilities)]);
+        $actions = $this->allowed_actions ?? [];
+        $actions = array_filter($actions, fn($act) => $act !== $action);
+        $this->update(['allowed_actions' => array_values($actions)]);
     }
 
     /**
-     * 获取配置值
+     * 检查Agent是否有项目权限
      */
-    public function getConfig(string $key, mixed $default = null): mixed
+    public function hasProjectAccess(int $projectId): bool
     {
-        return data_get($this->configuration, $key, $default);
+        return in_array($projectId, $this->allowed_projects ?? []);
     }
 
     /**
-     * 设置配置值
+     * 添加项目权限
      */
-    public function setConfig(string $key, mixed $value): void
+    public function addProjectAccess(int $projectId): void
     {
-        $configuration = $this->configuration ?? [];
-        data_set($configuration, $key, $value);
-        $this->update(['configuration' => $configuration]);
+        $projects = $this->allowed_projects ?? [];
+        if (!in_array($projectId, $projects)) {
+            $projects[] = $projectId;
+            $this->update(['allowed_projects' => $projects]);
+        }
+    }
+
+    /**
+     * 移除项目权限
+     */
+    public function removeProjectAccess(int $projectId): void
+    {
+        $projects = $this->allowed_projects ?? [];
+        $projects = array_filter($projects, fn($pid) => $pid !== $projectId);
+        $this->update(['allowed_projects' => array_values($projects)]);
     }
 
     /**
@@ -221,10 +237,18 @@ class Agent extends Model
     }
 
     /**
-     * 查询作用域：按能力筛选
+     * 查询作用域：按动作权限筛选
      */
-    public function scopeWithCapability($query, string $capability)
+    public function scopeWithAction($query, string $action)
     {
-        return $query->whereJsonContains('capabilities', $capability);
+        return $query->whereJsonContains('allowed_actions', $action);
+    }
+
+    /**
+     * 查询作用域：按项目权限筛选
+     */
+    public function scopeWithProjectAccess($query, int $projectId)
+    {
+        return $query->whereJsonContains('allowed_projects', $projectId);
     }
 }

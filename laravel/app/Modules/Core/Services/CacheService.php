@@ -27,7 +27,7 @@ class CacheService implements CacheInterface
         try {
             return Cache::get($this->generateKey('', [$key]), $default);
         } catch (\Exception $e) {
-            Log::error('Cache get error', ['key' => $key, 'error' => $e->getMessage()]);
+            Log::error('缓存获取错误', ['key' => $key, 'error' => $e->getMessage()]);
             return $default;
         }
     }
@@ -41,7 +41,7 @@ class CacheService implements CacheInterface
             $ttl = $ttl ?? $this->defaultTtl;
             return Cache::put($this->generateKey('', [$key]), $value, $ttl);
         } catch (\Exception $e) {
-            Log::error('Cache put error', ['key' => $key, 'error' => $e->getMessage()]);
+            Log::error('缓存设置错误', ['key' => $key, 'error' => $e->getMessage()]);
             return false;
         }
     }
@@ -54,7 +54,7 @@ class CacheService implements CacheInterface
         try {
             return Cache::forget($this->generateKey('', [$key]));
         } catch (\Exception $e) {
-            Log::error('Cache forget error', ['key' => $key, 'error' => $e->getMessage()]);
+            Log::error('缓存删除错误', ['key' => $key, 'error' => $e->getMessage()]);
             return false;
         }
     }
@@ -67,7 +67,7 @@ class CacheService implements CacheInterface
         try {
             return Cache::flush();
         } catch (\Exception $e) {
-            Log::error('Cache flush error', ['error' => $e->getMessage()]);
+            Log::error('缓存清空错误', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -80,7 +80,7 @@ class CacheService implements CacheInterface
         try {
             return Cache::remember($this->generateKey('', [$key]), $ttl, $callback);
         } catch (\Exception $e) {
-            Log::error('Cache remember error', ['key' => $key, 'error' => $e->getMessage()]);
+            Log::error('缓存记住错误', ['key' => $key, 'error' => $e->getMessage()]);
             return $callback();
         }
     }
@@ -102,7 +102,7 @@ class CacheService implements CacheInterface
         try {
             return Cache::has($this->generateKey('', [$key]));
         } catch (\Exception $e) {
-            Log::error('Cache exists error', ['key' => $key, 'error' => $e->getMessage()]);
+            Log::error('缓存存在检查错误', ['key' => $key, 'error' => $e->getMessage()]);
             return false;
         }
     }
@@ -115,17 +115,17 @@ class CacheService implements CacheInterface
         try {
             $prefixedKeys = array_map(fn($key) => $this->generateKey('', [$key]), $keys);
             $results = Cache::many($prefixedKeys);
-            
+
             // 移除前缀，恢复原始键名
             $cleanResults = [];
             foreach ($results as $prefixedKey => $value) {
                 $originalKey = str_replace($this->prefix, '', $prefixedKey);
                 $cleanResults[$originalKey] = $value;
             }
-            
+
             return $cleanResults;
         } catch (\Exception $e) {
-            Log::error('Cache many error', ['keys' => $keys, 'error' => $e->getMessage()]);
+            Log::error('缓存批量获取错误', ['keys' => $keys, 'error' => $e->getMessage()]);
             return [];
         }
     }
@@ -138,14 +138,14 @@ class CacheService implements CacheInterface
         try {
             $ttl = $ttl ?? $this->defaultTtl;
             $prefixedValues = [];
-            
+
             foreach ($values as $key => $value) {
                 $prefixedValues[$this->generateKey('', [$key])] = $value;
             }
-            
+
             return Cache::putMany($prefixedValues, $ttl);
         } catch (\Exception $e) {
-            Log::error('Cache putMany error', ['error' => $e->getMessage()]);
+            Log::error('缓存批量设置错误', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -158,7 +158,7 @@ class CacheService implements CacheInterface
         try {
             return Cache::increment($this->generateKey('', [$key]), $value);
         } catch (\Exception $e) {
-            Log::error('Cache increment error', ['key' => $key, 'error' => $e->getMessage()]);
+            Log::error('缓存递增错误', ['key' => $key, 'error' => $e->getMessage()]);
             return 0;
         }
     }
@@ -171,7 +171,7 @@ class CacheService implements CacheInterface
         try {
             return Cache::decrement($this->generateKey('', [$key]), $value);
         } catch (\Exception $e) {
-            Log::error('Cache decrement error', ['key' => $key, 'error' => $e->getMessage()]);
+            Log::error('缓存递减错误', ['key' => $key, 'error' => $e->getMessage()]);
             return 0;
         }
     }
@@ -200,7 +200,7 @@ class CacheService implements CacheInterface
             }
             return false;
         } catch (\Exception $e) {
-            Log::error('Cache flushTags error', ['tags' => $tags, 'error' => $e->getMessage()]);
+            Log::error('缓存标签清空错误', ['tags' => $tags, 'error' => $e->getMessage()]);
             return false;
         }
     }

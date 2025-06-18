@@ -17,7 +17,7 @@ class LogRequestMiddleware
     }
 
     /**
-     * Handle an incoming request.
+     * 处理传入的请求
      */
     public function handle(Request $request, Closure $next): Response
     {

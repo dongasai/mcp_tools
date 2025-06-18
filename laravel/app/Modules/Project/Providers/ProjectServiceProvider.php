@@ -8,7 +8,7 @@ use App\Modules\Project\Services\ProjectService;
 class ProjectServiceProvider extends ServiceProvider
 {
     /**
-     * Register services.
+     * 注册服务
      */
     public function register(): void
     {
@@ -23,7 +23,7 @@ class ProjectServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap services.
+     * 启动服务
      */
     public function boot(): void
     {

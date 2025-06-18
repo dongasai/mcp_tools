@@ -87,7 +87,7 @@ cancelled  cancelled  cancelled   reopened
 - 🔄 任务优先级管理
 - 🔄 任务依赖关系
 
-### 3. GitHub集成 (GitHub Integration)
+### 3. GitHub集成 (GitHub Integration) 🔮 *后期扩展功能*
 
 #### MCP Resources
 - `github://repository/{owner}/{repo}` - 获取仓库信息
@@ -335,7 +335,7 @@ MCP_ENABLE_TASKS=true
 MCP_ENABLE_GITHUB=true
 MCP_ENABLE_NOTIFICATIONS=true
 
-# GitHub集成
+# GitHub集成 (后期扩展功能)
 GITHUB_TOKEN=your_github_token
 GITHUB_WEBHOOK_SECRET=your_webhook_secret
 
@@ -371,7 +371,7 @@ php artisan mcp:agent:revoke \
 #### JavaScript客户端示例
 ```javascript
 // 方式一：通过Headers认证
-const eventSource = new EventSource('http://localhost:8000/mcp/sse/connect', {
+const eventSource = new EventSource('http://localhost:34004/mcp/sse/connect', {
   headers: {
     'Authorization': 'Bearer mcp_token_abc123def456...',
     'Agent-ID': 'agent_001_claude_dev'
@@ -380,12 +380,12 @@ const eventSource = new EventSource('http://localhost:8000/mcp/sse/connect', {
 
 // 方式二：通过URL参数认证
 const eventSource = new EventSource(
-  'http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456...'
+  'http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456...'
 );
 
 // 方式三：混合认证（推荐）
 const eventSource = new EventSource(
-  'http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev',
+  'http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev',
   {
     headers: {
       'Authorization': 'Bearer mcp_token_abc123def456...'
@@ -432,7 +432,7 @@ import json
 from sseclient import SSEClient
 
 # 连接MCP SSE服务器
-url = 'http://localhost:8000/mcp/sse/connect'
+url = 'http://localhost:34004/mcp/sse/connect'
 headers = {
     'Authorization': 'Bearer mcp_token_abc123def456...',
     'Agent-ID': 'agent_001_claude_dev',
@@ -440,7 +440,7 @@ headers = {
 }
 
 # 或者使用URL参数
-# url = 'http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456...'
+# url = 'http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456...'
 
 messages = SSEClient(url, headers=headers)
 
@@ -477,7 +477,7 @@ curl -N -H "Authorization: Bearer mcp_token_abc123def456..." \
 {
   "mcpServers": {
     "mcp-tools": {
-      "url": "http://localhost:8000/mcp/sse/connect",
+      "url": "http://localhost:34004/mcp/sse/connect",
       "headers": {
         "Authorization": "Bearer mcp_token_abc123def456...",
         "Agent-ID": "agent_001_claude_dev",
@@ -494,7 +494,7 @@ curl -N -H "Authorization: Bearer mcp_token_abc123def456..." \
 {
   "mcpServers": {
     "mcp-tools": {
-      "url": "http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev",
+      "url": "http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev",
       "auth": {
         "type": "bearer",
         "token": "mcp_token_abc123def456..."
@@ -521,10 +521,10 @@ MCP_SSE_ASYNC=true
 php artisan serve
 
 # 或者启动专用的MCP SSE服务器
-php artisan mcp:sse:serve --port=8000
+php artisan mcp:sse:serve --port=34004
 
 # 后台运行MCP SSE服务器
-php artisan mcp:sse:serve --port=8000 --daemon
+php artisan mcp:sse:serve --port=34004 --daemon
 
 # 查看当前连接的Agent
 php artisan mcp:agent:list --online
@@ -581,7 +581,7 @@ php artisan mcp:agent:grant-project \
 
 4. **混合认证（推荐）**：
    ```
-   URL: http://localhost:8000/mcp/sse/connect?agent_id={agent_id}
+   URL: http://localhost:34004/mcp/sse/connect?agent_id={agent_id}
    Headers:
      - Authorization: Bearer {access_token}
      - Accept: text/event-stream
@@ -593,16 +593,16 @@ php artisan mcp:agent:grant-project \
 curl -N -H "Authorization: Bearer mcp_token_abc123def456..." \
      -H "Agent-ID: agent_001_claude_dev" \
      -H "Accept: text/event-stream" \
-     http://localhost:8000/mcp/sse/connect
+     http://localhost:34004/mcp/sse/connect
 
 # URL参数方式
 curl -N -H "Accept: text/event-stream" \
-     "http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456..."
+     "http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456..."
 
 # 验证连接状态
 curl -H "Authorization: Bearer mcp_token_abc123def456..." \
      -H "Agent-ID: agent_001_claude_dev" \
-     http://localhost:8000/mcp/agent/status
+     http://localhost:34004/mcp/agent/status
 ```
 
 #### 连接状态码说明
@@ -839,7 +839,7 @@ MCP_SSE_GC_INTERVAL=300
 - `solution` (string, optional) - 解决方案描述
 - `time_spent` (integer, optional) - 花费时间（分钟）
 
-### GitHub集成工具
+### GitHub集成工具 🔮 *后期扩展功能*
 
 #### sync_github_issues
 **描述**：同步GitHub Issues到项目任务
@@ -982,7 +982,7 @@ MCP_SSE_GC_INTERVAL=300
 - 及时更新任务状态
 - 记录任务解决方案
 
-### 3. GitHub集成
+### 3. GitHub集成 🔮 *后期扩展功能*
 - 定期同步GitHub Issues
 - 保持任务与Issue状态一致
 - 使用标签进行分类管理
@@ -1021,7 +1021,7 @@ MCP_SSE_GC_INTERVAL=300
 # 查看MCP服务器日志
 tail -f storage/logs/mcp.log
 
-# 查看GitHub集成日志
+# 查看GitHub集成日志 (后期扩展功能)
 tail -f storage/logs/github.log
 
 # 查看任务管理日志

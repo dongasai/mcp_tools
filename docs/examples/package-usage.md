@@ -30,7 +30,7 @@ Route::get('/mcp/server', function () {
 });
 
 // 或者通过命令行启动
-// php artisan mcp:serve --host=localhost --port=8000
+// php artisan mcp:serve --host=localhost --port=34004
 ```
 
 ### 创建MCP资源

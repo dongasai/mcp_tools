@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * 运行迁移
      */
     public function up(): void
     {
@@ -17,8 +17,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('timezone')->default('UTC');
             $table->enum('status', ['active', 'inactive', 'archived'])->default('active');
-            $table->json('repositories')->nullable(); // GitHub repositories
-            $table->json('settings')->nullable(); // Project settings
+            $table->json('repositories')->nullable(); // GitHub仓库
+            $table->json('settings')->nullable(); // 项目设置
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
 
@@ -28,7 +28,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * 回滚迁移
      */
     public function down(): void
     {

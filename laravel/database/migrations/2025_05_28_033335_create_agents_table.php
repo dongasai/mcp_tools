@@ -7,19 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * 运行迁移
      */
     public function up(): void
     {
         Schema::create('agents', function (Blueprint $table) {
             $table->id();
-            $table->string('agent_id')->unique(); // Unique agent identifier
-            $table->string('name'); // Human-readable name
-            $table->string('type')->nullable(); // Agent type (claude-3.5-sonnet, gpt-4, etc.)
-            $table->string('access_token', 500); // Access token for authentication
-            $table->json('permissions')->nullable(); // Agent permissions
-            $table->json('allowed_projects')->nullable(); // Project IDs this agent can access
-            $table->json('allowed_actions')->nullable(); // Actions this agent can perform
+            $table->string('agent_id')->unique(); // 唯一Agent标识符
+            $table->string('name'); // 人类可读的名称
+            $table->string('type')->nullable(); // Agent类型 (claude-3.5-sonnet, gpt-4, 等)
+            $table->string('access_token', 500); // 认证访问令牌
+            $table->json('permissions')->nullable(); // Agent权限
+            $table->json('allowed_projects')->nullable(); // 此Agent可访问的项目ID
+            $table->json('allowed_actions')->nullable(); // 此Agent可执行的操作
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->timestamp('last_active_at')->nullable();
             $table->timestamp('token_expires_at')->nullable();
@@ -34,7 +34,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * 回滚迁移
      */
     public function down(): void
     {

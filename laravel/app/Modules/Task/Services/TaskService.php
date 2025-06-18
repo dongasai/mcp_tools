@@ -99,7 +99,7 @@ class TaskService
             'agent_id' => $validatedData['agent_id'] ?? null,
             'parent_task_id' => $validatedData['parent_task_id'] ?? null,
             'assigned_to' => $validatedData['assigned_to'] ?? null,
-            'due_date' => isset($validatedData['due_date']) ? new \DateTime($validatedData['due_date']) : null,
+            'due_date' => $validatedData['due_date'] ?? null,
             'estimated_hours' => $validatedData['estimated_hours'] ?? null,
             'status' => Task::STATUS_PENDING,
             'progress' => 0,
@@ -174,7 +174,7 @@ class TaskService
 
         // 处理日期
         if (isset($validatedData['due_date'])) {
-            $validatedData['due_date'] = new \DateTime($validatedData['due_date']);
+            $validatedData['due_date'] = $validatedData['due_date'];
         }
 
         // 记录原始状态
@@ -280,7 +280,7 @@ class TaskService
     /**
      * 完成任务
      */
-    public function completeTask(Task $task, array $result = null): Task
+    public function completeTask(Task $task, ?array $result = null): Task
     {
         $originalStatus = $task->status;
         $task->complete();

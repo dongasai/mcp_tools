@@ -23,7 +23,7 @@ return [
         'version' => '1.0.0',
         'transport' => 'sse', // Server-Sent Events
         'host' => env('MCP_HOST', 'localhost'),
-        'port' => env('MCP_PORT', 8000),
+        'port' => env('MCP_PORT', 34004),
     ],
     
     'capabilities' => [

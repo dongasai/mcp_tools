@@ -3,11 +3,11 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | MCP Server Configuration
+    | MCP 服务器配置
     |--------------------------------------------------------------------------
     |
-    | This file contains the configuration for the MCP (Model Context Protocol)
-    | server. You can configure the transport, capabilities, and other settings.
+    | 此文件包含 MCP (Model Context Protocol) 服务器的配置。
+    | 您可以配置传输方式、功能和其他设置。
     |
     */
 
@@ -20,10 +20,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | SSE Configuration
+    | SSE 配置
     |--------------------------------------------------------------------------
     |
-    | Configuration for Server-Sent Events transport
+    | Server-Sent Events 传输的配置
     |
     */
 
@@ -43,27 +43,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Agent Access Control
+    | Agent 访问控制
     |--------------------------------------------------------------------------
     |
-    | Configuration for Agent authentication and authorization
+    | Agent 认证和授权的配置
     |
     */
 
     'access_control' => [
         'enabled' => env('MCP_ENABLE_ACCESS_CONTROL', true),
         'default_permissions' => env('MCP_DEFAULT_PERMISSIONS', 'read'),
-        'token_expiry' => env('MCP_TOKEN_EXPIRY', 86400), // 24 hours
+        'token_expiry' => env('MCP_TOKEN_EXPIRY', 86400), // 24小时
         'max_agents_per_user' => env('MCP_MAX_AGENTS_PER_USER', 10),
         'require_agent_id' => env('MCP_REQUIRE_AGENT_ID', true),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Capabilities
+    | 功能配置
     |--------------------------------------------------------------------------
     |
-    | Define what capabilities this MCP server provides
+    | 定义此 MCP 服务器提供的功能
     |
     */
 
@@ -76,10 +76,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Feature Toggles
+    | 功能开关
     |--------------------------------------------------------------------------
     |
-    | Enable or disable specific features
+    | 启用或禁用特定功能
     |
     */
 
@@ -92,10 +92,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | GitHub Integration
+    | GitHub 集成
     |--------------------------------------------------------------------------
     |
-    | Configuration for GitHub API integration
+    | GitHub API 集成的配置
     |
     */
 
@@ -108,10 +108,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Audit and Logging
+    | 审计和日志
     |--------------------------------------------------------------------------
     |
-    | Configuration for permission auditing and logging
+    | 权限审计和日志记录的配置
     |
     */
 
@@ -123,31 +123,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cache Configuration
+    | 缓存配置
     |--------------------------------------------------------------------------
     |
-    | Cache settings for MCP resources and data
+    | MCP 资源和数据的缓存设置
     |
     */
 
     'cache' => [
         'enabled' => env('MCP_CACHE_ENABLED', true),
         'prefix' => env('MCP_CACHE_PREFIX', 'mcp_'),
-        'ttl' => env('MCP_CACHE_TTL', 3600), // Default TTL in seconds
+        'ttl' => env('MCP_CACHE_TTL', 3600), // 默认TTL（秒）
         'specific_ttl' => [
-            'projects' => env('MCP_CACHE_PROJECTS_TTL', 3600), // 1 hour
-            'tasks' => env('MCP_CACHE_TASKS_TTL', 300), // 5 minutes
-            'github' => env('MCP_CACHE_GITHUB_TTL', 900), // 15 minutes
-            'agents' => env('MCP_CACHE_AGENTS_TTL', 60), // 1 minute
+            'projects' => env('MCP_CACHE_PROJECTS_TTL', 3600), // 1小时
+            'tasks' => env('MCP_CACHE_TASKS_TTL', 300), // 5分钟
+            'github' => env('MCP_CACHE_GITHUB_TTL', 900), // 15分钟
+            'agents' => env('MCP_CACHE_AGENTS_TTL', 60), // 1分钟
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Performance Settings
+    | 性能设置
     |--------------------------------------------------------------------------
     |
-    | Performance and optimization settings
+    | 性能和优化设置
     |
     */
 
@@ -155,6 +155,6 @@ return [
         'async_processing' => env('MCP_ASYNC_PROCESSING', true),
         'queue_connection' => env('MCP_QUEUE_CONNECTION', 'database'),
         'memory_limit' => env('MCP_MEMORY_LIMIT', '256M'),
-        'gc_interval' => env('MCP_GC_INTERVAL', 300), // 5 minutes
+        'gc_interval' => env('MCP_GC_INTERVAL', 300), // 5分钟
     ],
 ];

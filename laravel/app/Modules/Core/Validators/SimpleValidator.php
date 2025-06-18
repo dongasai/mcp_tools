@@ -11,6 +11,8 @@ class SimpleValidator
 {
     protected array $errors = [];
 
+
+
     /**
      * 验证数据
      */

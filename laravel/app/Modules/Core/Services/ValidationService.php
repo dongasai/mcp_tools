@@ -74,7 +74,8 @@ class ValidationService implements ValidationInterface
         $this->customRules[$name] = $callback;
 
         // 注册到 inhere/validate 的全局验证器
-        \Inhere\Validate\Validator\UserValidators::add($name, $callback);
+        // \Inhere\Validate\Validator\UserValidators::add($name, $callback);
+        // 暂时注释掉，因为该方法不存在
     }
 
     /**

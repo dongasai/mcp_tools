@@ -42,7 +42,7 @@ class UserService
         ]);
 
         if (empty($validatedData)) {
-            throw new \InvalidArgumentException('Validation failed: ' . implode(', ', $this->validator->getErrors()));
+            throw new \InvalidArgumentException('验证失败: ' . implode(', ', $this->validator->getErrors()));
         }
 
         DB::beginTransaction();
@@ -75,7 +75,7 @@ class UserService
             return $user;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->logger->error('Failed to create user', [
+            $this->logger->error('创建用户失败', [
                 'error' => $e->getMessage(),
                 'data' => $data,
             ]);
@@ -103,7 +103,7 @@ class UserService
         $validatedData = $this->validator->validate($data, $rules);
 
         if (empty($validatedData)) {
-            throw new \InvalidArgumentException('Validation failed: ' . implode(', ', $this->validator->getErrors()));
+            throw new \InvalidArgumentException('验证失败: ' . implode(', ', $this->validator->getErrors()));
         }
 
         DB::beginTransaction();
@@ -132,7 +132,7 @@ class UserService
             return $user->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->logger->error('Failed to update user', [
+            $this->logger->error('更新用户失败', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
                 'data' => $data,
@@ -163,7 +163,7 @@ class UserService
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->logger->error('Failed to delete user', [
+            $this->logger->error('删除用户失败', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);

@@ -71,27 +71,30 @@ MCP Tools 采用模块化架构设计，将功能按照业务领域划分为独�
 - **包含**：任务CRUD、状态流转、分配机制、优先级管理
 - **位置**：`app/Modules/Task/`
 
-### 7. [GitHub 集成模块](./github.md)
-- **职责**：GitHub平台集成
-- **包含**：API集成、Issues同步、Webhook处理、仓库管理
-- **位置**：`app/Modules/GitHub/`
-
-### 8. [Notification 通知模块](./notification.md)
+### 7. [Notification 通知模块](./notification.md)
 - **职责**：实时通知和消息推送
 - **包含**：SSE推送、事件监听、消息队列、通知模板
 - **位置**：`app/Modules/Notification/`
 
-### 9. [SuperAdmin 超级管理员模块](./super-admin.md)
+### 8. [SuperAdmin 超级管理员模块](./super-admin.md)
 - **职责**：系统级后台管理界面
 - **包含**：全局用户管理、系统配置、监控面板、数据统计、Agent审核
 - **位置**：`app/Modules/SuperAdmin/`
 - **访问路径**：`/super-admin`
 
-### 10. [UserAdmin 用户后台模块](./user-admin.md)
+### 9. [UserAdmin 用户后台模块](./user-admin.md)
 - **职责**：用户级后台管理界面
-- **包含**：个人项目管理、任务管理、Agent管理、GitHub连接管理
+- **包含**：个人项目管理、任务管理、Agent管理
 - **位置**：`app/Modules/UserAdmin/`
 - **访问路径**：`/user-admin`
+
+## 后期扩展模块
+
+### [GitHub 集成模块](./github.md) 🔮
+- **职责**：GitHub平台集成 (可选扩展)
+- **包含**：API集成、Issues同步、Webhook处理、仓库管理
+- **位置**：`app/Modules/GitHub/`
+- **说明**：作为后期扩展功能，不是核心开发阶段的必需品
 
 ## 模块间通信
 
@@ -143,7 +146,7 @@ app/Modules/
 │   ├── Services/          # 任务服务
 │   ├── Workflows/         # 工作流
 │   └── Observers/         # 模型观察者
-├── GitHub/                # GitHub模块
+├── GitHub/                # GitHub模块 (后期扩展)
 │   ├── Services/          # GitHub服务
 │   ├── Webhooks/          # Webhook处理
 │   ├── Sync/              # 同步服务

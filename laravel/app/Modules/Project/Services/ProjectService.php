@@ -115,14 +115,14 @@ class ProjectService
                 'status' => 'string|in:active,inactive,completed,archived,suspended',
                 'settings' => 'array',
             ]);
-            throw new \InvalidArgumentException('Validation failed: ' . $validator->getFirstError());
+            throw new \InvalidArgumentException('验证失败: ' . $validator->getFirstError());
         }
 
         // 验证Agent权限
         if (isset($validatedData['agent_id'])) {
             $agent = Agent::find($validatedData['agent_id']);
             if (!$agent || $agent->user_id !== $project->user_id) {
-                throw new \InvalidArgumentException('Invalid agent or insufficient permissions');
+                throw new \InvalidArgumentException('无效的Agent或权限不足');
             }
         }
 
@@ -172,7 +172,7 @@ class ProjectService
         // 检查是否有活跃的任务
         $activeTasks = $project->tasks()->whereIn('status', ['pending', 'in_progress'])->count();
         if ($activeTasks > 0) {
-            throw new \InvalidArgumentException('Cannot delete project with active tasks');
+            throw new \InvalidArgumentException('无法删除包含活跃任务的项目');
         }
 
         // 记录日志

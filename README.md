@@ -142,7 +142,7 @@ php artisan db:seed
 php artisan serve
 
 # 或者启动专用的MCP SSE服务器
-php artisan mcp:sse:serve --port=8000
+php artisan mcp:sse:serve --port=34004
 
 # 监控SSE连接状态（可选）
 php artisan mcp:sse:monitor
@@ -166,10 +166,10 @@ php artisan mcp:agent:register \
 ```
 
 7. **访问应用**
-- MCP SSE服务器：http://localhost:8000/mcp/sse/connect
-- Web管理界面：http://localhost:8000
-- 管理后台：http://localhost:8000/admin
-- Agent管理：http://localhost:8000/admin/agents
+- MCP SSE服务器：http://localhost:34004/mcp/sse/connect
+- Web管理界面：http://localhost:34004
+- 管理后台：http://localhost:34004/admin
+- Agent管理：http://localhost:34004/admin/agents
 
 ### 配置MCP客户端
 
@@ -179,7 +179,7 @@ php artisan mcp:agent:register \
 {
   "mcpServers": {
     "mcp-tools": {
-      "url": "http://localhost:8000/mcp/sse/connect",
+      "url": "http://localhost:34004/mcp/sse/connect",
       "headers": {
         "Authorization": "Bearer mcp_token_abc123def456...",
         "Agent-ID": "agent_001_claude_dev",
@@ -196,7 +196,7 @@ php artisan mcp:agent:register \
 {
   "mcpServers": {
     "mcp-tools": {
-      "url": "http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev",
+      "url": "http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev",
       "auth": {
         "type": "bearer",
         "token": "mcp_token_abc123def456..."
@@ -238,16 +238,16 @@ php artisan mcp:agent:list --online
 curl -N -H "Authorization: Bearer mcp_token_abc123def456..." \
      -H "Agent-ID: agent_001_claude_dev" \
      -H "Accept: text/event-stream" \
-     http://localhost:8000/mcp/sse/connect
+     http://localhost:34004/mcp/sse/connect
 
 # 方式二：URL参数认证
 curl -N -H "Accept: text/event-stream" \
-     "http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456..."
+     "http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev&token=mcp_token_abc123def456..."
 
 # 方式三：混合认证（推荐）
 curl -N -H "Authorization: Bearer mcp_token_abc123def456..." \
      -H "Accept: text/event-stream" \
-     "http://localhost:8000/mcp/sse/connect?agent_id=agent_001_claude_dev"
+     "http://localhost:34004/mcp/sse/connect?agent_id=agent_001_claude_dev"
 
 # 预期输出示例：
 # data: {"type":"connection_established","agent_id":"agent_001_claude_dev","permissions":{"projects":[1,3,5]}}
@@ -448,7 +448,7 @@ php artisan view:cache
 chmod -R 755 storage bootstrap/cache
 
 # 启动MCP SSE服务器
-php artisan mcp:sse:serve --port=8000 --daemon
+php artisan mcp:sse:serve --port=34004 --daemon
 ```
 
 ### Docker部署
@@ -474,10 +474,10 @@ RUN composer install --optimize-autoloader --no-dev
 RUN chmod -R 755 storage bootstrap/cache
 
 # 暴露端口
-EXPOSE 8000
+EXPOSE 34004
 
 # 启动命令
-CMD ["php", "artisan", "mcp:sse:serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["php", "artisan", "mcp:sse:serve", "--host=0.0.0.0", "--port=34004"]
 ```
 
 ```bash
@@ -485,7 +485,7 @@ CMD ["php", "artisan", "mcp:sse:serve", "--host=0.0.0.0", "--port=8000"]
 docker build -t mcp-tools .
 
 # 运行容器
-docker run -d -p 8000:8000 --name mcp-tools mcp-tools
+docker run -d -p 34004:34004 --name mcp-tools mcp-tools
 ```
 
 ## 监控与日志

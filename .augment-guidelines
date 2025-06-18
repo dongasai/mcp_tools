@@ -1,0 +1,77 @@
+# MCP Tools 项目开发指南
+
+## 项目概述
+- 这是一个基于 Model Context Protocol (MCP) 的项目，使用 Laravel 11 和 SSE (Server-Sent Events) 提供实时 MCP 服务
+- 专注于提供不依赖 Node.js 的 MCP 服务，仅使用 PHP Laravel 实现 SSE
+- 项目实现了 Agent 访问控制和身份识别系统，用于跟踪哪个 Agent 处理特定任务
+- MCP 协议仅处理任务 - 用户管理与 MCP 功能分离
+
+## 技术栈偏好
+- **后端框架**: Laravel 11 with PHP 8.2+
+- **MCP 协议**: 基于 Server-Sent Events (SSE) 实现，无 Node.js 依赖
+- **管理界面**: dcat/laravel-admin 构建双后台系统
+- **数据验证**: inhere/php-validate 包，Validation 和 Validator 分离
+- **路由**: spatie/laravel-route-attributes 路由属性注解
+- **数据库**: 开发环境使用 SQLite，生产环境支持 MySQL
+- **实时通信**: 纯 PHP SSE 实现配合 ReactPHP
+
+## 开发工作流偏好
+- 始终使用包管理器（composer、npm）而非手动编辑配置文件
+- 在单独的 'laravel' 目录中初始化 Laravel 项目，然后逐步添加依赖
+- 遵循模块化开发方法，在 docs 目录创建模块规划文档
+- 开发完成后必须进行测试，并维护开发进度文档
+- 使用浏览器测试网页修改，使用 MCP 执行 SQL
+- 工作任务完成后提交代码
+
+## 架构设计原则
+- **双后台架构**:
+  - 超级管理员后台 (/super-admin) 用于系统级管理
+  - 用户后台 (/user-admin) 用于个人项目/任务/Agent 管理
+- **任务层次**: 主任务由用户管理，子任务由 Agent 自主创建和维护
+- **MCP 协议专注**: 专门用于任务处理，不管理用户
+- **Agent 访问控制**: 项目级权限和细粒度操作控制
+
+## 代码质量标准
+- 简化 Validation 和 Validator 实现，不使用服务包装器
+- 使用直接验证方法而非复杂的服务包装实现
+- 保持 Validation 和 Validator 组件分离
+- 文档专注于架构设计而非具体代码实现
+
+## 文档编写规范
+- 从文档中移除具体代码实现
+- 专注于架构设计和功能描述
+- 采用概念优先、场景驱动的编写方式
+- 维护统一的文档结构和格式规范
+- 记录开发状态和进度跟踪
+
+## 开发优先级顺序
+1. 基础框架 → 2. 核心模块 → 3. 双后台系统 →
+4. GitHub 集成 → 5. 测试优化 → 6. MCP 协议集成
+- MCP 协议集成应该最后开发（阶段 6）
+- 先完成核心业务功能和用户界面，最后集成 MCP 协议
+
+## 包集成要求
+- php-mcp/laravel 用于 MCP 协议支持
+- dcat/laravel-admin 用于后台管理
+- inhere/php-validate 用于数据验证
+- spatie/laravel-route-attributes 用于路由属性
+- 避免 Node.js 依赖，使用纯 PHP 解决方案
+
+## 文件管理偏好
+- 在 'AiWork/偏好习惯.md' 中维护用户偏好和习惯
+- 在 'AiWork/now.md' 中维护当前工作状态并定期更新
+- 任务开始前加载偏好设置
+- 完成当前工作后阅读 'Task List' 查找新任务
+
+## 测试要求
+- 为所有新功能编写单元测试和功能测试
+- 测试 MCP SSE 连接和 Agent 认证
+- 验证权限控制系统
+- 测试 GitHub 集成功能
+- 确保网页界面的浏览器兼容性
+
+## 安全考虑
+- 实现 Agent 身份认证，使用唯一标识符和访问令牌
+- 强制执行项目级权限控制以访问资源
+- 维护权限变更的操作审计日志
+- 验证所有输入数据并实现 API 访问频率限制

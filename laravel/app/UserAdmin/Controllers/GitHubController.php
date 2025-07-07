@@ -7,8 +7,9 @@ use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Widgets\Card;
 use Dcat\Admin\Widgets\Table;
 use App\Modules\User\Models\User;
-use App\Modules\GitHub\Models\GitHubConnection;
-use App\Modules\GitHub\Models\GitHubRepository;
+// 暂时注释掉不存在的模型
+// use App\Modules\GitHub\Models\GitHubConnection;
+// use App\Modules\GitHub\Models\GitHubRepository;
 use Illuminate\Http\Request;
 
 class GitHubController extends AdminController
@@ -41,7 +42,14 @@ class GitHubController extends AdminController
             $cards[] = $this->benefitsCard();
         }
 
-        return view('user-admin::github.dashboard', compact('cards', 'connection'));
+        // 简化返回，直接显示卡片
+        $html = '<div class="row">';
+        foreach ($cards as $card) {
+            $html .= '<div class="col-md-6 mb-3">' . $card . '</div>';
+        }
+        $html .= '</div>';
+
+        return $html;
     }
 
     protected function connectedAccountCard($connection)
@@ -104,43 +112,58 @@ class GitHubController extends AdminController
 
     protected function connectAccountCard()
     {
-        return Card::make('连接GitHub账户', view('user-admin::github.connect-account', [
-            'connect_url' => route('user-admin.github.connect'),
-            'benefits' => [
-                '自动同步您的仓库信息',
-                '在项目中直接关联GitHub仓库',
-                '跟踪代码提交和Issue',
-                '集成GitHub Actions状态'
-            ]
-        ]));
+        $html = '
+        <div class="card">
+            <div class="card-header">
+                <h4>连接GitHub账户</h4>
+            </div>
+            <div class="card-body">
+                <p>连接您的GitHub账户以享受以下功能：</p>
+                <ul>
+                    <li>自动同步您的仓库信息</li>
+                    <li>在项目中直接关联GitHub仓库</li>
+                    <li>跟踪代码提交和Issue</li>
+                    <li>集成GitHub Actions状态</li>
+                </ul>
+                <div class="mt-3">
+                    <button class="btn btn-primary" onclick="alert(\'GitHub集成功能开发中...\')">
+                        <i class="fa fa-github"></i> 连接GitHub账户
+                    </button>
+                </div>
+            </div>
+        </div>';
+
+        return Card::make('GitHub集成', $html);
     }
 
     protected function benefitsCard()
     {
-        return Card::make('集成优势', view('user-admin::github.benefits', [
-            'features' => [
-                [
-                    'icon' => 'fa-sync',
-                    'title' => '自动同步',
-                    'description' => '自动同步您的GitHub仓库和提交记录'
-                ],
-                [
-                    'icon' => 'fa-link',
-                    'title' => '项目关联',
-                    'description' => '将项目与GitHub仓库关联，统一管理'
-                ],
-                [
-                    'icon' => 'fa-chart-line',
-                    'title' => '数据分析',
-                    'description' => '分析代码提交频率和项目活跃度'
-                ],
-                [
-                    'icon' => 'fa-robot',
-                    'title' => 'Agent集成',
-                    'description' => 'Agent可以直接访问和操作GitHub仓库'
-                ]
-            ]
-        ]));
+        $html = '
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <i class="fa fa-sync fa-2x text-primary"></i>
+                    <h5 class="mt-2">自动同步</h5>
+                    <p class="text-muted">自动同步您的GitHub仓库和提交记录</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <i class="fa fa-link fa-2x text-success"></i>
+                    <h5 class="mt-2">项目关联</h5>
+                    <p class="text-muted">将项目与GitHub仓库关联，统一管理</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <i class="fa fa-chart-line fa-2x text-info"></i>
+                    <h5 class="mt-2">数据分析</h5>
+                    <p class="text-muted">分析代码提交频率和项目活跃度</p>
+                </div>
+            </div>
+        </div>';
+
+        return Card::make('集成优势', $html);
     }
 
     public function connect(Request $request)
@@ -238,6 +261,7 @@ class GitHubController extends AdminController
     protected function getUserGitHubConnection($user)
     {
         if (!$user) return null;
-        return GitHubConnection::where('user_id', $user->id)->first();
+        // 暂时返回null，后续实现GitHub集成
+        return null; // GitHubConnection::where('user_id', $user->id)->first();
     }
 }

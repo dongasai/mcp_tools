@@ -98,7 +98,10 @@ class ProfileController extends AdminController
         return $form;
     }
 
-    public function update(Request $request)
+    /**
+     * 更新个人设置 - 使用POST路由处理
+     */
+    public function updateProfile(Request $request)
     {
         $user = $this->getCurrentUser();
 

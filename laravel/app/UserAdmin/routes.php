@@ -26,7 +26,7 @@ Route::group([
 
     // 个人设置
     $router->get('profile', 'ProfileController@index');
-    $router->put('profile', 'ProfileController@update');
+    $router->post('profile/update', 'ProfileController@updateProfile');
 
     // GitHub集成
     $router->get('github', 'GitHubController@index');

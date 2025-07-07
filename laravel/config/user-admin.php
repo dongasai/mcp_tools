@@ -142,7 +142,7 @@ return [
         'providers' => [
             'user-admin' => [
                 'driver' => 'eloquent',
-                'model'  => App\Models\UserAdminUser::class,
+                'model'  => App\Modules\User\Models\User::class,
             ],
         ],
 
@@ -283,8 +283,8 @@ return [
         'connection' => '',
 
         // User tables and model.
-        'users_table' => 'user_admin_users',
-        'users_model' => App\Models\UserAdminUser::class,
+        'users_table' => 'users',
+        'users_model' => App\Modules\User\Models\User::class,
 
         // Role table and model.
         'roles_table' => 'user_admin_roles',

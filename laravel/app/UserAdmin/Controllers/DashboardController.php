@@ -26,14 +26,8 @@ class DashboardController extends AdminController
 
     protected function getCurrentUser()
     {
-        // 获取当前登录的用户后台用户
-        $userAdminUser = auth('user-admin')->user();
-
-        // 根据用户名或邮箱找到对应的User模型
-        // 这里需要建立UserAdminUser和User之间的关联
-        return User::where('email', $userAdminUser->username . '@example.com')
-                  ->orWhere('name', $userAdminUser->name)
-                  ->first() ?? new User(['name' => $userAdminUser->name]);
+        // 直接获取当前登录的用户（现在使用User模型）
+        return auth('user-admin')->user();
     }
 
     protected function buildDashboard($user)

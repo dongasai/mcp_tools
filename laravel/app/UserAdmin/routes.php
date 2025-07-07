@@ -15,6 +15,9 @@ Route::group([
     // 仪表板
     $router->get('/', 'DashboardController@index');
 
+    // 用户管理
+    $router->resource('users', 'UserController');
+
     // 项目管理
     $router->resource('projects', 'ProjectController');
 

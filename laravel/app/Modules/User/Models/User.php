@@ -8,10 +8,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dcat\Admin\Traits\HasPermissions;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, HasPermissions;
 
     /**
      * 可批量赋值的属性
@@ -266,5 +267,110 @@ class User extends Authenticatable
     public function scopeAdmins($query)
     {
         return $query->whereIn('role', [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN]);
+    }
+
+    // ===== dcat-admin 兼容方法 =====
+
+    /**
+     * 获取用户头像（dcat-admin需要）
+     */
+    public function getAvatar(): string
+    {
+        return $this->avatar_url;
+    }
+
+    /**
+     * 检查用户是否为管理员（dcat-admin需要）
+     */
+    public function isAdministrator(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * 检查用户是否有指定角色（dcat-admin需要）
+     */
+    public function isRole($roles): bool
+    {
+        if (is_string($roles)) {
+            return $this->role === $roles;
+        }
+
+        if (is_array($roles)) {
+            return in_array($this->role, $roles);
+        }
+
+        return false;
+    }
+
+    /**
+     * 检查用户是否在指定角色中（dcat-admin需要）
+     */
+    public function inRoles($roles): bool
+    {
+        return $this->isRole($roles);
+    }
+
+    /**
+     * 获取用户角色（dcat-admin需要）
+     */
+    public function roles()
+    {
+        // 返回一个简单的集合，包含当前用户的角色
+        return collect([
+            (object) [
+                'id' => 1,
+                'name' => $this->role,
+                'slug' => $this->role,
+            ]
+        ]);
+    }
+
+    /**
+     * 检查菜单可见性（dcat-admin需要）
+     */
+    public function visible(array $menu): bool
+    {
+        // 简单的权限检查，超级管理员可以看到所有菜单
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        // 普通用户可以看到基本菜单
+        return true;
+    }
+
+    /**
+     * 检查是否可以看到菜单（dcat-admin需要）
+     */
+    public function canSeeMenu($menu): bool
+    {
+        return $this->visible(is_array($menu) ? $menu : []);
+    }
+
+    /**
+     * 获取所有权限（dcat-admin需要）
+     */
+    public function allPermissions()
+    {
+        // 返回空集合，因为我们禁用了权限系统
+        return collect();
+    }
+
+    /**
+     * 检查权限（dcat-admin需要）
+     */
+    public function can($permission, $arguments = []): bool
+    {
+        // 使用我们自己的权限检查方法
+        return $this->hasPermission($permission);
+    }
+
+    /**
+     * 检查是否没有权限（dcat-admin需要）
+     */
+    public function cannot($permission, $arguments = []): bool
+    {
+        return !$this->can($permission, $arguments);
     }
 }

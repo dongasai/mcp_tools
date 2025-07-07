@@ -110,9 +110,9 @@ class AgentController extends AdminController
             $form->password('access_token', '访问令牌')->required(function ($form) {
                 return !$form->model()->id;
             });
-            $form->json('permissions', '权限');
-            $form->json('allowed_projects', '允许的项目');
-            $form->json('allowed_actions', '允许的动作');
+            $form->textarea('permissions', '权限')->placeholder('JSON格式的权限配置');
+            $form->textarea('allowed_projects', '允许的项目')->placeholder('JSON格式的项目列表');
+            $form->textarea('allowed_actions', '允许的动作')->placeholder('JSON格式的动作列表');
             $form->datetime('last_active_at', '最后活跃时间');
             $form->datetime('token_expires_at', 'Token过期时间');
 

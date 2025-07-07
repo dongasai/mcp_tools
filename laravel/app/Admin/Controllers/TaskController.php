@@ -195,11 +195,11 @@ class TaskController extends AdminController
             $form->select('parent_task_id', '父任务')->options(Task::mainTasks()->pluck('title', 'id'));
             $form->number('progress', '进度')->min(0)->max(100)->default(0);
             $form->datetime('due_date', '截止时间');
-            $form->decimal('estimated_hours', '预估工时')->min(0);
-            $form->decimal('actual_hours', '实际工时')->min(0);
+            $form->text('estimated_hours', '预估工时')->placeholder('预估工时（小时）');
+            $form->text('actual_hours', '实际工时')->placeholder('实际工时（小时）');
             $form->tags('tags', '标签');
-            $form->json('metadata', '元数据');
-            $form->json('result', '结果');
+            $form->textarea('metadata', '元数据')->placeholder('JSON格式的元数据');
+            $form->textarea('result', '结果')->placeholder('JSON格式的任务结果');
 
             $form->display('created_at', '创建时间');
             $form->display('updated_at', '更新时间');

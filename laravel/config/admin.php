@@ -213,7 +213,7 @@ return [
     */
     'permission' => [
         // Whether enable permission.
-        'enable' => true,
+        'enable' => false,
 
         // All method to path like: auth/users/*/edit
         // or specific method to path like: get:auth/users.

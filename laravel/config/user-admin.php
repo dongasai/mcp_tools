@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'MCP Tools 管理系统',
+    'name' => 'MCP Tools 用户后台',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;MCP Tools',
+    'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;MCP User',
 
     /*
     |--------------------------------------------------------------------------
@@ -45,14 +45,14 @@ return [
     'favicon' => null,
 
     /*
-     |--------------------------------------------------------------------------
-     | User default avatar
-     |--------------------------------------------------------------------------
-     |
-     | Set a default avatar for newly created users.
-     |
-     */
-    'default_avatar' => '@admin/images/default-avatar.jpg',
+	 |--------------------------------------------------------------------------
+	 | User default avatar
+	 |--------------------------------------------------------------------------
+	 |
+	 | Set a default avatar for newly created users.
+	 |
+	 */
+	'default_avatar' => '@admin/images/default-avatar.jpg',
 
     /*
     |--------------------------------------------------------------------------
@@ -67,13 +67,11 @@ return [
     'route' => [
         'domain' => env('ADMIN_ROUTE_DOMAIN'),
 
-        'prefix' => env('ADMIN_ROUTE_PREFIX', 'admin'),
+        'prefix' => 'user-admin',
 
-        'namespace' => 'App\\Admin\\Controllers',
+        'namespace' => 'App\\UserAdmin\\Controllers',
 
         'middleware' => ['web', 'admin'],
-
-        'enable_session_middleware' => false,
     ],
 
     /*
@@ -86,7 +84,7 @@ return [
     | be set before running `artisan admin::install` to take effect.
     |
     */
-    'directory' => app_path('Admin'),
+    'directory' => app_path('UserAdmin'),
 
     /*
     |--------------------------------------------------------------------------
@@ -96,7 +94,7 @@ return [
     | Html title for all pages.
     |
     */
-    'title' => 'MCP Tools 管理系统',
+    'title' => 'MCP Tools 用户后台',
 
     /*
     |--------------------------------------------------------------------------
@@ -130,21 +128,21 @@ return [
     'auth' => [
         'enable' => true,
 
-        'controller' => App\Admin\Controllers\AuthController::class,
+        'controller' => App\UserAdmin\Controllers\AuthController::class,
 
-        'guard' => 'admin',
+        'guard' => 'user-admin',
 
         'guards' => [
-            'admin' => [
+            'user-admin' => [
                 'driver'   => 'session',
-                'provider' => 'admin',
+                'provider' => 'user-admin',
             ],
         ],
 
         'providers' => [
-            'admin' => [
+            'user-admin' => [
                 'driver' => 'eloquent',
-                'model'  => Dcat\Admin\Models\Administrator::class,
+                'model'  => App\Models\UserAdminUser::class,
             ],
         ],
 
@@ -158,7 +156,6 @@ return [
             'auth/logout',
         ],
 
-        'enable_session_middleware' => false,
     ],
 
     /*
@@ -213,7 +210,7 @@ return [
     */
     'permission' => [
         // Whether enable permission.
-        'enable' => false,
+        'enable' => true,
 
         // All method to path like: auth/users/*/edit
         // or specific method to path like: get:auth/users.
@@ -223,6 +220,7 @@ return [
             'auth/logout',
             'auth/setting',
         ],
+
     ],
 
     /*
@@ -247,7 +245,7 @@ return [
         // Whether enable permission bind to menu.
         'permission_bind_menu' => true,
 
-        'default_icon' => 'feather icon-circle',
+		'default_icon' => 'feather icon-circle',
     ],
 
     /*
@@ -269,7 +267,6 @@ return [
             'image' => 'images',
             'file'  => 'files',
         ],
-
     ],
 
     /*
@@ -286,8 +283,8 @@ return [
         'connection' => '',
 
         // User tables and model.
-        'users_table' => 'admin_users',
-        'users_model' => Dcat\Admin\Models\Administrator::class,
+        'users_table' => 'user_admin_users',
+        'users_model' => App\Models\UserAdminUser::class,
 
         // Role table and model.
         'roles_table' => 'admin_roles',
@@ -307,8 +304,8 @@ return [
         'role_menu_table'        => 'admin_role_menu',
         'permission_menu_table'  => 'admin_permission_menu',
         'settings_table'         => 'admin_settings',
-        'extensions_table'       => 'admin_extensions',
-        'extension_histories_table' => 'admin_extension_histories',
+		'extensions_table'       => 'admin_extensions',
+		'extension_histories_table' => 'admin_extension_histories',
     ],
 
     /*
@@ -322,7 +319,7 @@ return [
         // default, blue, blue-light, green
         'color' => 'default',
 
-        // sidebar-separate
+		// sidebar-separate
         'body_class' => [],
 
         'horizontal_menu' => false,
@@ -330,7 +327,7 @@ return [
         'sidebar_collapsed' => false,
 
         // light, primary, dark
-        'sidebar_style' => 'light',
+		'sidebar_style' => 'light',
 
         'dark_mode_switch' => false,
 
@@ -354,29 +351,4 @@ return [
     | Whether enable default breadcrumb for every page content.
     */
     'enable_default_breadcrumb' => true,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Extension
-    |--------------------------------------------------------------------------
-    */
-    'extension' => [
-        // When you use command `php artisan admin:ext-make` to generate extensions,
-        // the extension files will be generated in this directory.
-        'dir' => base_path('dcat-admin-extensions'),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Multi Application (多后台)
-    |--------------------------------------------------------------------------
-    |
-    | 多应用配置，启用多后台功能
-    |
-    */
-    'multi_app' => [
-        // 与新应用的配置文件名称一致
-        // 设置为true启用，false则是停用
-        'user-admin' => true,
-    ],
 ];

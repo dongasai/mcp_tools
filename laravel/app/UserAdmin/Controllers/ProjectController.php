@@ -26,11 +26,13 @@ class ProjectController extends AdminController
     {
         $grid = new Grid(new Project());
 
-        // 简化查询，避免复杂的关联关系
+        // 只显示当前用户的项目
         $user = $this->getCurrentUser();
         if ($user) {
-            // 暂时显示所有项目，后续完善权限控制
-            // $grid->model()->where('user_id', $user->id);
+            $grid->model()->where('user_id', $user->id);
+        } else {
+            // 如果无法获取用户，不显示任何项目
+            $grid->model()->where('id', -1);
         }
 
         $grid->column('id', 'ID')->sortable();
@@ -79,8 +81,9 @@ class ProjectController extends AdminController
     {
         $form = new Form(new Project());
 
-        // 添加隐藏的user_id字段
-        $form->hidden('user_id')->default(1);
+        // 自动设置当前用户ID
+        $user = $this->getCurrentUser();
+        $form->hidden('user_id')->default($user ? $user->id : 1);
 
         $form->text('name', '项目名称')->required();
         $form->textarea('description', '项目描述');
@@ -94,10 +97,10 @@ class ProjectController extends AdminController
         $form->text('repository_url', 'Git仓库地址');
         $form->textarea('settings', '项目设置')->help('JSON格式的项目配置')->default('{}');
 
-        // 简化保存逻辑，避免复杂的关联关系
+        // 保存时设置当前用户ID
         $form->saving(function (Form $form) {
-            // 强制设置user_id
-            $form->user_id = 1;
+            $user = $this->getCurrentUser();
+            $form->user_id = $user ? $user->id : 1;
         });
 
         // 暂时移除复杂的关联逻辑

@@ -113,11 +113,14 @@ class AgentController extends AdminController
         ])->default('active');
 
         $user = $this->getCurrentUser();
-        // 简化项目选择，暂时显示所有项目
-        $userProjects = Project::pluck('name', 'id')->toArray();
+        // 只显示当前用户的项目
+        $userProjects = $user ?
+            Project::where('user_id', $user->id)->pluck('name', 'id')->toArray() :
+            [];
 
         $form->multipleSelect('allowed_projects', '允许访问的项目')
-             ->options($userProjects);
+             ->options($userProjects)
+             ->help('只能选择您自己的项目');
 
         $form->checkbox('allowed_actions', '允许的操作')->options([
             'read' => '读取',

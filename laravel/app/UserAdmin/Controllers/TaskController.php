@@ -27,11 +27,15 @@ class TaskController extends AdminController
     {
         $grid = new Grid(new Task());
 
-        // 简化查询，避免复杂的关联关系
+        // 只显示当前用户的任务
         $user = $this->getCurrentUser();
         if ($user) {
-            // 暂时显示所有任务，后续完善权限控制
-            // $grid->model()->where('user_id', $user->id);
+            // 通过项目关联限制只显示用户自己的任务
+            $userProjectIds = Project::where('user_id', $user->id)->pluck('id');
+            $grid->model()->whereIn('project_id', $userProjectIds);
+        } else {
+            // 如果无法获取用户，不显示任何任务
+            $grid->model()->where('id', -1);
         }
 
         $grid->column('id', 'ID')->sortable();
@@ -98,9 +102,12 @@ class TaskController extends AdminController
                 'high' => '高',
                 'urgent' => '紧急'
             ]);
-            $filter->equal('project_id', '项目')->select(
-                Project::pluck('name', 'id')->toArray()
-            );
+            // 只显示当前用户的项目
+            $user = $this->getCurrentUser();
+            $userProjects = $user ?
+                Project::where('user_id', $user->id)->pluck('name', 'id')->toArray() :
+                [];
+            $filter->equal('project_id', '项目')->select($userProjects);
         });
 
         return $grid;
@@ -114,10 +121,13 @@ class TaskController extends AdminController
         $form->textarea('description', '任务描述');
 
         $user = $this->getCurrentUser();
-        // 简化项目选择，暂时显示所有项目
-        $userProjects = Project::pluck('name', 'id')->toArray();
+        // 只显示当前用户的项目
+        $userProjects = $user ?
+            Project::where('user_id', $user->id)->pluck('name', 'id')->toArray() :
+            [];
 
-        $form->select('project_id', '所属项目')->options($userProjects)->required();
+        $form->select('project_id', '所属项目')->options($userProjects)->required()
+             ->help('只能选择您自己的项目');
 
         $form->select('type', '任务类型')->options([
             'main' => '主任务',
@@ -146,12 +156,24 @@ class TaskController extends AdminController
         $form->number('progress', '进度')->min(0)->max(100)->default(0);
         $form->textarea('metadata', '元数据')->help('JSON格式的任务元数据')->default('{}');
 
-        // 简化保存逻辑
+        // 保存时验证项目归属
         $form->saving(function (Form $form) {
             $user = $this->getCurrentUser();
-            if ($user && !$form->model()->id) {
-                // 暂时设置为固定值，后续完善
-                $form->model()->user_id = $user->id ?? 1;
+            if (!$user) {
+                throw new \Exception('无法获取当前用户信息');
+            }
+
+            // 验证项目是否属于当前用户
+            if ($form->project_id) {
+                $project = Project::find($form->project_id);
+                if (!$project || $project->user_id !== $user->id) {
+                    throw new \Exception('您没有权限访问该项目');
+                }
+            }
+
+            // 设置创建者
+            if (!$form->model()->id) {
+                $form->created_by = $user->id;
             }
         });
 

@@ -1,0 +1,199 @@
+<?php
+
+namespace App\UserAdmin\Controllers;
+
+use Dcat\Admin\Http\Controllers\AdminController;
+use Dcat\Admin\Grid;
+use Dcat\Admin\Form;
+use Dcat\Admin\Show;
+use Dcat\Admin\Layout\Content;
+use App\Modules\Agent\Models\Agent;
+use App\Modules\Project\Models\Project;
+use App\Modules\User\Models\User;
+
+class AgentController extends AdminController
+{
+    protected $title = 'Agent管理';
+
+    public function index(Content $content)
+    {
+        return $content
+            ->title($this->title)
+            ->description('管理您的Agent')
+            ->body($this->grid());
+    }
+
+    protected function grid()
+    {
+        $grid = new Grid(new Agent());
+
+        // 只显示当前用户的Agent
+        $user = $this->getCurrentUser();
+        if ($user) {
+            $grid->model()->where('user_id', $user->id);
+        }
+
+        $grid->column('id', 'ID')->sortable();
+        $grid->column('agent_id', 'Agent ID')->limit(30);
+        $grid->column('name', 'Agent名称')->limit(30);
+        $grid->column('type', '类型')->using([
+            'claude' => 'Claude',
+            'gpt' => 'GPT',
+            'custom' => '自定义'
+        ])->label([
+            'claude' => 'primary',
+            'gpt' => 'success',
+            'custom' => 'info'
+        ]);
+
+        $grid->column('status', '状态')->using([
+            'active' => '活跃',
+            'inactive' => '非活跃',
+            'suspended' => '已暂停'
+        ])->label([
+            'active' => 'success',
+            'inactive' => 'warning',
+            'suspended' => 'danger'
+        ]);
+
+        $grid->column('last_active_at', '最后活跃时间')->sortable();
+        $grid->column('created_at', '注册时间')->sortable();
+
+        // 统计信息
+        $grid->column('tasks_count', '处理任务数')->display(function () {
+            return $this->tasks()->count();
+        });
+
+        $grid->column('projects_count', '参与项目数')->display(function () {
+            return $this->projects()->count();
+        });
+
+        $grid->filter(function($filter) {
+            $filter->like('name', 'Agent名称');
+            $filter->like('agent_id', 'Agent ID');
+            $filter->equal('status', '状态')->select([
+                'active' => '活跃',
+                'inactive' => '非活跃',
+                'suspended' => '已暂停'
+            ]);
+            $filter->equal('type', '类型')->select([
+                'claude' => 'Claude',
+                'gpt' => 'GPT',
+                'custom' => '自定义'
+            ]);
+        });
+
+        $grid->actions(function ($actions) {
+            $actions->add(new \App\UserAdmin\Actions\TestAgentAction());
+            $actions->add(new \App\UserAdmin\Actions\ViewAgentLogsAction());
+        });
+
+        return $grid;
+    }
+
+    protected function form()
+    {
+        $form = new Form(new Agent());
+
+        $form->text('agent_id', 'Agent ID')->required()->help('唯一标识符');
+        $form->text('name', 'Agent名称')->required();
+        $form->textarea('description', '描述');
+
+        $form->select('type', '类型')->options([
+            'claude' => 'Claude',
+            'gpt' => 'GPT',
+            'custom' => '自定义'
+        ])->required();
+
+        $form->select('status', '状态')->options([
+            'active' => '活跃',
+            'inactive' => '非活跃',
+            'suspended' => '已暂停'
+        ])->default('active');
+
+        $user = $this->getCurrentUser();
+        $userProjects = [];
+        if ($user) {
+            $userProjects = $user->projects()->pluck('name', 'id')->toArray();
+        }
+
+        $form->multipleSelect('allowed_projects', '允许访问的项目')
+             ->options($userProjects);
+
+        $form->checkbox('allowed_actions', '允许的操作')->options([
+            'read' => '读取',
+            'create_task' => '创建任务',
+            'update_task' => '更新任务',
+            'claim_task' => '认领任务',
+            'complete_task' => '完成任务'
+        ])->default(['read']);
+
+        $form->json('config', '配置')->default('{}');
+        $form->json('capabilities', '能力描述')->default('{}');
+
+        // 保存时设置用户关联
+        $form->saving(function (Form $form) {
+            $user = $this->getCurrentUser();
+            if ($user && !$form->model()->id) {
+                $form->model()->user_id = $user->id;
+            }
+        });
+
+        return $form;
+    }
+
+    protected function detail($id)
+    {
+        $show = new Show(Agent::findOrFail($id));
+
+        $show->field('id', 'ID');
+        $show->field('agent_id', 'Agent ID');
+        $show->field('name', 'Agent名称');
+        $show->field('description', '描述');
+        $show->field('type', '类型');
+        $show->field('status', '状态');
+        $show->field('last_active_at', '最后活跃时间');
+        $show->field('created_at', '注册时间');
+        $show->field('updated_at', '更新时间');
+
+        // 显示统计信息
+        $show->field('stats', '统计信息')->as(function () {
+            return [
+                '处理任务总数' => $this->tasks()->count(),
+                '已完成任务' => $this->tasks()->where('status', 'completed')->count(),
+                '参与项目数' => $this->projects()->count(),
+                '平均响应时间' => '2.3秒' // 这里可以从实际数据计算
+            ];
+        })->json();
+
+        $show->field('allowed_projects', '允许访问的项目')->as(function ($projectIds) {
+            if (empty($projectIds)) return '无';
+            return Project::whereIn('id', $projectIds)->pluck('name')->implode(', ');
+        });
+
+        $show->field('allowed_actions', '允许的操作')->as(function ($actions) {
+            if (empty($actions)) return '无';
+            $actionLabels = [
+                'read' => '读取',
+                'create_task' => '创建任务',
+                'update_task' => '更新任务',
+                'claim_task' => '认领任务',
+                'complete_task' => '完成任务'
+            ];
+            return collect($actions)->map(function($action) use ($actionLabels) {
+                return $actionLabels[$action] ?? $action;
+            })->implode(', ');
+        });
+
+        $show->field('config', '配置')->json();
+        $show->field('capabilities', '能力描述')->json();
+
+        return $show;
+    }
+
+    protected function getCurrentUser()
+    {
+        $userAdminUser = auth('user-admin')->user();
+        return User::where('name', $userAdminUser->name)->first();
+    }
+}

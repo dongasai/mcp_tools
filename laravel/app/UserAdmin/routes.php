@@ -12,6 +12,25 @@ Route::group([
     'middleware' => config('admin.route.middleware'),
 ], function (Router $router) {
 
-    $router->get('/', 'HomeController@index');
+    // 仪表板
+    $router->get('/', 'DashboardController@index');
+
+    // 项目管理
+    $router->resource('projects', 'ProjectController');
+
+    // 任务管理
+    $router->resource('tasks', 'TaskController');
+
+    // Agent管理
+    $router->resource('agents', 'AgentController');
+
+    // 个人设置
+    $router->get('profile', 'ProfileController@index');
+    $router->put('profile', 'ProfileController@update');
+
+    // GitHub集成
+    $router->get('github', 'GitHubController@index');
+    $router->post('github/connect', 'GitHubController@connect');
+    $router->delete('github/disconnect', 'GitHubController@disconnect');
 
 });

@@ -210,7 +210,7 @@ return [
     */
     'permission' => [
         // Whether enable permission.
-        'enable' => true,
+        'enable' => false,  // 禁用用户后台权限功能
 
         // All method to path like: auth/users/*/edit
         // or specific method to path like: get:auth/users.

@@ -7,4 +7,6 @@ return [
     App\Modules\Agent\Providers\AgentServiceProvider::class,
     App\Modules\Project\Providers\ProjectServiceProvider::class,
     App\Modules\Task\Providers\TaskServiceProvider::class,
+    App\Modules\Mcp\Providers\McpServiceProvider::class,
+    App\Modules\UserAdmin\Providers\UserAdminServiceProvider::class,
 ];

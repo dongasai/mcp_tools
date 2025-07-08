@@ -585,7 +585,7 @@ php artisan view:clear
 
 ## 详细文档
 
-📖 **[完整MCP功能文档](docs/mcp.md)** - 详细的MCP协议实现、工具说明、资源定义等
+📖 **[完整MCP功能文档](docs/MCP协议概述.md)** - 详细的MCP协议实现、工具说明、资源定义等
 
 ## 联系我们
 

@@ -691,6 +691,6 @@ return [
 ---
 
 **相关文档**：
-- [MCP协议模块](./mcp.md)
+- [MCP协议模块](./MCP协议概述.md)
 - [项目模块](./project.md)
 - [任务模块](./task.md)

@@ -357,4 +357,4 @@ app/Modules/Mcp/
 **相关文档**：
 - [Agent代理模块](./agent.md)
 - [通知模块](./notification.md)
-- [MCP协议规范](../mcp.md)
+- [MCP协议规范](../MCP协议概述.md)

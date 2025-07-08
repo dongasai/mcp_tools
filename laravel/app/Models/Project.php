@@ -56,6 +56,64 @@ class Project extends Model
     }
 
     /**
+     * 获取项目成员
+     */
+    public function members(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class);
+    }
+
+    /**
+     * 获取项目成员（包含用户信息）
+     */
+    public function membersWithUsers(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class)->with('user');
+    }
+
+    /**
+     * 获取项目管理员（Owner和Admin）
+     */
+    public function admins(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class)->adminAndAbove();
+    }
+
+    /**
+     * 检查用户是否为项目成员
+     */
+    public function hasMember(User $user): bool
+    {
+        return $this->members()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * 获取用户在项目中的角色
+     */
+    public function getUserRole(User $user): ?string
+    {
+        $member = $this->members()->where('user_id', $user->id)->first();
+        return $member?->role;
+    }
+
+    /**
+     * 检查用户是否为项目所有者
+     */
+    public function isOwner(User $user): bool
+    {
+        return $this->getUserRole($user) === ProjectMember::ROLE_OWNER;
+    }
+
+    /**
+     * 检查用户是否为项目管理员（Owner或Admin）
+     */
+    public function isAdmin(User $user): bool
+    {
+        $role = $this->getUserRole($user);
+        return in_array($role, [ProjectMember::ROLE_OWNER, ProjectMember::ROLE_ADMIN]);
+    }
+
+    /**
      * 查询范围：仅包含活跃的项目
      */
     public function scopeActive($query)

@@ -27,12 +27,17 @@ class MemberController extends AdminController
     /**
      * 显示项目成员列表
      */
-    public function index(Content $content, $projectId)
+    public function index(Content $content)
     {
+        // 从路由参数获取项目ID
+        $projectId = request()->route('project');
         $project = Project::findOrFail($projectId);
-        
+
+        // 获取当前用户
+        $currentUser = $this->getCurrentUser();
+
         // 检查权限
-        if (!$project->hasMember(Auth::user()) && $project->user_id !== Auth::user()->id) {
+        if (!$project->hasMember($currentUser) && $project->user_id !== $currentUser->id) {
             abort(403, '您没有权限查看此项目的成员');
         }
 
@@ -48,7 +53,7 @@ class MemberController extends AdminController
     protected function grid(Project $project)
     {
         $grid = new Grid(new ProjectMember());
-        
+
         // 只显示当前项目的成员
         $grid->model()->where('project_id', $project->id)->with('user');
 
@@ -76,23 +81,25 @@ class MemberController extends AdminController
         // 操作按钮
         $grid->actions(function (Grid\Displayers\Actions $actions) use ($project) {
             $member = $actions->row;
-            
+            $currentUser = $this->getCurrentUser();
+
             // 不能操作项目所有者
             if ($member->role === 'owner') {
                 $actions->disableDelete();
                 $actions->disableEdit();
             }
-            
+
             // 只有项目所有者和管理员可以管理成员
-            if (!$project->isAdmin(Auth::user()) && $project->user_id !== Auth::user()->id) {
+            if (!$project->isAdmin($currentUser) && $project->user_id !== $currentUser->id) {
                 $actions->disableAll();
             }
         });
 
         // 工具栏
         $grid->tools(function (Grid\Tools $tools) use ($project) {
+            $currentUser = $this->getCurrentUser();
             // 只有项目所有者和管理员可以添加成员
-            if ($project->isAdmin(Auth::user()) || $project->user_id === Auth::user()->id) {
+            if ($project->isAdmin($currentUser) || $project->user_id === $currentUser->id) {
                 $tools->append('<a href="'.admin_url("projects/{$project->id}/members/create").'" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> 添加成员</a>');
             }
         });
@@ -107,12 +114,14 @@ class MemberController extends AdminController
     /**
      * 显示添加成员表单
      */
-    public function create(Content $content, $projectId)
+    public function create(Content $content)
     {
+        $projectId = request()->route('project');
         $project = Project::findOrFail($projectId);
-        
+
         // 检查权限
-        if (!$project->isAdmin(Auth::user()) && $project->user_id !== Auth::user()->id) {
+        $currentUser = $this->getCurrentUser();
+        if (!$project->isAdmin($currentUser) && $project->user_id !== $currentUser->id) {
             abort(403, '您没有权限管理此项目的成员');
         }
 
@@ -141,7 +150,7 @@ class MemberController extends AdminController
              ->options($availableUsers)
              ->required()
              ->help('选择要添加到项目的用户');
-             
+
         $form->select('role', '角色')
              ->options([
                  'admin' => '管理员',
@@ -158,7 +167,7 @@ class MemberController extends AdminController
             if (!$user) {
                 throw new \Exception('用户不存在');
             }
-            
+
             if ($project->hasMember($user)) {
                 throw new \Exception('该用户已经是项目成员');
             }
@@ -168,7 +177,7 @@ class MemberController extends AdminController
         $form->saved(function (Form $form, $result) use ($project) {
             $user = User::find($form->user_id);
             $this->memberService->addMember($project, $user, $form->role);
-            
+
             admin_toastr('成员添加成功', 'success');
             return redirect(admin_url("projects/{$project->id}/members"));
         });
@@ -179,18 +188,20 @@ class MemberController extends AdminController
     /**
      * 显示成员详情
      */
-    public function show(Content $content, $projectId, $memberId)
+    public function show($id, Content $content)
     {
+        $projectId = request()->route('project');
+        $member = ProjectMember::findOrFail($id);
         $project = Project::findOrFail($projectId);
-        $member = ProjectMember::findOrFail($memberId);
-        
+
         // 检查成员是否属于该项目
         if ($member->project_id !== $project->id) {
             abort(404);
         }
-        
+
         // 检查权限
-        if (!$project->hasMember(Auth::user()) && $project->user_id !== Auth::user()->id) {
+        $currentUser = $this->getCurrentUser();
+        if (!$project->hasMember($currentUser) && $project->user_id !== $currentUser->id) {
             abort(403, '您没有权限查看此项目的成员');
         }
 
@@ -227,21 +238,23 @@ class MemberController extends AdminController
     /**
      * 编辑成员
      */
-    public function edit(Content $content, $projectId, $memberId)
+    public function edit($id, Content $content)
     {
+        $projectId = request()->route('project');
+        $member = ProjectMember::findOrFail($id);
         $project = Project::findOrFail($projectId);
-        $member = ProjectMember::findOrFail($memberId);
-        
+
         // 检查成员是否属于该项目
         if ($member->project_id !== $project->id) {
             abort(404);
         }
-        
+
         // 检查权限
-        if (!$project->isAdmin(Auth::user()) && $project->user_id !== Auth::user()->id) {
+        $currentUser = $this->getCurrentUser();
+        if (!$project->isAdmin($currentUser) && $project->user_id !== $currentUser->id) {
             abort(403, '您没有权限管理此项目的成员');
         }
-        
+
         // 不能编辑项目所有者
         if ($member->role === 'owner') {
             abort(403, '不能编辑项目所有者');
@@ -262,7 +275,7 @@ class MemberController extends AdminController
 
         $form->display('user.name', '用户姓名');
         $form->display('user.email', '邮箱');
-        
+
         $form->select('role', '角色')
              ->options([
                  'admin' => '管理员',
@@ -284,28 +297,39 @@ class MemberController extends AdminController
     /**
      * 删除成员
      */
-    public function destroy($projectId, $memberId)
+    public function destroy($id)
     {
+        $projectId = request()->route('project');
+        $member = ProjectMember::findOrFail($id);
         $project = Project::findOrFail($projectId);
-        $member = ProjectMember::findOrFail($memberId);
-        
+
         // 检查成员是否属于该项目
         if ($member->project_id !== $project->id) {
             return response()->json(['status' => false, 'message' => '成员不属于该项目']);
         }
-        
+
         // 检查权限
-        if (!$project->isAdmin(Auth::user()) && $project->user_id !== Auth::user()->id) {
+        $currentUser = $this->getCurrentUser();
+        if (!$project->isAdmin($currentUser) && $project->user_id !== $currentUser->id) {
             return response()->json(['status' => false, 'message' => '您没有权限管理此项目的成员']);
         }
 
         try {
             $user = $member->user;
             $this->memberService->removeMember($project, $user);
-            
+
             return response()->json(['status' => true, 'message' => '成员移除成功']);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => '移除成员失败: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * 获取当前用户
+     */
+    protected function getCurrentUser()
+    {
+        $userAdminUser = auth('user-admin')->user();
+        return User::where('name', $userAdminUser->name)->first();
     }
 }

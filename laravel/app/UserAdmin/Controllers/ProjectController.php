@@ -56,7 +56,7 @@ class ProjectController extends AdminController
         });
 
         $grid->column('members_count', '成员数量')->display(function () {
-            return '1'; // 暂时显示1，后续完善
+            return $this->members()->count();
         });
 
         $grid->filter(function($filter) {
@@ -70,8 +70,10 @@ class ProjectController extends AdminController
 
         $grid->actions(function ($actions) {
             $actions->disableDelete(); // 禁用删除，改为归档
-            // 暂时移除自定义操作，避免类不存在错误
-            // $actions->add(new \App\UserAdmin\Actions\ArchiveProjectAction());
+
+            // 添加成员管理按钮
+            $project = $actions->row;
+            $actions->append('<a href="'.admin_url("projects/{$project->id}/members").'" class="btn btn-xs btn-primary" title="成员管理"><i class="fa fa-users"></i></a>');
         });
 
         return $grid;
@@ -127,12 +129,13 @@ class ProjectController extends AdminController
         $show->field('created_at', '创建时间');
         $show->field('updated_at', '更新时间');
 
-        // 简化项目统计，避免关联查询
+        // 项目统计信息
         $show->field('stats', '项目统计')->as(function () {
+            $project = $this;
             return [
-                '任务总数' => 0, // 后续完善
-                '已完成任务' => 0, // 后续完善
-                '成员数量' => 1, // 后续完善
+                '任务总数' => $project->tasks()->count(),
+                '已完成任务' => $project->tasks()->where('status', 'completed')->count(),
+                '成员数量' => $project->members()->count(),
                 '活跃Agent' => 0 // 后续完善
             ];
         })->as(function ($stats) {
@@ -141,6 +144,42 @@ class ProjectController extends AdminController
                 $html .= "<li><strong>{$key}:</strong> {$value}</li>";
             }
             $html .= '</ul>';
+            return $html;
+        });
+
+        // 项目成员信息
+        $show->field('members', '项目成员')->as(function () {
+            $project = $this;
+            $members = $project->membersWithUsers;
+
+            if ($members->isEmpty()) {
+                return '<p>暂无成员</p>';
+            }
+
+            $html = '<div class="table-responsive"><table class="table table-sm">';
+            $html .= '<thead><tr><th>姓名</th><th>邮箱</th><th>角色</th><th>加入时间</th></tr></thead><tbody>';
+
+            foreach ($members as $member) {
+                $roleLabels = [
+                    'owner' => '<span class="label label-danger">项目所有者</span>',
+                    'admin' => '<span class="label label-warning">管理员</span>',
+                    'member' => '<span class="label label-success">成员</span>',
+                    'viewer' => '<span class="label label-info">查看者</span>'
+                ];
+
+                $html .= '<tr>';
+                $html .= '<td>' . $member->user->name . '</td>';
+                $html .= '<td>' . $member->user->email . '</td>';
+                $html .= '<td>' . ($roleLabels[$member->role] ?? $member->role) . '</td>';
+                $html .= '<td>' . $member->joined_at->format('Y-m-d H:i') . '</td>';
+                $html .= '</tr>';
+            }
+
+            $html .= '</tbody></table></div>';
+            $html .= '<div class="mt-2">';
+            $html .= '<a href="'.admin_url("projects/{$project->id}/members").'" class="btn btn-sm btn-primary"><i class="fa fa-users"></i> 管理成员</a>';
+            $html .= '</div>';
+
             return $html;
         });
 

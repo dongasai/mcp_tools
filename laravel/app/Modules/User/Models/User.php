@@ -272,6 +272,24 @@ class User extends Authenticatable
     // ===== dcat-admin 兼容方法 =====
 
     /**
+     * 获取认证标识符名称（dcat-admin需要）
+     * 告诉dcat-admin使用email字段而不是username字段进行认证
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'email';
+    }
+
+    /**
+     * 获取用户名（dcat-admin需要）
+     * 返回email作为用户名
+     */
+    public function getUsername()
+    {
+        return $this->email;
+    }
+
+    /**
      * 获取用户头像（dcat-admin需要）
      */
     public function getAvatar(): string

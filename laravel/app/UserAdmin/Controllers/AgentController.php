@@ -34,7 +34,7 @@ class AgentController extends AdminController
         }
 
         $grid->column('id', 'ID')->sortable();
-        $grid->column('agent_id', 'Agent ID')->limit(30);
+        $grid->column('identifier', 'Agent ID')->limit(30);
         $grid->column('name', 'Agent名称')->limit(30);
         $grid->column('type', '类型')->using([
             'claude' => 'Claude',
@@ -70,7 +70,7 @@ class AgentController extends AdminController
 
         $grid->filter(function($filter) {
             $filter->like('name', 'Agent名称');
-            $filter->like('agent_id', 'Agent ID');
+            $filter->like('identifier', 'Agent ID');
             $filter->equal('status', '状态')->select([
                 'active' => '活跃',
                 'inactive' => '非活跃',
@@ -96,15 +96,11 @@ class AgentController extends AdminController
     {
         $form = new Form(new Agent());
 
-        $form->text('agent_id', 'Agent ID')->required()->help('唯一标识符');
+        $form->text('identifier', 'Agent ID')->required()->help('唯一标识符');
         $form->text('name', 'Agent名称')->required();
         $form->textarea('description', '描述');
 
-        $form->select('type', '类型')->options([
-            'claude' => 'Claude',
-            'gpt' => 'GPT',
-            'custom' => '自定义'
-        ])->required();
+
 
         $form->select('status', '状态')->options([
             'active' => '活跃',
@@ -112,30 +108,14 @@ class AgentController extends AdminController
             'suspended' => '已暂停'
         ])->default('active');
 
-        $user = $this->getCurrentUser();
-        // 只显示当前用户的项目
-        $userProjects = $user ?
-            Project::where('user_id', $user->id)->pluck('name', 'id')->toArray() :
-            [];
 
-        $form->multipleSelect('allowed_projects', '允许访问的项目')
-             ->options($userProjects)
-             ->help('只能选择您自己的项目');
 
-        $form->checkbox('allowed_actions', '允许的操作')->options([
-            'read' => '读取',
-            'create_task' => '创建任务',
-            'update_task' => '更新任务',
-            'claim_task' => '认领任务',
-            'complete_task' => '完成任务'
-        ])->default(['read']);
-
-        $form->textarea('config', '配置')->help('JSON格式的Agent配置')->default('{}');
+        $form->textarea('configuration', '配置')->help('JSON格式的Agent配置')->default('{}');
         $form->textarea('capabilities', '能力描述')->help('JSON格式的能力描述')->default('{}');
 
         // 保存时设置用户关联
         $form->saving(function (Form $form) {
-            $user = $this->getCurrentUser();
+            $user = auth('user-admin')->user();
             if ($user && !$form->model()->id) {
                 $form->model()->user_id = $user->id;
             }
@@ -149,7 +129,7 @@ class AgentController extends AdminController
         $show = new Show(Agent::findOrFail($id));
 
         $show->field('id', 'ID');
-        $show->field('agent_id', 'Agent ID');
+        $show->field('identifier', 'Agent ID');
         $show->field('name', 'Agent名称');
         $show->field('description', '描述');
         $show->field('type', '类型');

@@ -97,6 +97,31 @@ class Project extends Model
     }
 
     /**
+     * 关联项目成员
+     */
+    public function members(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Project\Models\ProjectMember::class);
+    }
+
+    /**
+     * 关联项目成员（包含用户信息）
+     */
+    public function membersWithUsers(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Project\Models\ProjectMember::class)->with('user');
+    }
+
+    /**
+     * 检查用户是否为项目成员
+     */
+    public function hasMember($user): bool
+    {
+        $userId = is_object($user) ? $user->id : $user;
+        return $this->members()->where('user_id', $userId)->exists();
+    }
+
+    /**
      * 检查项目是否激活
      */
     public function isActive(): bool

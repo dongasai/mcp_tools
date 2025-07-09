@@ -101,8 +101,12 @@ class ProjectController extends AdminController
 
         // 保存时设置当前用户ID
         $form->saving(function (Form $form) {
-            $user = $this->getCurrentUser();
-            $form->user_id = $user ? $user->id : 1;
+            $user = auth('user-admin')->user();
+            if ($user) {
+                $form->model()->user_id = $user->id;
+            } else {
+                throw new \Exception('无法获取当前用户信息');
+            }
         });
 
         // 暂时移除复杂的关联逻辑
@@ -189,6 +193,11 @@ class ProjectController extends AdminController
     protected function getCurrentUser()
     {
         $userAdminUser = auth('user-admin')->user();
-        return User::where('name', $userAdminUser->name)->first();
+        if (!$userAdminUser) {
+            return null;
+        }
+
+        // 直接返回认证的用户，因为user-admin guard使用的就是User模型
+        return $userAdminUser;
     }
 }

@@ -290,6 +290,24 @@ class User extends Authenticatable
     }
 
     /**
+     * 获取username属性（映射到email）
+     * 这是为了兼容dcat-admin的认证表单
+     */
+    public function getUsernameAttribute()
+    {
+        return $this->email;
+    }
+
+    /**
+     * 设置username属性（映射到email）
+     * 这是为了兼容dcat-admin的认证表单
+     */
+    public function setUsernameAttribute($value)
+    {
+        $this->attributes['email'] = $value;
+    }
+
+    /**
      * 获取用户头像（dcat-admin需要）
      */
     public function getAvatar(): string

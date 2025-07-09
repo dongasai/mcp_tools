@@ -158,7 +158,7 @@ class TaskController extends AdminController
 
         // 保存时验证项目归属
         $form->saving(function (Form $form) {
-            $user = $this->getCurrentUser();
+            $user = auth('user-admin')->user();
             if (!$user) {
                 throw new \Exception('无法获取当前用户信息');
             }
@@ -211,6 +211,11 @@ class TaskController extends AdminController
     protected function getCurrentUser()
     {
         $userAdminUser = auth('user-admin')->user();
-        return User::where('name', $userAdminUser->name)->first();
+        if (!$userAdminUser) {
+            return null;
+        }
+
+        // 直接返回认证的用户，因为user-admin guard使用的就是User模型
+        return $userAdminUser;
     }
 }

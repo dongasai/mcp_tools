@@ -9,7 +9,7 @@ Admin::routes();
 Route::group([
     'prefix'     => config('admin.route.prefix'),
     'namespace'  => config('admin.route.namespace'),
-    'middleware' => array_merge(config('admin.route.middleware'), ['user-admin.resource-ownership']),
+    'middleware' => config('admin.route.middleware'),
 ], function (Router $router) {
 
     // 仪表板

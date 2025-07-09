@@ -13,15 +13,12 @@ class Agent extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'agent_id',
-        'type',
-        'access_token',
-        'permissions',
-        'allowed_projects',
-        'allowed_actions',
+        'identifier',
         'status',
+        'description',
+        'capabilities',
+        'configuration',
         'last_active_at',
-        'token_expires_at',
     ];
 
     protected $casts = [

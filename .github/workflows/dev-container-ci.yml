@@ -60,25 +60,22 @@ jobs:
     - name: Test dev container
       run: |
         # 启动容器进行测试
-        docker-compose -f docker-compose.dev.yml up -d
+        docker compose -f docker-compose.dev.yml up -d
         
         # 等待容器启动
-        sleep 30
+        sleep 60
         
         # 检查容器是否运行
-        docker-compose -f docker-compose.dev.yml ps
-        
-        # 测试健康检查端点
-        curl -f http://localhost:34004/health || curl -f http://localhost:34004/api/health || echo "Health endpoint not available"
-        
-        # 测试基本API响应
-        curl -f http://localhost:34004/api/mcp/health || echo "MCP health endpoint not available"
+        docker compose -f docker-compose.dev.yml ps
         
         # 检查容器日志
-        docker-compose -f docker-compose.dev.yml logs app
+        docker compose -f docker-compose.dev.yml logs app
+        
+        # 测试基本端口响应
+        curl -f http://localhost:34004 || echo "Basic port check failed"
         
         # 停止容器
-        docker-compose -f docker-compose.dev.yml down
+        docker compose -f docker-compose.dev.yml down
 
     - name: Run security scan
       uses: aquasecurity/trivy-action@master

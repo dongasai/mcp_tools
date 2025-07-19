@@ -2,7 +2,7 @@
 
 namespace App\Modules\Task\Enums;
 
-enum TaskType: string
+enum TASKTYPE: string
 {
     case MAIN = 'main';
     case SUB = 'sub';
@@ -62,7 +62,7 @@ enum TaskType: string
     public static function options(): array
     {
         return array_map(
-            fn(TaskType $type) => [
+            fn(TASKTYPE $type) => [
                 'value' => $type->value,
                 'label' => $type->label(),
                 'color' => $type->color(),
@@ -78,8 +78,8 @@ enum TaskType: string
     public static function selectOptions(): array
     {
         return array_combine(
-            array_map(fn(TaskType $type) => $type->value, self::cases()),
-            array_map(fn(TaskType $type) => $type->label(), self::cases())
+            array_map(fn(TASKTYPE $type) => $type->value, self::cases()),
+            array_map(fn(TASKTYPE $type) => $type->label(), self::cases())
         );
     }
 

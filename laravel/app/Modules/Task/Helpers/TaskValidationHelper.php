@@ -2,9 +2,9 @@
 
 namespace App\Modules\Task\Helpers;
 
-use App\Modules\Task\Enums\TaskStatus;
-use App\Modules\Task\Enums\TaskType;
-use App\Modules\Task\Enums\TaskPriority;
+use App\Modules\Task\Enums\TASKSTATUS;
+use App\Modules\Task\Enums\TASKTYPE;
+use App\Modules\Task\Enums\TASKPRIORITY;
 
 class TaskValidationHelper
 {
@@ -13,7 +13,7 @@ class TaskValidationHelper
      */
     public static function getStatusValidationRule(): string
     {
-        $values = array_map(fn(TaskStatus $status) => $status->value, TaskStatus::cases());
+        $values = array_map(fn(TASKSTATUS $status) => $status->value, TASKSTATUS::cases());
         return 'string|in:' . implode(',', $values);
     }
 
@@ -22,7 +22,7 @@ class TaskValidationHelper
      */
     public static function getTypeValidationRule(): string
     {
-        $values = array_map(fn(TaskType $type) => $type->value, TaskType::cases());
+        $values = array_map(fn(TASKTYPE $type) => $type->value, TASKTYPE::cases());
         return 'string|in:' . implode(',', $values);
     }
 
@@ -31,7 +31,7 @@ class TaskValidationHelper
      */
     public static function getPriorityValidationRule(): string
     {
-        $values = array_map(fn(TaskPriority $priority) => $priority->value, TaskPriority::cases());
+        $values = array_map(fn(TASKPRIORITY $priority) => $priority->value, TASKPRIORITY::cases());
         return 'string|in:' . implode(',', $values);
     }
 
@@ -80,11 +80,11 @@ class TaskValidationHelper
     /**
      * 获取状态转换的验证规则
      */
-    public static function getStatusTransitionRules(TaskStatus $currentStatus): array
+    public static function getStatusTransitionRules(TASKSTATUS $currentStatus): array
     {
         $availableStatuses = $currentStatus->getAvailableTransitions();
-        $values = array_map(fn(TaskStatus $status) => $status->value, $availableStatuses);
-        
+        $values = array_map(fn(TASKSTATUS $status) => $status->value, $availableStatuses);
+
         return [
             'status' => 'required|string|in:' . implode(',', $values),
         ];
@@ -93,7 +93,7 @@ class TaskValidationHelper
     /**
      * 验证状态转换是否有效
      */
-    public static function validateStatusTransition(TaskStatus $currentStatus, TaskStatus $newStatus): bool
+    public static function validateStatusTransition(TASKSTATUS $currentStatus, TASKSTATUS $newStatus): bool
     {
         return $currentStatus->canTransitionTo($newStatus);
     }
@@ -101,7 +101,7 @@ class TaskValidationHelper
     /**
      * 获取任务类型是否可以有子任务的验证
      */
-    public static function validateCanHaveSubTasks(TaskType $type): bool
+    public static function validateCanHaveSubTasks(TASKTYPE $type): bool
     {
         return $type->canHaveSubTasks();
     }

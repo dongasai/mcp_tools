@@ -11,7 +11,6 @@
 - **MCP 协议**: 基于 Server-Sent Events (SSE) 实现，无 Node.js 依赖
 - **管理界面**: dcat/laravel-admin 构建双后台系统
 - **数据验证**: inhere/php-validate 包，Validation 和 Validator 分离
-- **路由**: spatie/laravel-route-attributes 路由属性注解
 - **数据库**: 开发环境使用 SQLite，生产环境支持 MySQL
 - **实时通信**: 纯 PHP SSE 实现配合 ReactPHP
 
@@ -39,6 +38,7 @@
 - 使用直接验证方法而非复杂的服务包装实现
 - 保持 Validation 和 Validator 组件分离
 - 文档专注于架构设计而非具体代码实现
+- 枚举采用`enum`语法，全大写下划线命名
 
 ## 文档编写规范
 - 从文档中移除具体代码实现
@@ -47,17 +47,10 @@
 - 维护统一的文档结构和格式规范
 - 记录开发状态和进度跟踪
 
-## 开发优先级顺序
-1. 基础框架 → 2. 核心模块 → 3. 双后台系统 →
-4. GitHub 集成 → 5. 测试优化 → 6. MCP 协议集成
-- MCP 协议集成应该最后开发（阶段 6）
-- 先完成核心业务功能和用户界面，最后集成 MCP 协议
 
 ## 包集成要求
 - php-mcp/laravel 用于 MCP 协议支持
-- dcat/laravel-admin 用于后台管理/用户后台
 - inhere/php-validate 用于数据验证
-- spatie/laravel-route-attributes 用于路由属性
 - 避免 Node.js 依赖，使用纯 PHP 解决方案
 
 ## 文件管理偏好

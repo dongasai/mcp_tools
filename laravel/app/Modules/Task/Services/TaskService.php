@@ -10,9 +10,9 @@ use App\Modules\Core\Contracts\LogInterface;
 use App\Modules\Core\Contracts\EventInterface;
 use App\Modules\Core\Validators\SimpleValidator;
 use App\Modules\Task\Helpers\TaskValidationHelper;
-use App\Modules\Task\Enums\TaskStatus;
-use App\Modules\Task\Enums\TaskType;
-use App\Modules\Task\Enums\TaskPriority;
+use App\Modules\Task\Enums\TASKSTATUS;
+use App\Modules\Task\Enums\TASKTYPE;
+use App\Modules\Task\Enums\TASKPRIORITY;
 use Illuminate\Support\Collection;
 
 class TaskService
@@ -77,7 +77,7 @@ class TaskService
             }
             // 子任务自动继承父任务的项目
             $validatedData['project_id'] = $parentTask->project_id;
-            $validatedData['type'] = TaskType::SUB->value;
+            $validatedData['type'] = TASKTYPE::SUB->value;
         }
 
         // 创建任务
@@ -85,15 +85,15 @@ class TaskService
             'user_id' => $user->id,
             'title' => $validatedData['title'],
             'description' => $validatedData['description'] ?? null,
-            'type' => $validatedData['type'] ?? TaskType::MAIN->value,
-            'priority' => $validatedData['priority'] ?? TaskPriority::MEDIUM->value,
+            'type' => $validatedData['type'] ?? TASKTYPE::MAIN->value,
+            'priority' => $validatedData['priority'] ?? TASKPRIORITY::MEDIUM->value,
             'project_id' => $validatedData['project_id'] ?? null,
             'agent_id' => $validatedData['agent_id'] ?? null,
             'parent_task_id' => $validatedData['parent_task_id'] ?? null,
             'assigned_to' => $validatedData['assigned_to'] ?? null,
             'due_date' => $validatedData['due_date'] ?? null,
             'estimated_hours' => $validatedData['estimated_hours'] ?? null,
-            'status' => TaskStatus::PENDING->value,
+            'status' => TASKSTATUS::PENDING->value,
             'progress' => 0,
             'tags' => $validatedData['tags'] ?? [],
             'metadata' => [],
@@ -174,7 +174,7 @@ class TaskService
             $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskStatusChanged($task, $originalStatus));
 
             // 如果任务完成，检查父任务是否应该完成
-            if ($validatedData['status'] === TaskStatus::COMPLETED->value && $task->isSubTask()) {
+            if ($validatedData['status'] === TASKSTATUS::COMPLETED->value && $task->isSubTask()) {
                 $this->checkParentTaskCompletion($task->parentTask);
             }
         }
@@ -296,7 +296,7 @@ class TaskService
         }
 
         $subTasks = $parentTask->subTasks;
-        $completedSubTasks = $subTasks->where('status', TaskStatus::COMPLETED);
+        $completedSubTasks = $subTasks->where('status', TASKSTATUS::COMPLETED);
 
         // 如果所有子任务都完成了，自动完成父任务
         if ($subTasks->count() > 0 && $completedSubTasks->count() === $subTasks->count()) {
@@ -363,19 +363,19 @@ class TaskService
         try {
             return [
                 'total_tasks' => Task::count(),
-                'pending_tasks' => Task::byStatus(TaskStatus::PENDING)->count(),
-                'in_progress_tasks' => Task::byStatus(TaskStatus::IN_PROGRESS)->count(),
-                'completed_tasks' => Task::byStatus(TaskStatus::COMPLETED)->count(),
-                'blocked_tasks' => Task::byStatus(TaskStatus::BLOCKED)->count(),
+                'pending_tasks' => Task::byStatus(TASKSTATUS::PENDING)->count(),
+                'in_progress_tasks' => Task::byStatus(TASKSTATUS::IN_PROGRESS)->count(),
+                'completed_tasks' => Task::byStatus(TASKSTATUS::COMPLETED)->count(),
+                'blocked_tasks' => Task::byStatus(TASKSTATUS::BLOCKED)->count(),
                 'main_tasks' => Task::mainTasks()->count(),
                 'sub_tasks' => Task::subTasks()->count(),
                 'overdue_tasks' => Task::overdue()->count(),
                 'due_soon_tasks' => Task::dueSoon()->count(),
                 'tasks_by_priority' => [
-                    'low' => Task::byPriority(TaskPriority::LOW)->count(),
-                    'medium' => Task::byPriority(TaskPriority::MEDIUM)->count(),
-                    'high' => Task::byPriority(TaskPriority::HIGH)->count(),
-                    'urgent' => Task::byPriority(TaskPriority::URGENT)->count(),
+                    'low' => Task::byPriority(TASKPRIORITY::LOW)->count(),
+                    'medium' => Task::byPriority(TASKPRIORITY::MEDIUM)->count(),
+                    'high' => Task::byPriority(TASKPRIORITY::HIGH)->count(),
+                    'urgent' => Task::byPriority(TASKPRIORITY::URGENT)->count(),
                 ],
                 'table_exists' => true,
             ];

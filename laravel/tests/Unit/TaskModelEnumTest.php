@@ -5,9 +5,9 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Modules\Task\Models\Task;
-use App\Modules\Task\Enums\TaskStatus;
-use App\Modules\Task\Enums\TaskType;
-use App\Modules\Task\Enums\TaskPriority;
+use App\Modules\Task\Enums\TASKSTATUS;
+use App\Modules\Task\Enums\TASKTYPE;
+use App\Modules\Task\Enums\TASKPRIORITY;
 use App\Models\User;
 
 class TaskModelEnumTest extends TestCase
@@ -22,20 +22,20 @@ class TaskModelEnumTest extends TestCase
             'user_id' => $user->id,
             'title' => 'Test Task',
             'description' => 'Test Description',
-            'type' => TaskType::MAIN->value,
-            'status' => TaskStatus::PENDING->value,
-            'priority' => TaskPriority::HIGH->value,
+            'type' => TASKTYPE::MAIN->value,
+            'status' => TASKSTATUS::PENDING->value,
+            'priority' => TASKPRIORITY::HIGH->value,
         ]);
 
         // 验证枚举类型转换
-        $this->assertInstanceOf(TaskStatus::class, $task->status);
-        $this->assertInstanceOf(TaskType::class, $task->type);
-        $this->assertInstanceOf(TaskPriority::class, $task->priority);
+        $this->assertInstanceOf(TASKSTATUS::class, $task->status);
+        $this->assertInstanceOf(TASKTYPE::class, $task->type);
+        $this->assertInstanceOf(TASKPRIORITY::class, $task->priority);
 
         // 验证枚举值
-        $this->assertEquals(TaskStatus::PENDING, $task->status);
-        $this->assertEquals(TaskType::MAIN, $task->type);
-        $this->assertEquals(TaskPriority::HIGH, $task->priority);
+        $this->assertEquals(TASKSTATUS::PENDING, $task->status);
+        $this->assertEquals(TASKTYPE::MAIN, $task->type);
+        $this->assertEquals(TASKPRIORITY::HIGH, $task->priority);
     }
 
     public function test_task_model_enum_methods()
@@ -45,9 +45,9 @@ class TaskModelEnumTest extends TestCase
         $task = Task::create([
             'user_id' => $user->id,
             'title' => 'Test Task',
-            'type' => TaskType::MAIN->value,
-            'status' => TaskStatus::PENDING->value,
-            'priority' => TaskPriority::MEDIUM->value,
+            'type' => TASKTYPE::MAIN->value,
+            'status' => TASKSTATUS::PENDING->value,
+            'priority' => TASKPRIORITY::MEDIUM->value,
         ]);
 
         // 测试状态检查方法
@@ -67,19 +67,19 @@ class TaskModelEnumTest extends TestCase
         $task = Task::create([
             'user_id' => $user->id,
             'title' => 'Test Task',
-            'status' => TaskStatus::PENDING->value,
+            'status' => TASKSTATUS::PENDING->value,
         ]);
 
         // 开始任务
         $task->start();
         $task->refresh();
-        $this->assertEquals(TaskStatus::IN_PROGRESS, $task->status);
+        $this->assertEquals(TASKSTATUS::IN_PROGRESS, $task->status);
         $this->assertTrue($task->isInProgress());
 
         // 完成任务
         $task->complete();
         $task->refresh();
-        $this->assertEquals(TaskStatus::COMPLETED, $task->status);
+        $this->assertEquals(TASKSTATUS::COMPLETED, $task->status);
         $this->assertTrue($task->isCompleted());
         $this->assertEquals(100, $task->progress);
 
@@ -87,24 +87,24 @@ class TaskModelEnumTest extends TestCase
         $blockedTask = Task::create([
             'user_id' => $user->id,
             'title' => 'Blocked Task',
-            'status' => TaskStatus::PENDING->value,
+            'status' => TASKSTATUS::PENDING->value,
         ]);
         
         $blockedTask->block();
         $blockedTask->refresh();
-        $this->assertEquals(TaskStatus::BLOCKED, $blockedTask->status);
+        $this->assertEquals(TASKSTATUS::BLOCKED, $blockedTask->status);
         $this->assertTrue($blockedTask->isBlocked());
 
         // 取消任务
         $cancelledTask = Task::create([
             'user_id' => $user->id,
             'title' => 'Cancelled Task',
-            'status' => TaskStatus::PENDING->value,
+            'status' => TASKSTATUS::PENDING->value,
         ]);
         
         $cancelledTask->cancel();
         $cancelledTask->refresh();
-        $this->assertEquals(TaskStatus::CANCELLED, $cancelledTask->status);
+        $this->assertEquals(TASKSTATUS::CANCELLED, $cancelledTask->status);
     }
 
     public function test_task_static_methods_return_enum_options()
@@ -133,31 +133,31 @@ class TaskModelEnumTest extends TestCase
         $pendingTask = Task::create([
             'user_id' => $user->id,
             'title' => 'Pending Task',
-            'status' => TaskStatus::PENDING->value,
+            'status' => TASKSTATUS::PENDING->value,
         ]);
 
         $inProgressTask = Task::create([
             'user_id' => $user->id,
             'title' => 'In Progress Task',
-            'status' => TaskStatus::IN_PROGRESS->value,
+            'status' => TASKSTATUS::IN_PROGRESS->value,
         ]);
 
         $completedTask = Task::create([
             'user_id' => $user->id,
             'title' => 'Completed Task',
-            'status' => TaskStatus::COMPLETED->value,
+            'status' => TASKSTATUS::COMPLETED->value,
         ]);
 
         // 测试状态查询作用域
-        $pendingTasks = Task::byStatus(TaskStatus::PENDING)->get();
+        $pendingTasks = Task::byStatus(TASKSTATUS::PENDING)->get();
         $this->assertCount(1, $pendingTasks);
         $this->assertEquals($pendingTask->id, $pendingTasks->first()->id);
 
-        $inProgressTasks = Task::byStatus(TaskStatus::IN_PROGRESS)->get();
+        $inProgressTasks = Task::byStatus(TASKSTATUS::IN_PROGRESS)->get();
         $this->assertCount(1, $inProgressTasks);
         $this->assertEquals($inProgressTask->id, $inProgressTasks->first()->id);
 
-        $completedTasks = Task::byStatus(TaskStatus::COMPLETED)->get();
+        $completedTasks = Task::byStatus(TASKSTATUS::COMPLETED)->get();
         $this->assertCount(1, $completedTasks);
         $this->assertEquals($completedTask->id, $completedTasks->first()->id);
     }
@@ -169,7 +169,7 @@ class TaskModelEnumTest extends TestCase
         $task = Task::create([
             'user_id' => $user->id,
             'title' => 'Progress Task',
-            'status' => TaskStatus::IN_PROGRESS->value,
+            'status' => TASKSTATUS::IN_PROGRESS->value,
             'progress' => 50,
         ]);
 
@@ -178,7 +178,7 @@ class TaskModelEnumTest extends TestCase
         $task->refresh();
         
         $this->assertEquals(100, $task->progress);
-        $this->assertEquals(TaskStatus::COMPLETED, $task->status);
+        $this->assertEquals(TASKSTATUS::COMPLETED, $task->status);
         $this->assertTrue($task->isCompleted());
     }
 }

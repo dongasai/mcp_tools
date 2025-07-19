@@ -2,7 +2,7 @@
 
 namespace App\Modules\Task\Enums;
 
-enum TaskPriority: string
+enum TASKPRIORITY: string
 {
     case LOW = 'low';
     case MEDIUM = 'medium';
@@ -67,7 +67,7 @@ enum TaskPriority: string
     public static function options(): array
     {
         return array_map(
-            fn(TaskPriority $priority) => [
+            fn(TASKPRIORITY $priority) => [
                 'value' => $priority->value,
                 'label' => $priority->label(),
                 'color' => $priority->color(),
@@ -84,8 +84,8 @@ enum TaskPriority: string
     public static function selectOptions(): array
     {
         return array_combine(
-            array_map(fn(TaskPriority $priority) => $priority->value, self::cases()),
-            array_map(fn(TaskPriority $priority) => $priority->label(), self::cases())
+            array_map(fn(TASKPRIORITY $priority) => $priority->value, self::cases()),
+            array_map(fn(TASKPRIORITY $priority) => $priority->label(), self::cases())
         );
     }
 
@@ -108,7 +108,7 @@ enum TaskPriority: string
     /**
      * 比较优先级
      */
-    public function isHigherThan(TaskPriority $other): bool
+    public function isHigherThan(TASKPRIORITY $other): bool
     {
         return $this->value() > $other->value();
     }
@@ -116,7 +116,7 @@ enum TaskPriority: string
     /**
      * 比较优先级
      */
-    public function isLowerThan(TaskPriority $other): bool
+    public function isLowerThan(TASKPRIORITY $other): bool
     {
         return $this->value() < $other->value();
     }

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Task\Enums;
 
-enum TaskStatus: string
+enum TASKSTATUS: string
 {
     case PENDING = 'pending';
     case IN_PROGRESS = 'in_progress';
@@ -62,7 +62,7 @@ enum TaskStatus: string
     public static function options(): array
     {
         return array_map(
-            fn(TaskStatus $status) => [
+            fn(TASKSTATUS $status) => [
                 'value' => $status->value,
                 'label' => $status->label(),
                 'color' => $status->color(),
@@ -78,8 +78,8 @@ enum TaskStatus: string
     public static function selectOptions(): array
     {
         return array_combine(
-            array_map(fn(TaskStatus $status) => $status->value, self::cases()),
-            array_map(fn(TaskStatus $status) => $status->label(), self::cases())
+            array_map(fn(TASKSTATUS $status) => $status->value, self::cases()),
+            array_map(fn(TASKSTATUS $status) => $status->label(), self::cases())
         );
     }
 
@@ -110,7 +110,7 @@ enum TaskStatus: string
     /**
      * 检查是否可以转换到指定状态
      */
-    public function canTransitionTo(TaskStatus $newStatus): bool
+    public function canTransitionTo(TASKSTATUS $newStatus): bool
     {
         return match($this) {
             self::PENDING => in_array($newStatus, [self::IN_PROGRESS, self::BLOCKED, self::CANCELLED, self::ON_HOLD]),
@@ -129,7 +129,7 @@ enum TaskStatus: string
     {
         return array_filter(
             self::cases(),
-            fn(TaskStatus $status) => $this->canTransitionTo($status)
+            fn(TASKSTATUS $status) => $this->canTransitionTo($status)
         );
     }
 }

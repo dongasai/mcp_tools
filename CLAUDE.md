@@ -6,6 +6,8 @@
 
 **MCP Tools** 是一个基于 Laravel 的 Model Context Protocol (MCP) 服务器，通过 Server-Sent Events (SSE) 提供实时 MCP 服务。它使 AI 代理能够安全地管理项目、任务和 GitHub 集成，通过标准化的 MCP 协议端点进行交互。
 
+> 始终使用中文和用户沟通
+
 ## 核心架构
 
 ### 双后台系统

@@ -4,8 +4,10 @@ FROM php:8.2-apache
 # 设置工作目录
 WORKDIR /var/www/html
 
-# 安装系统依赖
-RUN apt-get update && apt-get install -y \
+# 分多步骤进行，增强缓存，减少重复构建
+# 安装系统依赖 (仅必需的)
+RUN apt-get update
+RUN apt-get install -y \
     git \
     curl \
     libpng-dev \
@@ -16,14 +18,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     sqlite3 \
     libsqlite3-dev \
-    nodejs \
-    npm \
-    vim \
-    nano \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+    libzip-dev
 
-# 安装 PHP 扩展
+# 安装 PHP 扩展 (仅必需的)
 RUN docker-php-ext-install \
     pdo \
     pdo_sqlite \
@@ -34,7 +31,8 @@ RUN docker-php-ext-install \
     bcmath \
     gd \
     zip \
-    sockets
+    sockets \
+    zip
 
 # 启用 Apache 模块
 RUN a2enmod rewrite headers
@@ -49,15 +47,6 @@ RUN echo '<VirtualHost *:80>\n\
         AllowOverride All\n\
         Require all granted\n\
     </Directory>\n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-# 设置 PHP 配置
-RUN echo 'memory_limit = 512M\n\
-upload_max_filesize = 100M\n\
-post_max_size = 100M\n\
-max_execution_time = 300\n\
-display_errors = On\n\
-log_errors = On\n\
-error_log = /var/log/apache2/php_errors.log' > /usr/local/etc/php/conf.d/laravel.ini
+# 保持简洁，不运行杂七杂八的

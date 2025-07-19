@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # MCP Tools 应用服务 (Apache + PHP 8.2)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: mcp-tools-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./laravel:/var/www/html
+    ports:
+      - "34004:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    networks:
+      - mcp-network
+
+
+
+networks:
+  mcp-network:
+    driver: bridge

@@ -2,15 +2,13 @@
 
 namespace App\Modules\Mcp\Resources;
 
-use PhpMcp\Server\Resources\Resource;
+use PhpMcp\Server\Attributes\McpResource;
 use App\Modules\Task\Services\TaskService;
-use App\Modules\Mcp\Services\McpService;
 
-class TaskResource extends Resource
+class TaskResource
 {
     public function __construct(
-        private TaskService $taskService,
-        private McpService $mcpService
+        private TaskService $taskService
     ) {}
 
     /**
@@ -44,15 +42,6 @@ class TaskResource extends Resource
     {
         // 解析URI
         $path = $this->parseUri($uri);
-        
-        // 验证Agent权限
-        $agentId = $this->getAgentId();
-        if (!$this->mcpService->validateAgentAccess($agentId, 'task', 'read')) {
-            throw new \Exception('Access denied');
-        }
-
-        // 记录访问
-        $this->mcpService->logSession($agentId, 'task_read', ['uri' => $uri]);
 
         // 根据路径返回不同的数据
         if (str_starts_with($path, 'assigned/')) {
@@ -76,8 +65,9 @@ class TaskResource extends Resource
      */
     private function getTaskList(): array
     {
-        $tasks = $this->taskService->getAllTasks();
-        
+        $user = \App\Modules\User\Models\User::find($this->getUserIdFromAgent());
+        $tasks = $this->taskService->getUserTasks($user);
+
         return [
             'type' => 'task_list',
             'data' => $tasks->map(function ($task) {
@@ -85,9 +75,9 @@ class TaskResource extends Resource
                     'id' => $task->id,
                     'title' => $task->title,
                     'description' => $task->description,
-                    'type' => $task->type,
-                    'status' => $task->status,
-                    'priority' => $task->priority,
+                    'type' => $task->type->value,
+                    'status' => $task->status->value,
+                    'priority' => $task->priority->value,
                     'progress' => $task->progress,
                     'due_date' => $task->due_date?->toISOString(),
                     'created_at' => $task->created_at->toISOString(),
@@ -102,11 +92,7 @@ class TaskResource extends Resource
      */
     private function getTask(string $taskId): array
     {
-        $task = $this->taskService->findTask($taskId);
-        
-        if (!$task) {
-            throw new \Exception('Task not found');
-        }
+        $task = \App\Modules\Task\Models\Task::findOrFail($taskId);
 
         return [
             'type' => 'task_detail',
@@ -143,7 +129,7 @@ class TaskResource extends Resource
      */
     private function getAssignedTasks(string $agentId): array
     {
-        $tasks = $this->taskService->getTasksByAgent($agentId);
+        $tasks = \App\Modules\Task\Models\Task::where('assigned_to', $agentId)->get();
         
         return [
             'type' => 'assigned_tasks',
@@ -166,7 +152,8 @@ class TaskResource extends Resource
      */
     private function getTasksByStatus(string $status): array
     {
-        $tasks = $this->taskService->getTasksByStatus($status);
+        $user = \App\Modules\User\Models\User::find($this->getUserIdFromAgent());
+        $tasks = $this->taskService->getUserTasks($user, ['status' => $status]);
         
         return [
             'type' => 'tasks_by_status',
@@ -197,5 +184,15 @@ class TaskResource extends Resource
     private function getAgentId(): string
     {
         return request()->header('X-Agent-ID', 'unknown');
+    }
+
+    /**
+     * 从Agent获取用户ID
+     */
+    private function getUserIdFromAgent(): int
+    {
+        // 这里应该通过Agent服务获取关联的用户ID
+        // 暂时返回默认值
+        return 1;
     }
 }

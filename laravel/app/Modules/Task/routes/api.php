@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Task\Controllers\SimpleTaskController;
 use App\Modules\Task\Controllers\TaskTestController;
+use App\Modules\Task\Controllers\TaskMcpTestController;
 use App\Modules\Task\Controllers\TaskCommentController;
 
 /*
@@ -26,6 +27,17 @@ Route::prefix('api/tasks')->group(function () {
     Route::post('/test/{id}/start', [TaskTestController::class, 'testStart']);
     Route::post('/test/{id}/complete', [TaskTestController::class, 'testComplete']);
     Route::get('/test/{id}/progress', [TaskTestController::class, 'getProgress']);
+
+    // MCP 集成测试路由
+    Route::prefix('mcp-test')->group(function () {
+        Route::post('/create-main-task', [TaskMcpTestController::class, 'testCreateMainTask']);
+        Route::post('/create-sub-task', [TaskMcpTestController::class, 'testCreateSubTask']);
+        Route::get('/list-tasks', [TaskMcpTestController::class, 'testListTasks']);
+        Route::get('/resource-list', [TaskMcpTestController::class, 'testResourceList']);
+        Route::get('/resource-get', [TaskMcpTestController::class, 'testResourceGet']);
+        Route::post('/add-comment', [TaskMcpTestController::class, 'testAddComment']);
+        Route::get('/mcp-info', [TaskMcpTestController::class, 'getMcpInfo']);
+    });
 });
 
 // 评论相关路由

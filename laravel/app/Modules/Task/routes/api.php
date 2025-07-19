@@ -41,6 +41,7 @@ Route::prefix('api/tasks')->group(function () {
             Route::get('/resource-list', [TaskMcpTestController::class, 'testResourceList']);
             Route::get('/resource-get', [TaskMcpTestController::class, 'testResourceGet']);
             Route::post('/add-comment', [TaskMcpTestController::class, 'testAddComment']);
+            Route::get('/session-info', [TaskMcpTestController::class, 'getSessionInfo']);
         });
     });
 });

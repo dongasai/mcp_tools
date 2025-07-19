@@ -7,13 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Modules\Agent\Services\AuthenticationService;
 use App\Modules\Core\Services\LogService;
+use App\Modules\Mcp\Services\SessionService;
 use Symfony\Component\HttpFoundation\Response;
 
 class McpAuthMiddleware
 {
     public function __construct(
         private AuthenticationService $authService,
-        private LogService $logger
+        private LogService $logger,
+        private SessionService $sessionService
     ) {}
 
     /**
@@ -39,15 +41,20 @@ class McpAuthMiddleware
             // 更新最后活跃时间
             $this->authService->updateLastActive($agent);
 
-            // 将Agent信息添加到请求中
+            // 获取或创建MCP会话
+            $sessionId = $this->sessionService->getOrCreateSessionFromRequest($request, $agent);
+
+            // 将Agent和会话信息添加到请求中
             $request->attributes->set('mcp_agent', $agent);
-            $request->attributes->set('mcp_agent_id', $agent->agent_id);
+            $request->attributes->set('mcp_agent_id', $agent->identifier);
             $request->attributes->set('mcp_user_id', $agent->user_id);
+            $request->attributes->set('mcp_session_id', $sessionId);
 
             // 记录MCP访问日志
             $this->logger->info('MCP request authenticated', [
-                'agent_id' => $agent->agent_id,
+                'agent_id' => $agent->identifier,
                 'user_id' => $agent->user_id,
+                'session_id' => $sessionId,
                 'route' => $request->route()?->getName(),
                 'method' => $request->method(),
                 'url' => $request->url(),

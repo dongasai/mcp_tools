@@ -10,6 +10,7 @@ use App\Modules\Task\Enums\TASKSTATUS;
 use App\Modules\Task\Enums\TASKTYPE;
 use App\Modules\Agent\Services\AuthenticationService;
 use App\Modules\Agent\Services\AuthorizationService;
+use App\Modules\Mcp\Services\ErrorHandlerService;
 
 class TaskTool
 {
@@ -17,7 +18,8 @@ class TaskTool
         private TaskService $taskService,
         private TaskCommentService $commentService,
         private AuthenticationService $authService,
-        private AuthorizationService $authzService
+        private AuthorizationService $authzService,
+        private ErrorHandlerService $errorHandler
     ) {}
 
     /**
@@ -33,18 +35,12 @@ class TaskTool
 
             // 验证项目访问权限
             if (!$this->authzService->canAccessProject($agent, (int)$projectId)) {
-                return [
-                    'success' => false,
-                    'error' => "Access denied to project {$projectId}"
-                ];
+                throw new \Exception("Access denied to project {$projectId}");
             }
 
             // 验证创建任务权限
             if (!$this->authzService->canPerformAction($agent, 'create_task')) {
-                return [
-                    'success' => false,
-                    'error' => 'Permission denied: create_task'
-                ];
+                throw new \Exception('Permission denied: create_task');
             }
 
             $taskData = [
@@ -72,10 +68,17 @@ class TaskTool
                 ]
             ];
         } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
+            // 获取会话ID（如果有）
+            $sessionId = request()->attributes->get('mcp_session_id');
+
+            // 使用错误处理服务处理错误
+            $errorResponse = $this->errorHandler->handleError($e, $sessionId, [
+                'tool' => 'create_main_task',
+                'project_id' => $projectId,
+                'agent_id' => $agent->identifier ?? 'unknown'
+            ]);
+
+            return $errorResponse->getData(true);
         }
     }
 

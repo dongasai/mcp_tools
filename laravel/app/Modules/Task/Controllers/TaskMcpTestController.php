@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Modules\Mcp\Tools\TaskTool;
 use App\Modules\Mcp\Resources\TaskResource;
+use App\Modules\Mcp\Services\SessionService;
 use App\Modules\Task\Models\Task;
 use App\Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
@@ -15,7 +16,8 @@ class TaskMcpTestController extends Controller
 {
     public function __construct(
         private TaskTool $taskTool,
-        private TaskResource $taskResource
+        private TaskResource $taskResource,
+        private SessionService $sessionService
     ) {}
 
     /**
@@ -47,7 +49,8 @@ class TaskMcpTestController extends Controller
                 'result' => $result,
                 'auth_info' => [
                     'agent_id' => $request->attributes->get('mcp_agent_id'),
-                    'user_id' => $request->attributes->get('mcp_user_id')
+                    'user_id' => $request->attributes->get('mcp_user_id'),
+                    'session_id' => $request->attributes->get('mcp_session_id')
                 ]
             ]);
 
@@ -257,6 +260,44 @@ class TaskMcpTestController extends Controller
                 'success' => false,
                 'error' => $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * 获取当前MCP会话信息
+     */
+    public function getSessionInfo(Request $request): JsonResponse
+    {
+        try {
+            $sessionId = $request->attributes->get('mcp_session_id');
+
+            if (!$sessionId) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No active MCP session'
+                ], 400);
+            }
+
+            $sessionStats = $this->sessionService->getSessionStats($sessionId);
+
+            if (!$sessionStats) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Session not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'MCP session information retrieved',
+                'data' => $sessionStats
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

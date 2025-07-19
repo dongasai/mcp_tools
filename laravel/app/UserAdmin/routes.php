@@ -36,6 +36,11 @@ Route::group([
     // 任务管理
     $router->resource('tasks', 'TaskController');
 
+    // 任务评论管理
+    $router->post('tasks/{task}/comments', 'TaskController@addComment')->name('tasks.comments.store');
+    $router->put('tasks/{task}/comments/{comment}', 'TaskController@editComment')->name('tasks.comments.update');
+    $router->delete('tasks/{task}/comments/{comment}', 'TaskController@deleteComment')->name('tasks.comments.destroy');
+
     // Agent管理
     $router->resource('agents', 'AgentController');
 

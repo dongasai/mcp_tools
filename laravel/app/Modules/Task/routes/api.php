@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Task\Controllers\SimpleTaskController;
 use App\Modules\Task\Controllers\TaskTestController;
+use App\Modules\Task\Controllers\TaskCommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,4 +26,18 @@ Route::prefix('api/tasks')->group(function () {
     Route::post('/test/{id}/start', [TaskTestController::class, 'testStart']);
     Route::post('/test/{id}/complete', [TaskTestController::class, 'testComplete']);
     Route::get('/test/{id}/progress', [TaskTestController::class, 'getProgress']);
+});
+
+// 评论相关路由
+Route::prefix('api/tasks/{task}')->group(function () {
+    // 评论CRUD操作
+    Route::get('/comments', [TaskCommentController::class, 'index']);
+    Route::post('/comments', [TaskCommentController::class, 'store']);
+    Route::get('/comments/{comment}', [TaskCommentController::class, 'show']);
+    Route::put('/comments/{comment}', [TaskCommentController::class, 'update']);
+    Route::delete('/comments/{comment}', [TaskCommentController::class, 'destroy']);
+
+    // 评论回复操作
+    Route::post('/comments/{comment}/reply', [TaskCommentController::class, 'reply']);
+    Route::get('/comments/{comment}/replies', [TaskCommentController::class, 'replies']);
 });

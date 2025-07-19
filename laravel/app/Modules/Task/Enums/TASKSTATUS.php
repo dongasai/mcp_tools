@@ -17,12 +17,12 @@ enum TASKSTATUS: string
     public function label(): string
     {
         return match($this) {
-            self::PENDING => 'Pending',
-            self::IN_PROGRESS => 'In Progress',
-            self::COMPLETED => 'Completed',
-            self::BLOCKED => 'Blocked',
-            self::CANCELLED => 'Cancelled',
-            self::ON_HOLD => 'On Hold',
+            self::PENDING => '待处理',
+            self::IN_PROGRESS => '进行中',
+            self::COMPLETED => '已完成',
+            self::BLOCKED => '已阻塞',
+            self::CANCELLED => '已取消',
+            self::ON_HOLD => '暂停',
         };
     }
 

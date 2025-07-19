@@ -17,12 +17,12 @@ enum TASKTYPE: string
     public function label(): string
     {
         return match($this) {
-            self::MAIN => 'Main Task',
-            self::SUB => 'Sub Task',
-            self::MILESTONE => 'Milestone',
-            self::BUG => 'Bug Fix',
-            self::FEATURE => 'Feature',
-            self::IMPROVEMENT => 'Improvement',
+            self::MAIN => '主任务',
+            self::SUB => '子任务',
+            self::MILESTONE => '里程碑',
+            self::BUG => '错误修复',
+            self::FEATURE => '新功能',
+            self::IMPROVEMENT => '改进',
         };
     }
 

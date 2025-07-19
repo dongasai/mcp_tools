@@ -15,10 +15,10 @@ enum TASKPRIORITY: string
     public function label(): string
     {
         return match($this) {
-            self::LOW => 'Low',
-            self::MEDIUM => 'Medium',
-            self::HIGH => 'High',
-            self::URGENT => 'Urgent',
+            self::LOW => '低',
+            self::MEDIUM => '中',
+            self::HIGH => '高',
+            self::URGENT => '紧急',
         };
     }
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\User\Models\User;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Project\Models\Project;
+use App\Modules\Task\Models\TaskComment;
 use App\Modules\Task\Enums\TASKSTATUS;
 use App\Modules\Task\Enums\TASKTYPE;
 use App\Modules\Task\Enums\TASKPRIORITY;
@@ -109,6 +110,14 @@ class Task extends Model
     public function subTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'parent_task_id');
+    }
+
+    /**
+     * 关联评论
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(TaskComment::class);
     }
 
     /**

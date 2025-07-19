@@ -37,6 +37,9 @@ Route::group([
     $router->resource('tasks', 'TaskController');
 
     // 任务评论管理
+    $router->resource('task-comments', 'TaskCommentController');
+
+    // 任务评论API路由（保留原有的）
     $router->post('tasks/{task}/comments', 'TaskController@addComment')->name('tasks.comments.store');
     $router->put('tasks/{task}/comments/{comment}', 'TaskController@editComment')->name('tasks.comments.update');
     $router->delete('tasks/{task}/comments/{comment}', 'TaskController@deleteComment')->name('tasks.comments.destroy');

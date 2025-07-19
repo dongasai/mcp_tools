@@ -365,18 +365,4 @@ return [
         // the extension files will be generated in this directory.
         'dir' => base_path('dcat-admin-extensions'),
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Multi Application (多后台)
-    |--------------------------------------------------------------------------
-    |
-    | 多应用配置，启用多后台功能
-    |
-    */
-    'multi_app' => [
-        // 与新应用的配置文件名称一致
-        // 设置为true启用，false则是停用
-        'user-admin' => true,
-    ],
 ];

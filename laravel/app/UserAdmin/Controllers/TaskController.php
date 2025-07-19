@@ -274,7 +274,11 @@ class TaskController extends AdminController
                 $html .= '<small class="text-muted">' . $commentData['created_at'] . ' ' . $edited . '</small>';
                 $html .= '<div class="mt-1">';
                 $html .= '<a href="/user-admin/task-comments/' . $commentData['id'] . '/edit" class="btn btn-sm btn-outline-primary">编辑</a>';
-                $html .= '<a href="/user-admin/task-comments/' . $commentData['id'] . '" class="btn btn-sm btn-outline-danger ml-1" onclick="return confirm(\'确定要删除这条评论吗？\')" data-method="delete">删除</a>';
+                $html .= '<form method="POST" action="/user-admin/task-comments/' . $commentData['id'] . '" style="display: inline-block;" onsubmit="return confirm(\'确定要删除这条评论吗？\')">';
+                $html .= '<input type="hidden" name="_method" value="DELETE">';
+                $html .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+                $html .= '<button type="submit" class="btn btn-sm btn-outline-danger ml-1">删除</button>';
+                $html .= '</form>';
                 $html .= '</div>';
                 $html .= '</div>';
                 $html .= '</div>';

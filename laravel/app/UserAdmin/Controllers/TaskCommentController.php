@@ -10,6 +10,7 @@ use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class TaskCommentController extends AdminController
@@ -160,5 +161,28 @@ class TaskCommentController extends AdminController
             
 
         });
+    }
+
+    /**
+     * 删除评论
+     */
+    public function destroy($id)
+    {
+        Log::info('TaskCommentController destroy called with id: ' . $id);
+
+        $comment = TaskComment::findOrFail($id);
+        Log::info('Found comment: ' . $comment->id . ', user_id: ' . $comment->user_id);
+
+        // 验证权限：只有评论作者可以删除自己的评论
+        if ($comment->user_id != 1) { // 临时硬编码用户ID
+            Log::info('Permission denied for user_id: ' . $comment->user_id);
+            return response()->json(['status' => false, 'message' => '您没有权限删除此评论']);
+        }
+
+        $comment->delete();
+        Log::info('Comment deleted successfully');
+
+        // 重定向回任务详情页面
+        return redirect()->route('tasks.show', $comment->task_id)->with('success', '评论删除成功');
     }
 }

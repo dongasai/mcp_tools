@@ -7,7 +7,6 @@ use Dcat\Admin\Actions\Response;
 use Dcat\Admin\Grid\RowAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class ResetPasswordAction extends RowAction
 {
@@ -54,9 +53,9 @@ class ResetPasswordAction extends RowAction
                 ->error('用户不存在');
         }
 
-        // 生成随机密码（8位字符，包含字母和数字）
-        $newPassword = Str::random(8);
-        
+        // 固定密码为 123456
+        $newPassword = '123456';
+
         // 更新用户密码
         $user->password = Hash::make($newPassword);
         $user->save();

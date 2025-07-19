@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Modules\User\Controllers\UserController;
+
 use App\Modules\User\Controllers\AuthController;
 use App\Modules\User\Controllers\ProfileController;
 use App\Modules\User\Controllers\TestController;
@@ -53,21 +53,6 @@ Route::prefix('api/users')->group(function () {
         // 登出
         Route::post('/logout', [AuthController::class, 'logout']);
 
-        // 用户管理（需要管理员权限）
-        Route::middleware(['admin'])->group(function () {
-            Route::get('/', [UserController::class, 'index']);
-            Route::post('/', [UserController::class, 'store']);
-            Route::get('/statistics', [UserController::class, 'statistics']);
-            Route::get('/{user}', [UserController::class, 'show']);
-            Route::put('/{user}', [UserController::class, 'update']);
-            Route::delete('/{user}', [UserController::class, 'destroy']);
-
-            // 用户状态管理
-            Route::post('/{user}/activate', [UserController::class, 'activate']);
-            Route::post('/{user}/deactivate', [UserController::class, 'deactivate']);
-            Route::post('/{user}/suspend', [UserController::class, 'suspend']);
-            Route::post('/{user}/verify-email', [UserController::class, 'verifyEmail']);
-            Route::put('/{user}/settings', [UserController::class, 'updateSettings']);
-        });
+        // 用户管理功能已移除，改为使用dcat-admin管理后台
     });
 });

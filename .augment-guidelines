@@ -4,7 +4,6 @@
 - 这是一个基于 Model Context Protocol (MCP) 的项目，使用 Laravel 11 和 SSE (Server-Sent Events) 提供实时 MCP 服务
 - 专注于提供不依赖 Node.js 的 MCP 服务，仅使用 PHP Laravel 实现 SSE
 - 项目实现了 Agent 访问控制和身份识别系统，用于跟踪哪个 Agent 处理特定任务
-- MCP 协议仅处理任务 - 用户管理与 MCP 功能分离
 
 ## 技术栈偏好
 - **后端框架**: Laravel 11 with PHP 8.2+
@@ -67,4 +66,4 @@
 - 实现 Agent 身份认证，使用唯一标识符和访问令牌
 - 强制执行项目级权限控制以访问资源
 - 维护权限变更的操作审计日志
-- 验证所有输入数据并实现 API 访问频率限制
+- 验证所有输入数据并实现访问频率限制

@@ -9,6 +9,10 @@ use App\Modules\Project\Models\Project;
 use App\Modules\Core\Contracts\LogInterface;
 use App\Modules\Core\Contracts\EventInterface;
 use App\Modules\Core\Validators\SimpleValidator;
+use App\Modules\Task\Helpers\TaskValidationHelper;
+use App\Modules\Task\Enums\TaskStatus;
+use App\Modules\Task\Enums\TaskType;
+use App\Modules\Task\Enums\TaskPriority;
 use Illuminate\Support\Collection;
 
 class TaskService
@@ -30,19 +34,7 @@ class TaskService
     public function create(User $user, array $data): Task
     {
         // 验证数据
-        $validatedData = SimpleValidator::check($data, [
-            'title' => 'required|string|min:2|max:255',
-            'description' => 'string|max:2000',
-            'type' => 'string|in:main,sub,milestone,bug,feature,improvement',
-            'priority' => 'string|in:low,medium,high,urgent',
-            'project_id' => 'integer',
-            'agent_id' => 'integer',
-            'parent_task_id' => 'integer',
-            'assigned_to' => 'string|max:255',
-            'due_date' => 'date',
-            'estimated_hours' => 'numeric|min:0',
-            'tags' => 'array',
-        ]);
+        $validatedData = SimpleValidator::check($data, TaskValidationHelper::getCreateTaskRules());
 
         if (empty($validatedData)) {
             $validator = SimpleValidator::make($data, [
@@ -85,7 +77,7 @@ class TaskService
             }
             // 子任务自动继承父任务的项目
             $validatedData['project_id'] = $parentTask->project_id;
-            $validatedData['type'] = Task::TYPE_SUB;
+            $validatedData['type'] = TaskType::SUB->value;
         }
 
         // 创建任务
@@ -93,15 +85,15 @@ class TaskService
             'user_id' => $user->id,
             'title' => $validatedData['title'],
             'description' => $validatedData['description'] ?? null,
-            'type' => $validatedData['type'] ?? Task::TYPE_MAIN,
-            'priority' => $validatedData['priority'] ?? Task::PRIORITY_MEDIUM,
+            'type' => $validatedData['type'] ?? TaskType::MAIN->value,
+            'priority' => $validatedData['priority'] ?? TaskPriority::MEDIUM->value,
             'project_id' => $validatedData['project_id'] ?? null,
             'agent_id' => $validatedData['agent_id'] ?? null,
             'parent_task_id' => $validatedData['parent_task_id'] ?? null,
             'assigned_to' => $validatedData['assigned_to'] ?? null,
             'due_date' => $validatedData['due_date'] ?? null,
             'estimated_hours' => $validatedData['estimated_hours'] ?? null,
-            'status' => Task::STATUS_PENDING,
+            'status' => TaskStatus::PENDING->value,
             'progress' => 0,
             'tags' => $validatedData['tags'] ?? [],
             'metadata' => [],
@@ -129,21 +121,7 @@ class TaskService
     public function update(Task $task, array $data): Task
     {
         // 验证数据
-        $validatedData = SimpleValidator::check($data, [
-            'title' => 'string|min:2|max:255',
-            'description' => 'string|max:2000',
-            'type' => 'string|in:main,sub,milestone,bug,feature,improvement',
-            'priority' => 'string|in:low,medium,high,urgent',
-            'status' => 'string|in:pending,in_progress,completed,blocked,cancelled,on_hold',
-            'agent_id' => 'integer',
-            'assigned_to' => 'string|max:255',
-            'due_date' => 'date',
-            'estimated_hours' => 'numeric|min:0',
-            'actual_hours' => 'numeric|min:0',
-            'progress' => 'integer|min:0|max:100',
-            'tags' => 'array',
-            'result' => 'array',
-        ]);
+        $validatedData = SimpleValidator::check($data, TaskValidationHelper::getUpdateTaskRules());
 
         if (empty($validatedData)) {
             $validator = SimpleValidator::make($data, [
@@ -196,7 +174,7 @@ class TaskService
             $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskStatusChanged($task, $originalStatus));
 
             // 如果任务完成，检查父任务是否应该完成
-            if ($validatedData['status'] === Task::STATUS_COMPLETED && $task->isSubTask()) {
+            if ($validatedData['status'] === TaskStatus::COMPLETED->value && $task->isSubTask()) {
                 $this->checkParentTaskCompletion($task->parentTask);
             }
         }
@@ -318,7 +296,7 @@ class TaskService
         }
 
         $subTasks = $parentTask->subTasks;
-        $completedSubTasks = $subTasks->where('status', Task::STATUS_COMPLETED);
+        $completedSubTasks = $subTasks->where('status', TaskStatus::COMPLETED);
 
         // 如果所有子任务都完成了，自动完成父任务
         if ($subTasks->count() > 0 && $completedSubTasks->count() === $subTasks->count()) {
@@ -385,19 +363,19 @@ class TaskService
         try {
             return [
                 'total_tasks' => Task::count(),
-                'pending_tasks' => Task::byStatus(Task::STATUS_PENDING)->count(),
-                'in_progress_tasks' => Task::byStatus(Task::STATUS_IN_PROGRESS)->count(),
-                'completed_tasks' => Task::byStatus(Task::STATUS_COMPLETED)->count(),
-                'blocked_tasks' => Task::byStatus(Task::STATUS_BLOCKED)->count(),
+                'pending_tasks' => Task::byStatus(TaskStatus::PENDING)->count(),
+                'in_progress_tasks' => Task::byStatus(TaskStatus::IN_PROGRESS)->count(),
+                'completed_tasks' => Task::byStatus(TaskStatus::COMPLETED)->count(),
+                'blocked_tasks' => Task::byStatus(TaskStatus::BLOCKED)->count(),
                 'main_tasks' => Task::mainTasks()->count(),
                 'sub_tasks' => Task::subTasks()->count(),
                 'overdue_tasks' => Task::overdue()->count(),
                 'due_soon_tasks' => Task::dueSoon()->count(),
                 'tasks_by_priority' => [
-                    'low' => Task::byPriority(Task::PRIORITY_LOW)->count(),
-                    'medium' => Task::byPriority(Task::PRIORITY_MEDIUM)->count(),
-                    'high' => Task::byPriority(Task::PRIORITY_HIGH)->count(),
-                    'urgent' => Task::byPriority(Task::PRIORITY_URGENT)->count(),
+                    'low' => Task::byPriority(TaskPriority::LOW)->count(),
+                    'medium' => Task::byPriority(TaskPriority::MEDIUM)->count(),
+                    'high' => Task::byPriority(TaskPriority::HIGH)->count(),
+                    'urgent' => Task::byPriority(TaskPriority::URGENT)->count(),
                 ],
                 'table_exists' => true,
             ];

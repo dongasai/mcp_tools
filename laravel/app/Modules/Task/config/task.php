@@ -18,34 +18,6 @@ return [
         'progress' => 0,
     ],
 
-    // 任务状态配置
-    'statuses' => [
-        'pending' => 'Pending',
-        'in_progress' => 'In Progress',
-        'completed' => 'Completed',
-        'blocked' => 'Blocked',
-        'cancelled' => 'Cancelled',
-        'on_hold' => 'On Hold',
-    ],
-
-    // 任务类型配置
-    'types' => [
-        'main' => 'Main Task',
-        'sub' => 'Sub Task',
-        'milestone' => 'Milestone',
-        'bug' => 'Bug Fix',
-        'feature' => 'Feature',
-        'improvement' => 'Improvement',
-    ],
-
-    // 任务优先级配置
-    'priorities' => [
-        'low' => 'Low',
-        'medium' => 'Medium',
-        'high' => 'High',
-        'urgent' => 'Urgent',
-    ],
-
     // 任务限制配置
     'limits' => [
         'max_tasks_per_user' => env('TASK_MAX_PER_USER', 1000),

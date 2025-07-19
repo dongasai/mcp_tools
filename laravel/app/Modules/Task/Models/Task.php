@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\User\Models\User;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Project\Models\Project;
+use App\Modules\Task\Enums\TaskStatus;
+use App\Modules\Task\Enums\TaskType;
+use App\Modules\Task\Enums\TaskPriority;
 
 class Task extends Model
 {
@@ -32,6 +35,9 @@ class Task extends Model
     ];
 
     protected $casts = [
+        'status' => TaskStatus::class,
+        'type' => TaskType::class,
+        'priority' => TaskPriority::class,
         'tags' => 'array',
         'metadata' => 'array',
         'result' => 'array',
@@ -42,46 +48,11 @@ class Task extends Model
     ];
 
     /**
-     * 任务状态常量
-     */
-    const STATUS_PENDING = 'pending';
-    const STATUS_IN_PROGRESS = 'in_progress';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_BLOCKED = 'blocked';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_ON_HOLD = 'on_hold';
-
-    /**
-     * 任务类型常量
-     */
-    const TYPE_MAIN = 'main';
-    const TYPE_SUB = 'sub';
-    const TYPE_MILESTONE = 'milestone';
-    const TYPE_BUG = 'bug';
-    const TYPE_FEATURE = 'feature';
-    const TYPE_IMPROVEMENT = 'improvement';
-
-    /**
-     * 任务优先级常量
-     */
-    const PRIORITY_LOW = 'low';
-    const PRIORITY_MEDIUM = 'medium';
-    const PRIORITY_HIGH = 'high';
-    const PRIORITY_URGENT = 'urgent';
-
-    /**
      * 获取所有可用状态
      */
     public static function getStatuses(): array
     {
-        return [
-            self::STATUS_PENDING => 'Pending',
-            self::STATUS_IN_PROGRESS => 'In Progress',
-            self::STATUS_COMPLETED => 'Completed',
-            self::STATUS_BLOCKED => 'Blocked',
-            self::STATUS_CANCELLED => 'Cancelled',
-            self::STATUS_ON_HOLD => 'On Hold',
-        ];
+        return TaskStatus::selectOptions();
     }
 
     /**
@@ -89,14 +60,7 @@ class Task extends Model
      */
     public static function getTypes(): array
     {
-        return [
-            self::TYPE_MAIN => 'Main Task',
-            self::TYPE_SUB => 'Sub Task',
-            self::TYPE_MILESTONE => 'Milestone',
-            self::TYPE_BUG => 'Bug Fix',
-            self::TYPE_FEATURE => 'Feature',
-            self::TYPE_IMPROVEMENT => 'Improvement',
-        ];
+        return TaskType::selectOptions();
     }
 
     /**
@@ -104,12 +68,7 @@ class Task extends Model
      */
     public static function getPriorities(): array
     {
-        return [
-            self::PRIORITY_LOW => 'Low',
-            self::PRIORITY_MEDIUM => 'Medium',
-            self::PRIORITY_HIGH => 'High',
-            self::PRIORITY_URGENT => 'Urgent',
-        ];
+        return TaskPriority::selectOptions();
     }
 
     /**
@@ -157,7 +116,7 @@ class Task extends Model
      */
     public function isMainTask(): bool
     {
-        return $this->type === self::TYPE_MAIN || $this->parent_task_id === null;
+        return $this->type === TaskType::MAIN || $this->parent_task_id === null;
     }
 
     /**
@@ -173,7 +132,7 @@ class Task extends Model
      */
     public function isCompleted(): bool
     {
-        return $this->status === self::STATUS_COMPLETED;
+        return $this->status === TaskStatus::COMPLETED;
     }
 
     /**
@@ -181,7 +140,7 @@ class Task extends Model
      */
     public function isInProgress(): bool
     {
-        return $this->status === self::STATUS_IN_PROGRESS;
+        return $this->status === TaskStatus::IN_PROGRESS;
     }
 
     /**
@@ -189,7 +148,7 @@ class Task extends Model
      */
     public function isBlocked(): bool
     {
-        return $this->status === self::STATUS_BLOCKED;
+        return $this->status === TaskStatus::BLOCKED;
     }
 
     /**
@@ -197,7 +156,7 @@ class Task extends Model
      */
     public function start(): void
     {
-        $this->update(['status' => self::STATUS_IN_PROGRESS]);
+        $this->update(['status' => TaskStatus::IN_PROGRESS]);
     }
 
     /**
@@ -206,7 +165,7 @@ class Task extends Model
     public function complete(): void
     {
         $this->update([
-            'status' => self::STATUS_COMPLETED,
+            'status' => TaskStatus::COMPLETED,
             'progress' => 100,
         ]);
     }
@@ -216,7 +175,7 @@ class Task extends Model
      */
     public function block(): void
     {
-        $this->update(['status' => self::STATUS_BLOCKED]);
+        $this->update(['status' => TaskStatus::BLOCKED]);
     }
 
     /**
@@ -224,7 +183,7 @@ class Task extends Model
      */
     public function cancel(): void
     {
-        $this->update(['status' => self::STATUS_CANCELLED]);
+        $this->update(['status' => TaskStatus::CANCELLED]);
     }
 
     /**
@@ -263,17 +222,19 @@ class Task extends Model
     /**
      * 查询作用域：按状态筛选
      */
-    public function scopeByStatus($query, string $status)
+    public function scopeByStatus($query, TaskStatus|string $status)
     {
-        return $query->where('status', $status);
+        $statusValue = $status instanceof TaskStatus ? $status->value : $status;
+        return $query->where('status', $statusValue);
     }
 
     /**
      * 查询作用域：按类型筛选
      */
-    public function scopeByType($query, string $type)
+    public function scopeByType($query, TaskType|string $type)
     {
-        return $query->where('type', $type);
+        $typeValue = $type instanceof TaskType ? $type->value : $type;
+        return $query->where('type', $typeValue);
     }
 
     /**
@@ -319,9 +280,10 @@ class Task extends Model
     /**
      * 查询作用域：按优先级筛选
      */
-    public function scopeByPriority($query, string $priority)
+    public function scopeByPriority($query, TaskPriority|string $priority)
     {
-        return $query->where('priority', $priority);
+        $priorityValue = $priority instanceof TaskPriority ? $priority->value : $priority;
+        return $query->where('priority', $priorityValue);
     }
 
     /**
@@ -341,7 +303,7 @@ class Task extends Model
     public function scopeDueSoon($query, int $days = 7)
     {
         return $query->where('due_date', '<=', now()->addDays($days))
-                    ->where('status', '!=', self::STATUS_COMPLETED);
+                    ->where('status', '!=', TaskStatus::COMPLETED);
     }
 
     /**
@@ -350,6 +312,6 @@ class Task extends Model
     public function scopeOverdue($query)
     {
         return $query->where('due_date', '<', now())
-                    ->where('status', '!=', self::STATUS_COMPLETED);
+                    ->where('status', '!=', TaskStatus::COMPLETED);
     }
 }

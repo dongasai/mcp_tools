@@ -4,12 +4,13 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 use Dcat\Admin\Admin;
 
+// 注册用户后台的 dcat-admin 路由
 Admin::routes();
 
 Route::group([
-    'prefix'     => config('admin.route.prefix'),
-    'namespace'  => config('admin.route.namespace'),
-    'middleware' => config('admin.route.middleware'),
+    'prefix'     => config('user-admin.route.prefix'),
+    'namespace'  => config('user-admin.route.namespace'),
+    'middleware' => config('user-admin.route.middleware'),
 ], function (Router $router) {
 
     // 仪表板

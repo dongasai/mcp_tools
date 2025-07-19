@@ -26,8 +26,8 @@
 
 ## 架构设计原则
 - **双后台架构**:
-  - 超级管理员后台 (/super-admin) 用于系统级管理
-  - 用户后台 (/user-admin) 用于个人项目/任务/Agent 管理
+  - 超级管理员后台 (/super-admin) 用于系统级管理，采用dcat-admin构建
+  - 用户后台 (/user-admin) 用于个人项目/任务/Agent 管理，采用dcat-admin构建
 - **任务层次**: 主任务由用户管理，子任务由 Agent 自主创建和维护
 - **MCP 协议专注**: 专门用于任务处理，不管理用户
 - **Agent 访问控制**: 项目级权限和细粒度操作控制
@@ -53,7 +53,7 @@
 
 ## 包集成要求
 - php-mcp/laravel 用于 MCP 协议支持
-- dcat/laravel-admin 用于后台管理
+- dcat/laravel-admin 用于后台管理/用户后台
 - inhere/php-validate 用于数据验证
 - spatie/laravel-route-attributes 用于路由属性
 - 避免 Node.js 依赖，使用纯 PHP 解决方案

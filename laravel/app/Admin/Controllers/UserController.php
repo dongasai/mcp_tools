@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\ResetPasswordAction;
 use App\Modules\User\Models\User;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -61,6 +62,12 @@ class UserController extends AdminController
                     User::STATUS_SUSPENDED => '暂停',
                     User::STATUS_PENDING => '待审核',
                 ]);
+            });
+
+            // 添加行操作
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                // 添加重置密码操作
+                $actions->append(new ResetPasswordAction());
             });
         });
     }

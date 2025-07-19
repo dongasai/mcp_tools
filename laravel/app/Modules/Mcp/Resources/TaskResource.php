@@ -4,11 +4,15 @@ namespace App\Modules\Mcp\Resources;
 
 use PhpMcp\Server\Attributes\McpResource;
 use App\Modules\Task\Services\TaskService;
+use App\Modules\Agent\Services\AuthenticationService;
+use App\Modules\Agent\Services\AuthorizationService;
 
 class TaskResource
 {
     public function __construct(
-        private TaskService $taskService
+        private TaskService $taskService,
+        private AuthenticationService $authService,
+        private AuthorizationService $authzService
     ) {}
 
     /**
@@ -191,8 +195,40 @@ class TaskResource
      */
     private function getUserIdFromAgent(): int
     {
-        // 这里应该通过Agent服务获取关联的用户ID
-        // 暂时返回默认值
-        return 1;
+        // 从请求中获取认证信息
+        $authInfo = $this->authService->extractAuthFromRequest(request());
+
+        if (!$authInfo['token']) {
+            throw new \Exception('No authentication token provided');
+        }
+
+        // 认证Agent
+        $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+
+        if (!$agent) {
+            throw new \Exception('Invalid authentication token or agent ID');
+        }
+
+        return $agent->user_id;
+    }
+
+    /**
+     * 获取当前认证的Agent
+     */
+    private function getCurrentAgent(): \App\Modules\Agent\Models\Agent
+    {
+        $authInfo = $this->authService->extractAuthFromRequest(request());
+
+        if (!$authInfo['token']) {
+            throw new \Exception('No authentication token provided');
+        }
+
+        $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+
+        if (!$agent) {
+            throw new \Exception('Invalid authentication token or agent ID');
+        }
+
+        return $agent;
     }
 }

@@ -20,34 +20,35 @@ class TaskMcpTestController extends Controller
 
     /**
      * 测试 TaskTool 创建主任务
+     * 注意：此方法需要Agent认证，请在请求头中包含X-Agent-Token和X-Agent-ID
      */
     public function testCreateMainTask(Request $request): JsonResponse
     {
         try {
-            // 模拟 Agent 请求头
-            $request->headers->set('X-Agent-ID', 'test-agent-001');
-
-            // 获取第一个用户和项目用于测试
-            $user = User::first();
+            // 获取第一个项目用于测试
             $project = Project::first();
 
-            if (!$user || !$project) {
+            if (!$project) {
                 return response()->json([
-                    'error' => 'No user or project found for testing'
+                    'error' => 'No project found for testing'
                 ], 400);
             }
 
             $result = $this->taskTool->createMainTask(
                 (string)$project->id,
                 'MCP 测试主任务',
-                '通过 MCP TaskTool 创建的测试任务',
+                '通过 MCP TaskTool 创建的测试任务（需要认证）',
                 'medium'
             );
 
             return response()->json([
                 'success' => true,
-                'message' => 'TaskTool create_main_task test completed',
-                'result' => $result
+                'message' => 'TaskTool create_main_task test completed with authentication',
+                'result' => $result,
+                'auth_info' => [
+                    'agent_id' => $request->attributes->get('mcp_agent_id'),
+                    'user_id' => $request->attributes->get('mcp_user_id')
+                ]
             ]);
 
         } catch (\Exception $e) {

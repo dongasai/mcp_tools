@@ -30,13 +30,18 @@ Route::prefix('api/tasks')->group(function () {
 
     // MCP 集成测试路由
     Route::prefix('mcp-test')->group(function () {
-        Route::post('/create-main-task', [TaskMcpTestController::class, 'testCreateMainTask']);
-        Route::post('/create-sub-task', [TaskMcpTestController::class, 'testCreateSubTask']);
-        Route::get('/list-tasks', [TaskMcpTestController::class, 'testListTasks']);
-        Route::get('/resource-list', [TaskMcpTestController::class, 'testResourceList']);
-        Route::get('/resource-get', [TaskMcpTestController::class, 'testResourceGet']);
-        Route::post('/add-comment', [TaskMcpTestController::class, 'testAddComment']);
+        // 无需认证的信息接口
         Route::get('/mcp-info', [TaskMcpTestController::class, 'getMcpInfo']);
+
+        // 需要MCP认证的接口
+        Route::middleware(['mcp.auth'])->group(function () {
+            Route::post('/create-main-task', [TaskMcpTestController::class, 'testCreateMainTask']);
+            Route::post('/create-sub-task', [TaskMcpTestController::class, 'testCreateSubTask']);
+            Route::get('/list-tasks', [TaskMcpTestController::class, 'testListTasks']);
+            Route::get('/resource-list', [TaskMcpTestController::class, 'testResourceList']);
+            Route::get('/resource-get', [TaskMcpTestController::class, 'testResourceGet']);
+            Route::post('/add-comment', [TaskMcpTestController::class, 'testAddComment']);
+        });
     });
 });
 

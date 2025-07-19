@@ -43,6 +43,14 @@ class AgentServiceProvider extends ServiceProvider
 
         // 注册中间件
         $this->registerMiddleware();
+
+        // 注册命令
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \App\Modules\Agent\Commands\GenerateTokenCommand::class,
+                \App\Modules\Agent\Commands\ManagePermissionsCommand::class,
+            ]);
+        }
     }
 
     /**

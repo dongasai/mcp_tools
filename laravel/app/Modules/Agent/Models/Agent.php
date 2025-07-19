@@ -19,6 +19,10 @@ class Agent extends Model
         'capabilities',
         'configuration',
         'last_active_at',
+        'access_token',
+        'token_expires_at',
+        'allowed_projects',
+        'allowed_actions',
     ];
 
     protected $casts = [
@@ -248,4 +252,28 @@ class Agent extends Model
     {
         return $query->whereJsonContains('allowed_projects', $projectId);
     }
+
+    /**
+     * 为Agent生成新的访问令牌
+     */
+    public function generateAccessToken(): string
+    {
+        $token = 'mcp_token_' . \Illuminate\Support\Str::random(40);
+        $this->access_token = $token;
+        $expiry = (int) config('mcp.access_control.token_expiry', 86400);
+        $this->token_expires_at = now()->addSeconds($expiry);
+        $this->save();
+
+        return $token;
+    }
+
+    /**
+     * 检查Agent的令牌是否已过期
+     */
+    public function isTokenExpired(): bool
+    {
+        return $this->token_expires_at && $this->token_expires_at->isPast();
+    }
+
+
 }

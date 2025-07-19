@@ -1,0 +1,96 @@
+<?php
+
+namespace App\Modules\Mcp\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Modules\Agent\Services\AuthenticationService;
+use App\Modules\Core\Services\LogService;
+use Symfony\Component\HttpFoundation\Response;
+
+class McpAuthMiddleware
+{
+    public function __construct(
+        private AuthenticationService $authService,
+        private LogService $logger
+    ) {}
+
+    /**
+     * Handle an incoming MCP request.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        try {
+            // 提取认证信息
+            $authInfo = $this->authService->extractAuthFromRequest($request);
+            
+            if (!$authInfo['token']) {
+                return $this->unauthorizedResponse('MCP access token required');
+            }
+
+            // 认证Agent
+            $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+            
+            if (!$agent) {
+                return $this->unauthorizedResponse('Invalid MCP access token or agent ID');
+            }
+
+            // 更新最后活跃时间
+            $this->authService->updateLastActive($agent);
+
+            // 将Agent信息添加到请求中
+            $request->attributes->set('mcp_agent', $agent);
+            $request->attributes->set('mcp_agent_id', $agent->agent_id);
+            $request->attributes->set('mcp_user_id', $agent->user_id);
+
+            // 记录MCP访问日志
+            $this->logger->info('MCP request authenticated', [
+                'agent_id' => $agent->agent_id,
+                'user_id' => $agent->user_id,
+                'route' => $request->route()?->getName(),
+                'method' => $request->method(),
+                'url' => $request->url(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            return $next($request);
+
+        } catch (\Exception $e) {
+            $this->logger->error('MCP authentication error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'url' => $request->url(),
+                'method' => $request->method(),
+                'ip' => $request->ip()
+            ]);
+
+            return $this->errorResponse('MCP authentication error occurred');
+        }
+    }
+
+    /**
+     * 返回未授权响应
+     */
+    private function unauthorizedResponse(string $message): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'error' => $message,
+            'code' => 'MCP_UNAUTHORIZED'
+        ], 401);
+    }
+
+    /**
+     * 返回错误响应
+     */
+    private function errorResponse(string $message): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'error' => $message,
+            'code' => 'MCP_AUTH_ERROR'
+        ], 500);
+    }
+}

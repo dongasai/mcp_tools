@@ -8,12 +8,16 @@ use App\Modules\Task\Services\TaskCommentService;
 use App\Modules\Task\Models\Task;
 use App\Modules\Task\Enums\TASKSTATUS;
 use App\Modules\Task\Enums\TASKTYPE;
+use App\Modules\Agent\Services\AuthenticationService;
+use App\Modules\Agent\Services\AuthorizationService;
 
 class TaskTool
 {
     public function __construct(
         private TaskService $taskService,
-        private TaskCommentService $commentService
+        private TaskCommentService $commentService,
+        private AuthenticationService $authService,
+        private AuthorizationService $authzService
     ) {}
 
     /**
@@ -23,8 +27,26 @@ class TaskTool
     public function createMainTask(string $projectId, string $title, string $description = '', string $priority = 'medium'): array
     {
         try {
-            $user = \App\Modules\User\Models\User::find($this->getUserIdFromAgent());
-            
+            // 获取认证的Agent和用户
+            $agent = $this->getCurrentAgent();
+            $user = \App\Modules\User\Models\User::find($agent->user_id);
+
+            // 验证项目访问权限
+            if (!$this->authzService->canAccessProject($agent, (int)$projectId)) {
+                return [
+                    'success' => false,
+                    'error' => "Access denied to project {$projectId}"
+                ];
+            }
+
+            // 验证创建任务权限
+            if (!$this->authzService->canPerformAction($agent, 'create_task')) {
+                return [
+                    'success' => false,
+                    'error' => 'Permission denied: create_task'
+                ];
+            }
+
             $taskData = [
                 'project_id' => $projectId,
                 'title' => $title,
@@ -33,6 +55,7 @@ class TaskTool
                 'status' => TASKSTATUS::PENDING->value,
                 'priority' => $priority,
                 'created_by' => $user->id,
+                'agent_id' => $agent->id, // 关联创建的Agent
             ];
 
             $task = $this->taskService->create($user, $taskData);
@@ -43,8 +66,8 @@ class TaskTool
                 'data' => [
                     'task_id' => $task->id,
                     'title' => $task->title,
-                    'status' => $task->status->value,
-                    'type' => $task->type->value,
+                    'status' => $task->status,
+                    'type' => $task->type,
                     'created_at' => $task->created_at->toISOString()
                 ]
             ];
@@ -85,7 +108,7 @@ class TaskTool
                     'task_id' => $task->id,
                     'title' => $task->title,
                     'parent_task_id' => $task->parent_task_id,
-                    'status' => $task->status->value,
+                    'status' => $task->status,
                     'assigned_to' => $task->assigned_to,
                     'created_at' => $task->created_at->toISOString()
                 ]
@@ -206,7 +229,7 @@ class TaskTool
                 'data' => [
                     'task_id' => $task->id,
                     'title' => $task->title,
-                    'status' => $task->status->value,
+                    'status' => $task->status,
                     'progress' => $task->progress,
                     'completed_at' => $task->updated_at->toISOString()
                 ]
@@ -303,8 +326,40 @@ class TaskTool
      */
     private function getUserIdFromAgent(): int
     {
-        // 这里应该通过Agent服务获取关联的用户ID
-        // 暂时返回默认值
-        return 1;
+        // 从请求中获取认证信息
+        $authInfo = $this->authService->extractAuthFromRequest(request());
+
+        if (!$authInfo['token']) {
+            throw new \Exception('No authentication token provided');
+        }
+
+        // 认证Agent
+        $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+
+        if (!$agent) {
+            throw new \Exception('Invalid authentication token or agent ID');
+        }
+
+        return $agent->user_id;
+    }
+
+    /**
+     * 获取当前认证的Agent
+     */
+    private function getCurrentAgent(): \App\Modules\Agent\Models\Agent
+    {
+        $authInfo = $this->authService->extractAuthFromRequest(request());
+
+        if (!$authInfo['token']) {
+            throw new \Exception('No authentication token provided');
+        }
+
+        $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+
+        if (!$agent) {
+            throw new \Exception('Invalid authentication token or agent ID');
+        }
+
+        return $agent;
     }
 }

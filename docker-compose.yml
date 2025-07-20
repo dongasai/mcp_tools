@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
-      - ./laravel:/var/www/html
+      - .:/var/www/html
     ports:
       - "34004:80"
     environment:

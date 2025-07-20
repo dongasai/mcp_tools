@@ -19,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+                // 注册自定义日志驱动
+        $this->app->make('log')->extend('size_rotating_daily', function ($app, $config) {
+            $logger = new \App\Core\Logging\SizeRotatingDailyLogger();
+            return $logger($config);
+        });
         //
     }
 }

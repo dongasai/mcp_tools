@@ -1,0 +1,105 @@
+
+   UnexpectedValueException 
+
+  There is no existing directory at "/data/dongasai/mcp_tools/storage/logs" and it could not be created: Permission denied
+
+  at vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php:241
+    237▕             });
+    238▕             $status = mkdir($dir, 0777, true);
+    239▕             restore_error_handler();
+    240▕             if (false === $status && !is_dir($dir) && strpos((string) $this->errorMessage, 'File exists') === false) {
+  ➜ 241▕                 throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and it could not be created: '.$this->errorMessage, $dir));
+    242▕             }
+    243▕         }
+    244▕         $this->dirCreated = true;
+    245▕     }
+
+      [2m+13 vendor frames [22m
+
+  14  artisan:13
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+
+
+   UnexpectedValueException 
+
+  There is no existing directory at "/data/dongasai/mcp_tools/storage/logs" and it could not be created: Permission denied
+
+  at vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php:241
+    237▕             });
+    238▕             $status = mkdir($dir, 0777, true);
+    239▕             restore_error_handler();
+    240▕             if (false === $status && !is_dir($dir) && strpos((string) $this->errorMessage, 'File exists') === false) {
+  ➜ 241▕                 throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and it could not be created: '.$this->errorMessage, $dir));
+    242▕             }
+    243▕         }
+    244▕         $this->dirCreated = true;
+    245▕     }
+
+      [2m+13 vendor frames [22m
+
+  14  artisan:13
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+
+
+   UnexpectedValueException 
+
+  There is no existing directory at "/data/dongasai/mcp_tools/storage/logs" and it could not be created: Permission denied
+
+  at vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php:241
+    237▕             });
+    238▕             $status = mkdir($dir, 0777, true);
+    239▕             restore_error_handler();
+    240▕             if (false === $status && !is_dir($dir) && strpos((string) $this->errorMessage, 'File exists') === false) {
+  ➜ 241▕                 throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and it could not be created: '.$this->errorMessage, $dir));
+    242▕             }
+    243▕         }
+    244▕         $this->dirCreated = true;
+    245▕     }
+
+      [2m+13 vendor frames [22m
+
+  14  artisan:13
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+
+
+   UnexpectedValueException 
+
+  There is no existing directory at "/data/dongasai/mcp_tools/storage/logs" and it could not be created: Permission denied
+
+  at vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php:241
+    237▕             });
+    238▕             $status = mkdir($dir, 0777, true);
+    239▕             restore_error_handler();
+    240▕             if (false === $status && !is_dir($dir) && strpos((string) $this->errorMessage, 'File exists') === false) {
+  ➜ 241▕                 throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and it could not be created: '.$this->errorMessage, $dir));
+    242▕             }
+    243▕         }
+    244▕         $this->dirCreated = true;
+    245▕     }
+
+      [2m+13 vendor frames [22m
+
+  14  artisan:13
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+
+
+   UnexpectedValueException 
+
+  There is no existing directory at "/data/dongasai/mcp_tools/storage/logs" and it could not be created: Permission denied
+
+  at vendor/monolog/monolog/src/Monolog/Handler/StreamHandler.php:241
+    237▕             });
+    238▕             $status = mkdir($dir, 0777, true);
+    239▕             restore_error_handler();
+    240▕             if (false === $status && !is_dir($dir) && strpos((string) $this->errorMessage, 'File exists') === false) {
+  ➜ 241▕                 throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and it could not be created: '.$this->errorMessage, $dir));
+    242▕             }
+    243▕         }
+    244▕         $this->dirCreated = true;
+    245▕     }
+
+      [2m+13 vendor frames [22m
+
+  14  artisan:13
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+

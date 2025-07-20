@@ -12,6 +12,7 @@ services:
     volumes:
       - .:/var/www/html
       - ./docker/supervisord.dev.conf:/etc/supervisor/conf.d/laravel.conf
+      - ./storage/supervisor/:/var/log/supervisor/
     ports:
       - "34004:80"
     environment:

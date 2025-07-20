@@ -52,9 +52,18 @@ RUN apt-get install -y supervisor && \
 # 复制supervisor配置文件
 COPY docker/supervisord.conf /etc/supervisor/conf.d/laravel.conf
 
+# 创建uid为1000的用户和用户组
+RUN groupadd -g 1000 appuser && \
+    useradd -u 1000 -g appuser -m -s /bin/bash appuser
+
 # 创建必要的缓存目录并设置权限
 RUN mkdir -p /.npm /.composer/cache/files /var/www/html/storage/logs /var/www/html/storage/app/public /var/www/html/storage/framework/cache /var/www/html/storage/framework/sessions /var/www/html/storage/framework/views /var/www/html/bootstrap/cache && \
+    chown -R appuser:appuser /var/www/html && \
+    chmod -R 755 /var/www/html && \
     chmod -R 777 /.npm /.composer /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 切换到新创建的用户
+USER root
 
 # 设置容器启动命令
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/laravel.conf"]

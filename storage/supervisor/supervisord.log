@@ -1,0 +1,43 @@
+2025-07-20 17:21:08,221 INFO Set uid to user 0 succeeded
+2025-07-20 17:21:08,245 INFO supervisord started with pid 1
+2025-07-20 17:21:09,247 INFO spawned: 'laravel-serve' with pid 7
+2025-07-20 17:21:09,250 INFO spawned: 'log-monitor' with pid 8
+2025-07-20 17:21:09,253 INFO spawned: 'mcp-server' with pid 9
+2025-07-20 17:21:09,257 INFO spawned: 'queue-worker' with pid 10
+2025-07-20 17:21:09,692 WARN exited: log-monitor (exit status 1; not expected)
+2025-07-20 17:21:09,707 WARN exited: mcp-server (exit status 1; not expected)
+2025-07-20 17:21:09,709 WARN exited: queue-worker (exit status 1; not expected)
+2025-07-20 17:21:11,173 INFO success: laravel-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-07-20 17:21:11,176 INFO spawned: 'log-monitor' with pid 22
+2025-07-20 17:21:11,180 INFO spawned: 'mcp-server' with pid 23
+2025-07-20 17:21:11,202 INFO spawned: 'queue-worker' with pid 24
+2025-07-20 17:21:11,561 WARN exited: mcp-server (exit status 1; not expected)
+2025-07-20 17:21:11,678 WARN exited: log-monitor (exit status 1; not expected)
+2025-07-20 17:21:11,703 WARN exited: queue-worker (exit status 1; not expected)
+2025-07-20 17:21:12,709 WARN received SIGTERM indicating exit request
+2025-07-20 17:21:12,709 INFO waiting for laravel-serve, log-monitor, mcp-server to die
+2025-07-20 17:21:15,712 INFO waiting for laravel-serve to die
+2025-07-20 17:21:15,721 INFO stopped: laravel-serve (exit status 0)
+2025-07-20 17:22:07,980 INFO Set uid to user 0 succeeded
+2025-07-20 17:22:07,986 INFO supervisord started with pid 1
+2025-07-20 17:22:08,989 INFO spawned: 'laravel-serve' with pid 7
+2025-07-20 17:22:08,994 INFO spawned: 'log-monitor' with pid 8
+2025-07-20 17:22:09,000 INFO spawned: 'mcp-server' with pid 9
+2025-07-20 17:22:09,004 INFO spawned: 'queue-worker' with pid 10
+2025-07-20 17:22:09,429 WARN exited: mcp-server (exit status 1; not expected)
+2025-07-20 17:22:09,899 WARN exited: queue-worker (exit status 1; not expected)
+2025-07-20 17:22:10,901 INFO success: laravel-serve entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-07-20 17:22:10,902 INFO success: log-monitor entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-07-20 17:22:10,905 INFO spawned: 'mcp-server' with pid 24
+2025-07-20 17:22:10,909 INFO spawned: 'queue-worker' with pid 25
+2025-07-20 17:22:11,219 WARN exited: mcp-server (exit status 1; not expected)
+2025-07-20 17:22:11,228 WARN exited: queue-worker (exit status 1; not expected)
+2025-07-20 17:22:13,236 INFO spawned: 'mcp-server' with pid 32
+2025-07-20 17:22:13,242 INFO spawned: 'queue-worker' with pid 33
+2025-07-20 17:22:13,532 WARN exited: queue-worker (exit status 1; not expected)
+2025-07-20 17:22:13,567 WARN exited: mcp-server (exit status 1; not expected)
+2025-07-20 17:22:15,571 WARN received SIGTERM indicating exit request
+2025-07-20 17:22:15,571 INFO waiting for laravel-serve, log-monitor, mcp-server to die
+2025-07-20 17:22:17,608 WARN stopped: log-monitor (exit status 1)
+2025-07-20 17:22:17,608 INFO reaped unknown pid 17 (exit status 1)
+2025-07-20 17:22:17,636 INFO stopped: laravel-serve (exit status 0)

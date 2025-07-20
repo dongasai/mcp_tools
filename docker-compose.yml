@@ -9,7 +9,6 @@ services:
     container_name: mcp-tools-app
     restart: unless-stopped
     working_dir: /var/www/html
-    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - .:/var/www/html
       - ./docker/supervisord.dev.conf:/etc/supervisor/conf.d/laravel.conf

@@ -30,6 +30,12 @@ Agent代理模块负责管理AI Agent的完整生命周期，包括注册、认�
 - 冲突检测和解决
 - 负载均衡
 
+### 5. Agent交互功能
+- Agent向人类用户提问
+- 问题类型管理（选择类、反馈类）
+- 问题优先级控制
+- 实时通知和状态跟踪
+
 ## 职责边界
 
 ### ✅ Agent模块负责
@@ -39,6 +45,7 @@ Agent代理模块负责管理AI Agent的完整生命周期，包括注册、认�
 - Agent会话管理和状态跟踪
 - Agent之间的协作和冲突解决
 - 为MCP协议提供Agent身份验证
+- Agent向人类用户的提问功能
 
 ### ❌ Agent模块不负责
 - 人类用户的账户管理（由User模块处理）
@@ -60,13 +67,17 @@ app/Modules/Agent/
 │   ├── Agent.php                  # Agent模型
 │   ├── AgentPermission.php        # Agent权限模型
 │   ├── AgentSession.php           # Agent会话模型
+│   ├── AgentQuestion.php          # Agent提问模型
 │   └── AgentAuditLog.php          # Agent审计日志模型
 ├── Services/
 │   ├── AgentService.php           # Agent核心服务
 │   ├── AuthenticationService.php  # 认证服务
 │   ├── AuthorizationService.php   # 授权服务
 │   ├── PermissionService.php      # 权限管理服务
-│   └── SessionService.php         # 会话管理服务
+│   ├── SessionService.php         # 会话管理服务
+│   ├── QuestionService.php        # 提问管理服务
+│   ├── QuestionNotificationService.php # 提问通知服务
+│   └── QuestionAnalyticsService.php # 提问分析服务
 ├── Commands/
 │   ├── RegisterAgentCommand.php   # 注册Agent命令
 │   ├── ListAgentsCommand.php      # 列出Agent命令
@@ -81,7 +92,10 @@ app/Modules/Agent/
 │   ├── AgentAuthenticated.php     # Agent认证事件
 │   ├── PermissionGranted.php      # 权限授予事件
 │   ├── PermissionRevoked.php      # 权限撤销事件
-│   └── AgentSessionExpired.php    # 会话过期事件
+│   ├── AgentSessionExpired.php    # 会话过期事件
+│   ├── QuestionCreated.php        # 问题创建事件
+│   ├── QuestionAnswered.php       # 问题回答事件
+│   └── QuestionIgnored.php        # 问题忽略事件
 ├── Listeners/
 │   ├── LogAgentActivity.php       # 记录Agent活动
 │   ├── UpdateAgentStatus.php      # 更新Agent状态
@@ -207,6 +221,7 @@ Agent认证中间件用于验证Agent的访问令牌并管理会话状态。
 配置管理定义了Agent模块的令牌、会话、权限和速率限制等关键参数。
 
 **相关文档**：
+- [Agent提问功能设计](./docs/Agent提问功能设计.md)
 - [MCP协议模块](./MCP协议概述.md)
 - [项目模块](./project.md)
 - [任务模块](./task.md)

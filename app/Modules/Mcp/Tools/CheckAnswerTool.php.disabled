@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Modules\Mcp\Tools;
+// TEMPORARILY DISABLED - Interface issues
+// namespace App\Modules\Mcp\Tools;
 
 use App\Modules\Agent\Services\QuestionService;
 use App\Modules\Agent\Services\AgentService;

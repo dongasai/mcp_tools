@@ -2,25 +2,22 @@
 
 namespace App\Modules\Mcp\Tools;
 
-
-
-use PhpMcp\Server\Attributes\{McpTool, McpResource, McpResourceTemplate, McpPrompt};
+use PhpMcp\Server\Attributes\{McpResource};
 
 class Time2Tool
 {
-
     /**
-     * Get application configuration.
+     * Get current time.
      */
     #[McpResource(
         uri: 'time://get2',
         mimeType: 'application/json'
     )]
-    public function gettime2(): array
+    public function getTime2(): array
     {
         return [
-            'date' => date('Y-m-d h:i:s'),
+            'date' => date('Y-m-d H:i:s'),
+            'timestamp' => time(),
         ];
     }
-
 }

@@ -2,17 +2,12 @@
 
 namespace App\Modules\Mcp\Tools;
 
+use PhpMcp\Server\Attributes\McpTool;
 use App\Modules\Agent\Services\QuestionService;
 use App\Modules\Agent\Services\AgentService;
-use App\Modules\Agent\Models\AgentQuestion;
 use App\Modules\Core\Contracts\LogInterface;
-use PhpMcp\Laravel\Contracts\ToolInterface;
-use PhpMcp\Laravel\Contracts\ToolCallInterface;
-use PhpMcp\Laravel\Contracts\ToolResultInterface;
-use PhpMcp\Laravel\ToolResult;
-use PhpMcp\Laravel\TextContent;
 
-class AskQuestionTool implements ToolInterface
+class AskQuestionTool
 {
     public function __construct(
         private QuestionService $questionService,

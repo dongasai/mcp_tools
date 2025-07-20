@@ -12,6 +12,7 @@ services:
     # command: composer run devd
     volumes:
       - .:/data/dongasai/mcp_tools
+      - ./docker/000-default.conf:/etc/apache2/sites-available/000-default.conf
     ports:
       - "34004:80"
     environment:

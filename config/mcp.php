@@ -29,7 +29,11 @@ return [
     */
     'discovery' => [
         'base_path' => base_path(),
-        'directories' => array_filter(explode(',', env('MCP_DISCOVERY_DIRECTORIES', 'app/Mcp'))),
+        'directories' => array_filter(
+            explode(',', 
+                env('MCP_DISCOVERY_DIRECTORIES', 'app/Mcp,app/Modules/Mcp/Tools')
+            )
+        ),
         'exclude_dirs' => [
             'vendor',
             'tests',
@@ -93,10 +97,11 @@ return [
         ],
 
         'http_integrated' => [
+            // for serving through Laravel's routing system.
             'enabled' => (bool) env('MCP_HTTP_INTEGRATED_ENABLED', true),
             'legacy' => (bool) env('MCP_HTTP_INTEGRATED_LEGACY', false),
             'route_prefix' => env('MCP_HTTP_INTEGRATED_ROUTE_PREFIX', 'mcp'),
-            'middleware' => ['api'],
+            'middleware' => ['mcp'],
             'domain' => env('MCP_HTTP_INTEGRATED_DOMAIN'),
             'sse_poll_interval' => (int) env('MCP_HTTP_INTEGRATED_SSE_POLL_SECONDS', 1),
             'cors_origin' => env('MCP_HTTP_INTEGRATED_CORS_ORIGIN', '*'),

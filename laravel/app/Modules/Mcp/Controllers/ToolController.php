@@ -13,6 +13,7 @@ use App\Modules\Mcp\Tools\AgentTool;
 use App\Modules\Mcp\Tools\AskQuestionTool;
 use App\Modules\Mcp\Tools\CheckAnswerTool;
 use App\Modules\Mcp\Tools\GetQuestionsTool;
+use App\Modules\Mcp\Tools\QuestionBatchTool;
 
 class ToolController extends Controller
 {
@@ -24,7 +25,8 @@ class ToolController extends Controller
         private AgentTool $agentTool,
         private AskQuestionTool $askQuestionTool,
         private CheckAnswerTool $checkAnswerTool,
-        private GetQuestionsTool $getQuestionsTool
+        private GetQuestionsTool $getQuestionsTool,
+        private QuestionBatchTool $questionBatchTool
     ) {}
 
     /**
@@ -160,6 +162,7 @@ class ToolController extends Controller
             'ask_question' => $this->askQuestionTool,
             'check_answer' => $this->checkAnswerTool,
             'get_questions' => $this->getQuestionsTool,
+            'question_batch' => $this->questionBatchTool,
             default => null
         };
     }

@@ -312,26 +312,71 @@ class QuestionService
     }
 
     /**
-     * 批量更新问题状态
+     * 批量更新问题状态（增强版）
      */
-    public function batchUpdateStatus(array $questionIds, string $status): int
+    public function batchUpdateStatus(array $questionIds, string $status, ?string $answer = null): array
     {
-        if (!in_array($status, [AgentQuestion::STATUS_PENDING, AgentQuestion::STATUS_ANSWERED, AgentQuestion::STATUS_IGNORED])) {
+        $validStatuses = [AgentQuestion::STATUS_PENDING, AgentQuestion::STATUS_ANSWERED, AgentQuestion::STATUS_IGNORED];
+        if (!in_array($status, $validStatuses)) {
             throw new \InvalidArgumentException("Invalid status: {$status}");
         }
 
-        $updated = AgentQuestion::whereIn('id', $questionIds)->update([
-            'status' => $status,
-            'updated_at' => now(),
-        ]);
+        $questions = AgentQuestion::whereIn('id', $questionIds)->get();
+        $results = [];
 
-        $this->logger->info('Batch status update', [
-            'question_ids' => $questionIds,
-            'status' => $status,
-            'updated_count' => $updated,
-        ]);
+        foreach ($questions as $question) {
+            try {
+                $oldStatus = $question->status;
 
-        return $updated;
+                $question->status = $status;
+
+                // 根据状态设置相应字段
+                if ($status === AgentQuestion::STATUS_ANSWERED) {
+                    if ($answer) {
+                        $question->answer = $answer;
+                    }
+                    $question->answered_at = now();
+                } elseif ($status === AgentQuestion::STATUS_IGNORED) {
+                    $question->ignored_at = now();
+                }
+
+                $question->save();
+
+                // 触发相应事件
+                if ($status === AgentQuestion::STATUS_ANSWERED && $oldStatus !== AgentQuestion::STATUS_ANSWERED) {
+                    QuestionAnswered::dispatch($question);
+                } elseif ($status === AgentQuestion::STATUS_IGNORED && $oldStatus !== AgentQuestion::STATUS_IGNORED) {
+                    QuestionIgnored::dispatch($question);
+                }
+
+                $results[] = [
+                    'id' => $question->id,
+                    'status' => 'success',
+                    'old_status' => $oldStatus,
+                    'new_status' => $status,
+                ];
+
+                $this->logger->info('Question status updated in batch', [
+                    'question_id' => $question->id,
+                    'old_status' => $oldStatus,
+                    'new_status' => $status,
+                ]);
+
+            } catch (\Exception $e) {
+                $results[] = [
+                    'id' => $question->id,
+                    'status' => 'error',
+                    'error' => $e->getMessage(),
+                ];
+
+                $this->logger->error('Failed to update question status in batch', [
+                    'question_id' => $question->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $results;
     }
 
     /**
@@ -472,6 +517,222 @@ class QuestionService
                 // 默认排序：优先级 + 创建时间
                 $query->byPriority()->latest();
                 break;
+        }
+    }
+
+
+
+    /**
+     * 批量删除问题
+     */
+    public function batchDelete(array $questionIds): array
+    {
+        $questions = AgentQuestion::whereIn('id', $questionIds)->get();
+        $results = [];
+
+        foreach ($questions as $question) {
+            try {
+                $question->delete();
+
+                $results[] = [
+                    'id' => $question->id,
+                    'status' => 'success',
+                ];
+
+                $this->logger->info('Question deleted in batch', [
+                    'question_id' => $question->id,
+                ]);
+
+            } catch (\Exception $e) {
+                $results[] = [
+                    'id' => $question->id,
+                    'status' => 'error',
+                    'error' => $e->getMessage(),
+                ];
+
+                $this->logger->error('Failed to delete question in batch', [
+                    'question_id' => $question->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * 搜索问题
+     */
+    public function searchQuestions(string $query, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    {
+        $searchQuery = AgentQuestion::query()->with(['agent', 'user']);
+
+        // 全文搜索
+        if (!empty($query)) {
+            $searchQuery->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('content', 'LIKE', "%{$query}%")
+                  ->orWhere('answer', 'LIKE', "%{$query}%")
+                  ->orWhere('context', 'LIKE', "%{$query}%")
+                  ->orWhereHas('agent', function ($agentQuery) use ($query) {
+                      $agentQuery->where('name', 'LIKE', "%{$query}%")
+                                 ->orWhere('agent_id', 'LIKE', "%{$query}%");
+                  });
+            });
+        }
+
+        // 应用过滤条件
+        $this->applySearchFilters($searchQuery, $filters);
+
+        // 排序
+        $sortBy = $filters['sort_by'] ?? 'priority';
+        $sortOrder = $filters['sort_order'] ?? 'desc';
+        $this->applySorting($searchQuery, ['sort_by' => $sortBy, 'sort_order' => $sortOrder]);
+
+        return $searchQuery->paginate($perPage);
+    }
+
+    /**
+     * 提取问题上下文信息
+     */
+    public function extractContext(AgentQuestion $question): array
+    {
+        $context = [];
+
+        // 基础上下文
+        $context['question_id'] = $question->id;
+        $context['agent_info'] = [
+            'id' => $question->agent->id,
+            'name' => $question->agent->name,
+            'agent_id' => $question->agent->agent_id,
+            'type' => $question->agent->type,
+        ];
+
+        // 项目上下文
+        if ($question->project_id) {
+            $context['project_info'] = [
+                'id' => $question->project_id,
+                // 可以添加更多项目信息
+            ];
+        }
+
+        // 相关问题
+        $relatedQuestions = AgentQuestion::where('agent_id', $question->agent_id)
+            ->where('id', '!=', $question->id)
+            ->where('created_at', '>=', $question->created_at->subHours(24))
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get(['id', 'title', 'content', 'question_type', 'priority', 'status', 'created_at']);
+
+        $context['related_questions'] = $relatedQuestions->toArray();
+
+        // 问题模式分析
+        $context['patterns'] = $this->analyzeQuestionPatterns($question);
+
+        // 时间上下文
+        $context['timing'] = [
+            'created_at' => $question->created_at->toISOString(),
+            'expires_at' => $question->expires_at?->toISOString(),
+            'time_since_creation' => $question->created_at->diffForHumans(),
+            'time_until_expiry' => $question->expires_at?->diffForHumans(),
+        ];
+
+        return $context;
+    }
+
+    /**
+     * 分析问题模式
+     */
+    private function analyzeQuestionPatterns(AgentQuestion $question): array
+    {
+        $patterns = [];
+
+        // 分析Agent的提问频率
+        $recentQuestions = AgentQuestion::where('agent_id', $question->agent_id)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
+
+        $patterns['recent_question_frequency'] = $recentQuestions;
+
+        // 分析问题类型偏好
+        $typeStats = AgentQuestion::where('agent_id', $question->agent_id)
+            ->selectRaw('question_type, COUNT(*) as count')
+            ->groupBy('question_type')
+            ->pluck('count', 'question_type')
+            ->toArray();
+
+        $patterns['type_preferences'] = $typeStats;
+
+        // 分析优先级模式
+        $priorityStats = AgentQuestion::where('agent_id', $question->agent_id)
+            ->selectRaw('priority, COUNT(*) as count')
+            ->groupBy('priority')
+            ->pluck('count', 'priority')
+            ->toArray();
+
+        $patterns['priority_patterns'] = $priorityStats;
+
+        return $patterns;
+    }
+
+    /**
+     * 应用搜索过滤条件
+     */
+    private function applySearchFilters($query, array $filters): void
+    {
+        if (isset($filters['agent_id'])) {
+            $query->where('agent_id', $filters['agent_id']);
+        }
+
+        if (isset($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        if (isset($filters['project_id'])) {
+            $query->where('project_id', $filters['project_id']);
+        }
+
+        if (isset($filters['type'])) {
+            $query->where('question_type', $filters['type']);
+        }
+
+        if (isset($filters['question_type'])) {
+            $query->where('question_type', $filters['question_type']);
+        }
+
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (isset($filters['priority'])) {
+            $query->where('priority', $filters['priority']);
+        }
+
+        if (isset($filters['date_from'])) {
+            $query->where('created_at', '>=', $filters['date_from']);
+        }
+
+        if (isset($filters['date_to'])) {
+            $query->where('created_at', '<=', $filters['date_to']);
+        }
+
+        if (isset($filters['has_answer'])) {
+            if ($filters['has_answer']) {
+                $query->whereNotNull('answer');
+            } else {
+                $query->whereNull('answer');
+            }
+        }
+
+        if (isset($filters['is_expired'])) {
+            if ($filters['is_expired']) {
+                $query->where('expires_at', '<', now());
+            } else {
+                $query->where(function ($q) {
+                    $q->whereNull('expires_at')
+                      ->orWhere('expires_at', '>=', now());
+                });
+            }
         }
     }
 }

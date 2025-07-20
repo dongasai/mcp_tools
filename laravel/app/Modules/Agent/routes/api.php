@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Agent\Controllers\AgentTestController;
 use App\Modules\Agent\Controllers\QuestionController;
 use App\Modules\Agent\Controllers\QuestionTestController;
+use App\Modules\Agent\Controllers\QuestionAnalyticsController;
+use App\Modules\Agent\Controllers\QuestionPhase3TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,4 +64,35 @@ Route::prefix('api/questions')->group(function () {
 // 用户问题路由
 Route::prefix('api/users')->group(function () {
     Route::get('/{userId}/questions', [QuestionController::class, 'userQuestions']);
+});
+
+// 问题分析和批量操作路由
+Route::prefix('api/questions')->group(function () {
+    // 批量操作
+    Route::post('/batch/update-status', [QuestionAnalyticsController::class, 'batchUpdateStatus']);
+    Route::post('/batch/delete', [QuestionAnalyticsController::class, 'batchDelete']);
+
+    // 搜索功能
+    Route::post('/search', [QuestionAnalyticsController::class, 'search']);
+
+    // 分析功能
+    Route::get('/analytics/type-stats', [QuestionAnalyticsController::class, 'getTypeStats']);
+    Route::get('/analytics/status-stats', [QuestionAnalyticsController::class, 'getStatusStats']);
+    Route::get('/analytics/response-time', [QuestionAnalyticsController::class, 'getResponseTimeAnalysis']);
+    Route::get('/analytics/agent-patterns', [QuestionAnalyticsController::class, 'getAgentPatterns']);
+    Route::get('/analytics/trends', [QuestionAnalyticsController::class, 'getTrends']);
+    Route::get('/analytics/comprehensive', [QuestionAnalyticsController::class, 'getComprehensiveReport']);
+
+    // 上下文提取
+    Route::get('/{questionId}/context', [QuestionAnalyticsController::class, 'extractContext']);
+});
+
+// Phase 3 高级功能测试路由
+Route::prefix('api/questions/test/phase3')->group(function () {
+    Route::post('/batch-update-status', [QuestionPhase3TestController::class, 'testBatchUpdateStatus']);
+    Route::post('/batch-delete', [QuestionPhase3TestController::class, 'testBatchDelete']);
+    Route::post('/search', [QuestionPhase3TestController::class, 'testSearch']);
+    Route::post('/analytics', [QuestionPhase3TestController::class, 'testAnalytics']);
+    Route::post('/context-extraction', [QuestionPhase3TestController::class, 'testContextExtraction']);
+    Route::post('/run-all', [QuestionPhase3TestController::class, 'runAllTests']);
 });

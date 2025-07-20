@@ -95,6 +95,10 @@ return [
             'class' => \App\Modules\Mcp\Tools\CheckAnswerTool::class,
             'description' => '检查问题是否已被回答，获取问题的当前状态和回答内容',
         ],
+        'question_batch' => [
+            'class' => \App\Modules\Mcp\Tools\QuestionBatchTool::class,
+            'description' => 'Agent问题批量操作工具 - 批量处理、搜索和分析功能',
+        ],
     ],
 
     /*

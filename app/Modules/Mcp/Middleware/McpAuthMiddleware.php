@@ -24,7 +24,6 @@ class McpAuthMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-            return $next($request);
         try {
             // 提取认证信息
             $authInfo = $this->authService->extractAuthFromRequest($request);

@@ -26,6 +26,8 @@ class Agent extends Model
     ];
 
     protected $casts = [
+        'capabilities' => 'array',
+        'configuration' => 'array',
         'permissions' => 'array',
         'allowed_projects' => 'array',
         'allowed_actions' => 'array',

@@ -9,6 +9,7 @@ services:
     container_name: mcp-tools-app
     restart: unless-stopped
     working_dir: /var/www/html
+    command: composer run dev
     volumes:
       - .:/var/www/html
     ports:

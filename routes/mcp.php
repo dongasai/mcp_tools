@@ -1,15 +1,6 @@
 <?php
 
 use PhpMcp\Laravel\Facades\Mcp;
-use App\Modules\Mcp\Tools\TaskTool;
-use App\Modules\Mcp\Tools\ProjectTool;
-use App\Modules\Mcp\Tools\AgentTool;
-use App\Modules\Mcp\Tools\AskQuestionTool;
-use App\Modules\Mcp\Tools\CheckAnswerTool;
-use App\Modules\Mcp\Tools\GetQuestionsTool;
-use App\Modules\Mcp\Tools\QuestionBatchTool;
-use App\Modules\Mcp\Resources\ProjectResource;
-use App\Modules\Mcp\Resources\TaskResource;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,50 +9,16 @@ use App\Modules\Mcp\Resources\TaskResource;
 |
 | Register MCP tools that can be called by AI agents
 |
+| 注意：大部分工具使用属性(Attributes)自动发现，这里只注册一些简单的示例工具
+|
 */
 
-// Task Management Tools
-Mcp::tool('create_main_task', [TaskTool::class, 'createMainTask'])
-    ->description('Create a new main task in a project');
+// 注意：当前版本的php-mcp/laravel不支持闭包工具
+// 工具将通过属性(Attributes)自动发现，或者需要创建专门的工具类
 
-Mcp::tool('create_sub_task', [TaskTool::class, 'createSubTask'])
-    ->description('Create a sub-task under a parent task');
-
-Mcp::tool('list_tasks', [TaskTool::class, 'listTasks'])
-    ->description('List tasks with optional filters');
-
-Mcp::tool('get_task', [TaskTool::class, 'getTask'])
-    ->description('Get detailed information about a specific task');
-
-Mcp::tool('complete_task', [TaskTool::class, 'completeTask'])
-    ->description('Mark a task as completed');
-
-Mcp::tool('add_comment', [TaskTool::class, 'addComment'])
-    ->description('Add a comment to a task');
-
-Mcp::tool('get_assigned_tasks', [TaskTool::class, 'getAssignedTasks'])
-    ->description('Get tasks assigned to the current agent');
-
-// Project Management Tools
-Mcp::tool('project_manager', [ProjectTool::class, 'call'])
-    ->description('Manage projects - create, update, and query project information');
-
-// Agent Management Tools
-Mcp::tool('agent_manager', [AgentTool::class, 'call'])
-    ->description('Manage agents - create, update, and query agent information');
-
-// Question/Answer Tools
-Mcp::tool('ask_question', AskQuestionTool::class)
-    ->description('Agent向用户提出问题，获取指导、确认或澄清');
-
-Mcp::tool('check_answer', CheckAnswerTool::class)
-    ->description('检查问题的答案状态');
-
-Mcp::tool('get_questions', GetQuestionsTool::class)
-    ->description('获取问题列表');
-
-Mcp::tool('question_batch', QuestionBatchTool::class)
-    ->description('批量处理问题');
+// 示例：如果需要手动注册工具，需要使用类方法
+// Mcp::tool('tool_name', [ClassName::class, 'methodName'])
+//     ->description('Tool description');
 
 /*
 |--------------------------------------------------------------------------
@@ -72,25 +29,11 @@ Mcp::tool('question_batch', QuestionBatchTool::class)
 |
 */
 
-// Project Resources
-Mcp::resourceTemplate('project://{path}', [ProjectResource::class, 'read'])
-    ->name('project_resource')
-    ->description('Access to project information')
-    ->mimeType('application/json');
+// 注意：当前版本的php-mcp/laravel不支持闭包资源
+// 资源将通过属性(Attributes)自动发现，或者需要创建专门的资源类
 
-// Task Resources
-Mcp::resourceTemplate('task://{path}', [TaskResource::class, 'read'])
-    ->name('task_resource')
-    ->description('Access to task information')
-    ->mimeType('application/json');
-
-// Static Resources - 需要创建对应的处理类
-// Mcp::resource('server://info', [ServerInfoResource::class, 'read'])
-//     ->name('server_info')
-//     ->description('Server information and capabilities')
-//     ->mimeType('application/json');
-
-// Mcp::resource('server://status', [ServerStatusResource::class, 'read'])
-//     ->name('server_status')
-//     ->description('Server runtime status')
+// 示例：如果需要手动注册资源，需要使用类方法
+// Mcp::resource('resource://uri', [ClassName::class, 'methodName'])
+//     ->name('resource_name')
+//     ->description('Resource description')
 //     ->mimeType('application/json');

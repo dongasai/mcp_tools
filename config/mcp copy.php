@@ -12,7 +12,7 @@ return [
     |
     */
     'server' => [
-        'name' =>  '项目管理工具',
+        'name' => env('MCP_SERVER_NAME', 'MCP Tools'),
         'version' => env('MCP_SERVER_VERSION', '1.0.0'),
         'instructions' => '这是一个mcp的项目管理工具，可以实行任务管理/询问/SQL执行',
     ],
@@ -29,7 +29,7 @@ return [
     */
     'discovery' => [
         'base_path' => base_path(),
-        'directories' => array_filter(explode(',', env('MCP_DISCOVERY_DIRECTORIES', 'app/Mcp'))),
+        'directories' => array_filter(explode(',', env('MCP_DISCOVERY_DIRECTORIES', 'app/Modules/Mcp'))),
         'exclude_dirs' => [
             'vendor',
             'tests',

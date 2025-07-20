@@ -45,5 +45,19 @@ COPY --from=node:22 /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
     ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
+# 安装进程守护工具
+RUN apt-get install -y supervisor && \
+    mkdir -p /etc/supervisor/conf.d /var/log/supervisor
+
+# 复制supervisor配置文件
+COPY docker/supervisord.conf /etc/supervisor/conf.d/laravel.conf
+
+# 创建必要的缓存目录并设置权限
+RUN mkdir -p /.npm /.composer/cache/files /var/www/html/storage/logs /var/www/html/storage/app/public /var/www/html/storage/framework/cache /var/www/html/storage/framework/sessions /var/www/html/storage/framework/views /var/www/html/bootstrap/cache && \
+    chmod -R 777 /.npm /.composer /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 设置容器启动命令
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/laravel.conf"]
+
 
 

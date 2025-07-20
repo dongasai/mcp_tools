@@ -53,7 +53,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#34d399\" \"php artisan serve --port=34004\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"php artisan mcp:serve\" --names=server,queue,logs,mcp"
+            "php artisan serve --port=34004 --host=0.0.0.0"
         ],
         "project-init": [
             "echo '🚀 MCP Tools 项目初始化开始...'",

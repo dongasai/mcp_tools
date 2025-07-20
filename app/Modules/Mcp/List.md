@@ -27,18 +27,22 @@
 
 ### 1.1 任务管理工具 ✅ 已注册/已实现
 
-#### create_main_task ✅ 已注册/已实现
+#### create_main_task ⚠️ 已注册/需修正
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `createMainTask()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ✅ 完整实现
+- **实现状态**: ⚠️ 需修正（当前需要projectId参数，但应该自动使用Agent的项目）
 - **描述**: 创建主任务
-- **参数**:
-  - `projectId` (string): 项目ID
+- **当前参数**:
+  - `projectId` (string): 项目ID ⚠️ **应该移除，Agent和项目强绑定**
   - `title` (string): 任务标题
   - `description` (string, 可选): 任务描述
   - `priority` (string, 可选): 优先级 (默认: medium)
-- **权限**: 需要 `create_task` 权限和项目访问权限
+- **建议参数**:
+  - `title` (string): 任务标题
+  - `description` (string, 可选): 任务描述
+  - `priority` (string, 可选): 优先级 (默认: medium)
+- **权限**: 需要 `create_task` 权限，自动使用Agent绑定的项目
 
 #### create_sub_task ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
@@ -53,18 +57,22 @@
   - `priority` (string, 可选): 优先级 (默认: medium)
 - **权限**: 需要 `create_task` 权限和父任务访问权限
 
-#### list_tasks ✅ 已注册/已实现
+#### list_tasks ⚠️ 已注册/需修正
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `listTasks()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ✅ 完整实现
+- **实现状态**: ⚠️ 需修正（当前有projectId参数，但应该自动使用Agent的项目）
 - **描述**: 获取任务列表
-- **参数**:
-  - `projectId` (string, 可选): 项目ID过滤
+- **当前参数**:
   - `status` (string, 可选): 状态过滤
+  - `type` (string, 可选): 任务类型过滤
+  - `projectId` (string, 可选): 项目ID过滤 ⚠️ **应该移除，Agent和项目强绑定**
+- **建议参数**:
+  - `status` (string, 可选): 状态过滤
+  - `type` (string, 可选): 任务类型过滤
   - `assignedToMe` (bool, 可选): 是否只显示分配给当前Agent的任务
   - `limit` (int, 可选): 返回数量限制 (默认: 20)
-- **权限**: 基于Agent的项目访问权限
+- **权限**: 基于Agent的项目访问权限，自动限制为Agent绑定的项目
 
 #### get_task ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
@@ -111,22 +119,30 @@
 
 ### 1.2 问题管理工具 ✅ 已注册/已实现
 
-#### get_questions ✅ 已注册/已实现
+#### get_questions ⚠️ 已注册/需修正
 - **文件**: `app/Modules/Mcp/Tools/GetQuestionsTool.php`
 - **方法**: `getQuestions()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ✅ 完整实现
+- **实现状态**: ⚠️ 需修正（当前有project_id参数，但应该自动使用Agent的项目）
 - **描述**: 获取问题列表，支持多种过滤条件
-- **参数**:
+- **当前参数**:
   - `status` (string, 可选): 问题状态 (PENDING/ANSWERED/IGNORED)
   - `priority` (string, 可选): 优先级 (URGENT/HIGH/MEDIUM/LOW)
   - `question_type` (string, 可选): 问题类型 (CHOICE/FEEDBACK)
   - `task_id` (int, 可选): 任务ID过滤
-  - `project_id` (int, 可选): 项目ID过滤
+  - `project_id` (int, 可选): 项目ID过滤 ⚠️ **应该移除，Agent和项目强绑定**
   - `limit` (int, 可选): 返回数量限制 (默认: 10)
   - `only_mine` (bool, 可选): 是否只返回当前Agent的问题 (默认: true)
   - `include_expired` (bool, 可选): 是否包含已过期的问题 (默认: false)
-- **权限**: 基于Agent身份和项目权限
+- **建议参数**:
+  - `status` (string, 可选): 问题状态 (PENDING/ANSWERED/IGNORED)
+  - `priority` (string, 可选): 优先级 (URGENT/HIGH/MEDIUM/LOW)
+  - `question_type` (string, 可选): 问题类型 (CHOICE/FEEDBACK)
+  - `task_id` (int, 可选): 任务ID过滤
+  - `limit` (int, 可选): 返回数量限制 (默认: 10)
+  - `only_mine` (bool, 可选): 是否只返回当前Agent的问题 (默认: true)
+  - `include_expired` (bool, 可选): 是否包含已过期的问题 (默认: false)
+- **权限**: 基于Agent身份和项目权限，自动限制为Agent绑定的项目
 
 ### 1.3 项目管理工具 ❌ 未注册/已实现
 
@@ -354,9 +370,13 @@
 ## 11. 待办事项
 
 ### 11.1 高优先级 🔥
-1. **添加属性标记**: 为未注册的工具和资源添加 `#[McpTool]` 和 `#[McpResource]` 属性
-2. **重写禁用的工具类**: AskQuestionTool, CheckAnswerTool 重写为属性模式
-3. **验证发现机制**: 确保所有工具和资源都能被正确发现
+1. **修正Agent-项目绑定设计**:
+   - 修正 `create_main_task` 移除 `projectId` 参数，自动使用Agent绑定的项目
+   - 修正 `list_tasks` 移除 `projectId` 参数，自动限制为Agent的项目
+   - 修正 `get_questions` 移除 `project_id` 参数，自动限制为Agent的项目
+2. **添加属性标记**: 为未注册的工具和资源添加 `#[McpTool]` 和 `#[McpResource]` 属性
+3. **重写禁用的工具类**: AskQuestionTool, CheckAnswerTool 重写为属性模式
+4. **验证发现机制**: 确保所有工具和资源都能被正确发现
 
 ### 11.2 中优先级 ⚡
 1. **完善错误处理**: 统一错误响应格式和日志记录
@@ -447,7 +467,15 @@
 - **未注册资源**: 2个 (ProjectResource, TaskResource)
 
 ### 15.3 下一步行动计划
-1. **立即执行**: 为未注册的工具和资源添加属性标记
-2. **短期目标**: 重写禁用的工具类
-3. **中期目标**: 完善测试和文档
+1. **立即执行**: 修正Agent-项目绑定设计，移除不必要的项目ID参数
+2. **短期目标**: 为未注册的工具和资源添加属性标记
+3. **中期目标**: 重写禁用的工具类，完善测试和文档
 4. **长期目标**: 添加更多MCP功能和优化性能
+
+### 15.4 设计修正说明
+根据反馈，Agent和项目应该是强绑定关系，Agent只能处理自己的项目。因此需要修正以下工具的参数设计：
+- `create_main_task`: 移除 `projectId` 参数
+- `list_tasks`: 移除 `projectId` 参数
+- `get_questions`: 移除 `project_id` 参数
+
+这些工具应该自动使用Agent绑定的项目，而不需要外部传入项目ID。

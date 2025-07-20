@@ -6,6 +6,7 @@ WORKDIR /var/www/html
 
 # 分多步骤进行，增强缓存，减少重复构建
 # 安装系统依赖 (仅必需的)
+ENV UPDATE_TIMES=1
 RUN apt-get update
 RUN apt-get install -y \
     git \
@@ -35,8 +36,14 @@ RUN docker-php-ext-install \
     zip
 
 
-
 # 安装 Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# 从Node.js 22镜像获取Node.js和npm
+COPY --from=node:22 /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:22 /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
+    ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
 
 

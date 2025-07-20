@@ -16,10 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'user-admin.resource-ownership' => \App\UserAdmin\Middleware\EnsureResourceOwnership::class,
             // Agent认证中间件
-            'agent.auth' => \App\Modules\Agent\Middleware\AgentAuthMiddleware::class,
-            'agent.project' => \App\Modules\Agent\Middleware\ProjectAccessMiddleware::class,
+            // 'agent.auth' => \App\Modules\Agent\Middleware\AgentAuthMiddleware::class,
+            // 'agent.project' => \App\Modules\Agent\Middleware\ProjectAccessMiddleware::class,
             // MCP认证中间件
-            'mcp.auth' => \App\Modules\Mcp\Middleware\McpAuthMiddleware::class,
+            // 'mcp.auth' => \App\Modules\Mcp\Middleware\McpAuthMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

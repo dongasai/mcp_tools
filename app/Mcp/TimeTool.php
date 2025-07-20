@@ -8,16 +8,22 @@ class TimeTool
 {
 
     /**
-     * Get application configuration.
+     * Get current time information including formatted time, timestamp and timezone
      */
     #[McpResource(
         uri: 'time://get',
         mimeType: 'application/json'
     )]
-    public function getAppSettings(): array
+    public function time_get(): array
     {
+        $now = new \DateTime();
+        
         return [
-            'date' => date('Y-m-d h:i:s'),
+            'formatted_time' => $now->format('Y-m-d H:i:s'),
+            'timestamp' => $now->getTimestamp(),
+            'timezone' => $now->getTimezone()->getName(),
+            'utc_time' => $now->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s'),
+            'microseconds' => $now->format('Y-m-d H:i:s.u'),
         ];
     }
 

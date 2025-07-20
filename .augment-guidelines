@@ -1,17 +1,17 @@
 # MCP Tools 项目开发指南
 
 ## 项目概述
-- 这是一个基于 Model Context Protocol (MCP) 的项目，使用 Laravel 11 和 SSE (Server-Sent Events) 提供实时 MCP 服务
-- 专注于提供不依赖 Node.js 的 MCP 服务，仅使用 PHP Laravel 实现 SSE
+- 这是一个基于 Model Context Protocol (MCP) 的项目，使用 Laravel 11 和 HTTP  提供实时 MCP 服务
+- 专注于提供不依赖 Node.js 的 MCP 服务，仅使用 PHP Laravel 实现 HTTP
 - 项目实现了 Agent 访问控制和身份识别系统，用于跟踪哪个 Agent 处理特定任务
 
 ## 技术栈偏好
 - **后端框架**: Laravel 11 with PHP 8.2+
-- **MCP 协议**: 基于 Server-Sent Events (SSE) 实现，无 Node.js 依赖
+- **MCP 协议**: 基于 HTTP 实现，无 Node.js 依赖
 - **管理界面**: dcat/laravel-admin 构建双后台系统
 - **数据验证**: inhere/php-validate 包，Validation 和 Validator 分离
 - **数据库**: 开发环境使用 SQLite，生产环境支持 MySQL
-- **实时通信**: 纯 PHP SSE 实现配合 ReactPHP
+
 
 ## 开发工作流偏好
 - 始终使用包管理器（composer、npm）而非手动编辑配置文件

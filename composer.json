@@ -55,6 +55,10 @@
             "Composer\\Config::disableProcessTimeout",
             "php artisan serve --port=34004 --host=0.0.0.0"
         ],
+        "build-cache": [
+            "php artisan config:cache",
+            "php artisan view:cache"
+        ],
         "project-init": [
             "echo '🚀 MCP Tools 项目初始化开始...'",
             "@php -r \"echo '📋 检查环境要求...\\n';\"",

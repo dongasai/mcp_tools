@@ -62,11 +62,12 @@ RUN mkdir -p /.npm /.composer/cache/files /var/www/html/storage/logs /var/www/ht
     chmod -R 755 /var/www/html && \
     chmod -R 777 /.npm /.composer /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 切换到新创建的用户
-USER root
+# 复制启动脚本
+COPY docker/start.sh /start.sh
+RUN chmod +x /start.sh
 
 # 设置容器启动命令
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/laravel.conf"]
+CMD ["/start.sh"]
 
 
 

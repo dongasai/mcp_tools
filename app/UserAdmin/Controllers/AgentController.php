@@ -27,6 +27,9 @@ class AgentController extends AdminController
     {
         $grid = new Grid(new Agent());
 
+        // 加载关联关系
+        $grid->model()->with(['project']);
+
         // 只显示当前用户的Agent
         $user = $this->getCurrentUser();
         if ($user) {
@@ -64,9 +67,7 @@ class AgentController extends AdminController
             return '0'; // 后续完善
         });
 
-        $grid->column('projects_count', '参与项目数')->display(function () {
-            return '0'; // 后续完善
-        });
+        $grid->column('project.name', '所属项目');
 
         $grid->filter(function($filter) {
             $filter->like('name', 'Agent名称');
@@ -100,7 +101,10 @@ class AgentController extends AdminController
         $form->text('name', 'Agent名称')->required();
         $form->textarea('description', '描述');
 
-
+        // 项目选择 - 只显示当前用户的项目
+        $user = auth('user-admin')->user();
+        $projects = $user ? \App\Modules\Project\Models\Project::where('user_id', $user->id)->pluck('name', 'id') : [];
+        $form->select('project_id', '所属项目')->options($projects)->required()->help('选择此Agent所属的项目');
 
         $form->select('status', '状态')->options([
             'active' => '活跃',

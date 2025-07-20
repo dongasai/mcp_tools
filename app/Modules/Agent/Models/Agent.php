@@ -12,6 +12,7 @@ class Agent extends Model
 
     protected $fillable = [
         'user_id',
+        'project_id',
         'name',
         'identifier',
         'status',
@@ -21,7 +22,6 @@ class Agent extends Model
         'last_active_at',
         'access_token',
         'token_expires_at',
-        'allowed_projects',
         'allowed_actions',
     ];
 
@@ -29,7 +29,6 @@ class Agent extends Model
         'capabilities' => 'array',
         'configuration' => 'array',
         'permissions' => 'array',
-        'allowed_projects' => 'array',
         'allowed_actions' => 'array',
         'last_active_at' => 'datetime',
         'token_expires_at' => 'datetime',
@@ -80,9 +79,9 @@ class Agent extends Model
     /**
      * 关联项目
      */
-    public function projects(): HasMany
+    public function project(): BelongsTo
     {
-        return $this->hasMany(\App\Modules\Project\Models\Project::class);
+        return $this->belongsTo(\App\Modules\Project\Models\Project::class);
     }
 
     /**

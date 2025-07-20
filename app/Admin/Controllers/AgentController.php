@@ -18,12 +18,12 @@ class AgentController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(Agent::with(['user']), function (Grid $grid) {
+        return Grid::make(Agent::with(['user', 'project']), function (Grid $grid) {
             $grid->column('id')->sortable();
             $grid->column('name', 'Agent名称');
-            $grid->column('agent_id', 'Agent ID');
+            $grid->column('identifier', 'Agent ID');
             $grid->column('user.name', '用户');
-            $grid->column('type', '类型');
+            $grid->column('project.name', '所属项目');
             $grid->column('status', '状态')->using([
                 Agent::STATUS_ACTIVE => '激活',
                 Agent::STATUS_INACTIVE => '未激活',
@@ -43,9 +43,9 @@ class AgentController extends AdminController
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
                 $filter->like('name', 'Agent名称');
-                $filter->like('agent_id', 'Agent ID');
+                $filter->like('identifier', 'Agent ID');
                 $filter->equal('user_id', '用户')->select(User::pluck('name', 'id'));
-                $filter->like('type', '类型');
+                $filter->equal('project_id', '项目')->select(\App\Models\Project::pluck('name', 'id'));
                 $filter->equal('status', '状态')->select([
                     Agent::STATUS_ACTIVE => '激活',
                     Agent::STATUS_INACTIVE => '未激活',
@@ -65,12 +65,12 @@ class AgentController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, Agent::with(['user']), function (Show $show) {
+        return Show::make($id, Agent::with(['user', 'project']), function (Show $show) {
             $show->field('id');
             $show->field('name', 'Agent名称');
-            $show->field('agent_id', 'Agent ID');
+            $show->field('identifier', 'Agent ID');
             $show->field('user.name', '用户');
-            $show->field('type', '类型');
+            $show->field('project.name', '所属项目');
             $show->field('status', '状态')->using([
                 Agent::STATUS_ACTIVE => '激活',
                 Agent::STATUS_INACTIVE => '未激活',
@@ -78,8 +78,8 @@ class AgentController extends AdminController
                 Agent::STATUS_PENDING => '待审核',
             ]);
             $show->field('access_token', '访问令牌')->mask('*');
-            $show->field('permissions', '权限')->json();
-            $show->field('allowed_projects', '允许的项目')->json();
+            $show->field('capabilities', '能力')->json();
+            $show->field('configuration', '配置')->json();
             $show->field('allowed_actions', '允许的动作')->json();
             $show->field('last_active_at', '最后活跃时间');
             $show->field('token_expires_at', 'Token过期时间');
@@ -98,9 +98,9 @@ class AgentController extends AdminController
         return Form::make(Agent::query(), function (Form $form) {
             $form->display('id');
             $form->text('name', 'Agent名称')->required();
-            $form->text('agent_id', 'Agent ID')->required();
+            $form->text('identifier', 'Agent ID')->required();
             $form->select('user_id', '用户')->options(User::pluck('name', 'id'))->required();
-            $form->text('type', '类型')->default('mcp_agent');
+            $form->select('project_id', '所属项目')->options(\App\Models\Project::pluck('name', 'id'))->required();
             $form->select('status', '状态')->options([
                 Agent::STATUS_ACTIVE => '激活',
                 Agent::STATUS_INACTIVE => '未激活',
@@ -110,8 +110,9 @@ class AgentController extends AdminController
             $form->password('access_token', '访问令牌')->required(function ($form) {
                 return !$form->model()->id;
             });
-            $form->textarea('permissions', '权限')->placeholder('JSON格式的权限配置');
-            $form->textarea('allowed_projects', '允许的项目')->placeholder('JSON格式的项目列表');
+            $form->textarea('description', '描述');
+            $form->textarea('capabilities', '能力')->placeholder('JSON格式的能力配置');
+            $form->textarea('configuration', '配置')->placeholder('JSON格式的配置信息');
             $form->textarea('allowed_actions', '允许的动作')->placeholder('JSON格式的动作列表');
             $form->datetime('last_active_at', '最后活跃时间');
             $form->datetime('token_expires_at', 'Token过期时间');

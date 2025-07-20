@@ -205,26 +205,22 @@ class AuthorizationService
     }
 
     /**
-     * 为Agent授予项目访问权限
+     * 为Agent授予项目访问权限（设置Agent的主项目）
      */
     public function grantProjectAccess(Agent $agent, int $projectId): bool
     {
         try {
-            $allowedProjects = $agent->allowed_projects ?? [];
-            
-            if (!in_array($projectId, $allowedProjects)) {
-                $allowedProjects[] = $projectId;
-                $agent->allowed_projects = $allowedProjects;
-                $agent->save();
+            // 在新的一对多关系中，直接设置Agent的project_id
+            $agent->project_id = $projectId;
+            $agent->save();
 
-                // 清除缓存
-                Cache::forget("agent_projects:{$agent->id}");
+            // 清除缓存
+            Cache::forget("agent_projects:{$agent->id}");
 
-                $this->logger->audit('agent_project_access_granted', $agent->user_id, [
-                    'agent_id' => $agent->agent_id,
-                    'project_id' => $projectId
-                ]);
-            }
+            $this->logger->audit('agent_project_access_granted', $agent->user_id, [
+                'agent_id' => $agent->agent_id,
+                'project_id' => $projectId
+            ]);
 
             return true;
 
@@ -239,24 +235,24 @@ class AuthorizationService
     }
 
     /**
-     * 撤销Agent的项目访问权限
+     * 撤销Agent的项目访问权限（移除Agent的主项目）
      */
     public function revokeProjectAccess(Agent $agent, int $projectId): bool
     {
         try {
-            $allowedProjects = $agent->allowed_projects ?? [];
-            $allowedProjects = array_filter($allowedProjects, fn($id) => $id !== $projectId);
-            
-            $agent->allowed_projects = array_values($allowedProjects);
-            $agent->save();
+            // 在新的一对多关系中，只有当前项目匹配时才撤销
+            if ($agent->project_id === $projectId) {
+                $agent->project_id = null;
+                $agent->save();
 
-            // 清除缓存
-            Cache::forget("agent_projects:{$agent->id}");
+                // 清除缓存
+                Cache::forget("agent_projects:{$agent->id}");
 
-            $this->logger->audit('agent_project_access_revoked', $agent->user_id, [
-                'agent_id' => $agent->agent_id,
-                'project_id' => $projectId
-            ]);
+                $this->logger->audit('agent_project_access_revoked', $agent->user_id, [
+                    'agent_id' => $agent->agent_id,
+                    'project_id' => $projectId
+                ]);
+            }
 
             return true;
 

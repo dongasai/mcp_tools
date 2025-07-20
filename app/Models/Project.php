@@ -40,6 +40,14 @@ class Project extends Model
     }
 
     /**
+     * 获取项目的Agent
+     */
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+
+    /**
      * 获取项目的活跃任务
      */
     public function activeTasks(): HasMany

@@ -12,7 +12,6 @@ class Project extends Model
 {
     protected $fillable = [
         'user_id',
-        'agent_id',
         'name',
         'description',
         'repository_url',
@@ -81,11 +80,11 @@ class Project extends Model
     }
 
     /**
-     * 关联Agent
+     * 关联Agent（一个项目可以有多个Agent）
      */
-    public function agent(): BelongsTo
+    public function agents(): HasMany
     {
-        return $this->belongsTo(Agent::class);
+        return $this->hasMany(Agent::class);
     }
 
     /**

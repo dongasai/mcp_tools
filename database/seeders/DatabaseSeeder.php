@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
         $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'username' => 'testuser',
+            'status' => 'active',
         ]);
 
         // Create a test project
@@ -41,7 +43,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Claude开发助手',
             'type' => 'claude-3.5-sonnet',
             'access_token' => 'mcp_token_' . \Illuminate\Support\Str::random(40),
-            'allowed_projects' => [$project->id],
+            'project_id' => $project->id,
             'allowed_actions' => ['read', 'create_task', 'update_task', 'claim_task'],
             'status' => 'active',
             'token_expires_at' => now()->addDay(),

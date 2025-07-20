@@ -133,6 +133,33 @@ DcatAdmin要求用户模型必须包含以下四个字段：
 - `app/Models/User.php` - 添加fillable字段和DcatAdmin兼容方法
 - `.augment-guidelines` - 更新项目指南（自动修改）
 
+## 后续修复：超级管理员后台用户管理 ✅
+
+用户反馈超级管理员后台 `/admin/users` 页面有问题，经检查发现：
+
+### 问题分析
+- 超级管理员后台的 `app/Admin/Controllers/UserController.php` 缺少 `username` 字段
+- 创建用户时出现 `NOT NULL constraint failed: users.username` 错误
+- 列表和详情页面也没有显示 `username` 字段
+
+### 修复内容
+1. **表单修复**: 在创建/编辑表单中添加 `username` 字段
+2. **列表修复**: 在用户列表中添加 `username` 列显示
+3. **详情修复**: 在用户详情页面添加 `username` 字段显示
+
+### 测试结果
+✅ 用户创建功能正常，成功创建新用户
+✅ 用户列表正确显示 `username` 列
+✅ 超级管理员后台用户管理功能完全正常
+
+## 总结
+
+现在两个后台系统都完全符合DcatAdmin规范：
+- 用户后台 (`/user-admin`) ✅
+- 超级管理员后台 (`/admin`) ✅
+
+所有用户管理功能都包含了必需的四个字段：`username`, `password`, `name`, `avatar`。
+
 ## 后续建议
 
 1. 考虑为 `App\Modules\User\Models\User` 模型同步这些修改

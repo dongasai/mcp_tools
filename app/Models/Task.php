@@ -49,7 +49,7 @@ class Task extends Model
      */
     public function agent(): BelongsTo
     {
-        return $this->belongsTo(Agent::class, 'agent_id', 'agent_id');
+        return $this->belongsTo(Agent::class, 'agent_id', 'id');
     }
 
     /**

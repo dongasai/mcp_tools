@@ -25,6 +25,8 @@ class McpTestDataSeeder extends Seeder
                 'email' => 'test@example.com',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
+                'status' => User::STATUS_ACTIVE,
+                'role' => User::ROLE_USER,
             ]
         );
 
@@ -55,6 +57,7 @@ class McpTestDataSeeder extends Seeder
                 'identifier' => 'test-agent-001',
                 'name' => 'Test Agent',
                 'user_id' => $user->id,
+                'project_id' => $project->id,
                 'access_token' => '123456',
                 'status' => 'active',
                 'description' => 'MCP 测试默认 Agent',
@@ -67,7 +70,6 @@ class McpTestDataSeeder extends Seeder
                     'model' => 'claude-3.5',
                     'max_tokens' => 4000,
                 ],
-                'allowed_projects' => [$project->id],
                 'allowed_actions' => [
                     'read' => true,
                     'create_task' => true,

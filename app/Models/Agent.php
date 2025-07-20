@@ -10,12 +10,13 @@ use Illuminate\Support\Str;
 class Agent extends Model
 {
     protected $fillable = [
-        'agent_id',
+        'identifier',
         'name',
-        'type',
+        'description',
         'access_token',
-        'permissions',
-        'allowed_projects',
+        'capabilities',
+        'configuration',
+        'project_id',
         'allowed_actions',
         'status',
         'last_active_at',
@@ -24,8 +25,8 @@ class Agent extends Model
     ];
 
     protected $casts = [
-        'permissions' => 'array',
-        'allowed_projects' => 'array',
+        'capabilities' => 'array',
+        'configuration' => 'array',
         'allowed_actions' => 'array',
         'last_active_at' => 'datetime',
         'token_expires_at' => 'datetime',
@@ -44,11 +45,19 @@ class Agent extends Model
     }
 
     /**
+     * 获取此Agent所属的项目
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    /**
      * 获取分配给此Agent的任务
      */
     public function tasks(): HasMany
     {
-        return $this->hasMany(Task::class, 'agent_id', 'agent_id');
+        return $this->hasMany(Task::class, 'agent_id', 'id');
     }
 
     /**
@@ -56,7 +65,7 @@ class Agent extends Model
      */
     public function activeTasks(): HasMany
     {
-        return $this->hasMany(Task::class, 'agent_id', 'agent_id')
+        return $this->hasMany(Task::class, 'agent_id', 'id')
                     ->whereIn('status', ['claimed', 'in_progress']);
     }
 
@@ -82,8 +91,7 @@ class Agent extends Model
      */
     public function canAccessProject(int $projectId): bool
     {
-        $allowedProjects = $this->allowed_projects ?? [];
-        return in_array($projectId, $allowedProjects);
+        return $this->project_id === $projectId;
     }
 
     /**
@@ -130,10 +138,10 @@ class Agent extends Model
      */
     public function accessibleProjects()
     {
-        if (empty($this->allowed_projects)) {
+        if (!$this->project_id) {
             return collect();
         }
 
-        return Project::whereIn('id', $this->allowed_projects)->get();
+        return collect([$this->project]);
     }
 }

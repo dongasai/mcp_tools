@@ -2,11 +2,10 @@
 
 namespace App\Modules\Mcp\Tools;
 
-use PhpMcp\Server\Tools\Tool;
 use App\Modules\Project\Services\ProjectService;
 use App\Modules\Mcp\Services\McpService;
 
-class ProjectTool extends Tool
+class ProjectTool
 {
     public function __construct(
         private ProjectService $projectService,
@@ -98,17 +97,10 @@ class ProjectTool extends Tool
     private function createProject(array $data): array
     {
         try {
-            $project = $this->projectService->createProject($data);
-            
+            // 需要用户对象，这里暂时返回错误信息
             return [
-                'success' => true,
-                'message' => 'Project created successfully',
-                'data' => [
-                    'id' => $project->id,
-                    'name' => $project->name,
-                    'status' => $project->status,
-                    'created_at' => $project->created_at->toISOString()
-                ]
+                'success' => false,
+                'message' => 'Project creation requires user context - not implemented in MCP tool yet'
             ];
         } catch (\Exception $e) {
             return [
@@ -124,16 +116,27 @@ class ProjectTool extends Tool
     private function updateProject(string $projectId, array $data): array
     {
         try {
-            $project = $this->projectService->updateProject($projectId, $data);
-            
+            // 查找项目
+            $project = \App\Modules\Project\Models\Project::find($projectId);
+
+            if (!$project) {
+                return [
+                    'success' => false,
+                    'message' => 'Project not found'
+                ];
+            }
+
+            // 使用 ProjectService 的 update 方法
+            $updatedProject = $this->projectService->update($project, $data);
+
             return [
                 'success' => true,
                 'message' => 'Project updated successfully',
                 'data' => [
-                    'id' => $project->id,
-                    'name' => $project->name,
-                    'status' => $project->status,
-                    'updated_at' => $project->updated_at->toISOString()
+                    'id' => $updatedProject->id,
+                    'name' => $updatedProject->name,
+                    'status' => $updatedProject->status,
+                    'updated_at' => $updatedProject->updated_at->toISOString()
                 ]
             ];
         } catch (\Exception $e) {
@@ -150,8 +153,19 @@ class ProjectTool extends Tool
     private function deleteProject(string $projectId): array
     {
         try {
-            $this->projectService->deleteProject($projectId);
-            
+            // 查找项目
+            $project = \App\Modules\Project\Models\Project::find($projectId);
+
+            if (!$project) {
+                return [
+                    'success' => false,
+                    'message' => 'Project not found'
+                ];
+            }
+
+            // 使用 ProjectService 的 delete 方法
+            $this->projectService->delete($project);
+
             return [
                 'success' => true,
                 'message' => 'Project deleted successfully'
@@ -170,8 +184,9 @@ class ProjectTool extends Tool
     private function getProject(string $projectId): array
     {
         try {
-            $project = $this->projectService->findProject($projectId);
-            
+            // 使用模型直接查询
+            $project = \App\Modules\Project\Models\Project::with(['user'])->find($projectId);
+
             if (!$project) {
                 return [
                     'success' => false,
@@ -207,8 +222,9 @@ class ProjectTool extends Tool
     private function listProjects(): array
     {
         try {
-            $projects = $this->projectService->getAllProjects();
-            
+            // 使用模型直接查询
+            $projects = \App\Modules\Project\Models\Project::with(['user'])->get();
+
             return [
                 'success' => true,
                 'data' => $projects->map(function ($project) {

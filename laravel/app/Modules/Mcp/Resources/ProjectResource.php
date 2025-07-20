@@ -2,11 +2,10 @@
 
 namespace App\Modules\Mcp\Resources;
 
-use PhpMcp\Server\Resources\Resource;
 use App\Modules\Project\Services\ProjectService;
 use App\Modules\Mcp\Services\McpService;
 
-class ProjectResource extends Resource
+class ProjectResource
 {
     public function __construct(
         private ProjectService $projectService,
@@ -66,8 +65,9 @@ class ProjectResource extends Resource
      */
     private function getProjectList(): array
     {
-        $projects = $this->projectService->getAllProjects();
-        
+        // 使用模型直接查询，因为 ProjectService 没有 getAllProjects 方法
+        $projects = \App\Modules\Project\Models\Project::with(['user'])->get();
+
         return [
             'type' => 'project_list',
             'data' => $projects->map(function ($project) {
@@ -88,8 +88,9 @@ class ProjectResource extends Resource
      */
     private function getProject(string $projectId): array
     {
-        $project = $this->projectService->findProject($projectId);
-        
+        // 使用模型直接查询，因为 ProjectService 没有 findProject 方法
+        $project = \App\Modules\Project\Models\Project::with(['user'])->find($projectId);
+
         if (!$project) {
             throw new \Exception('Project not found');
         }

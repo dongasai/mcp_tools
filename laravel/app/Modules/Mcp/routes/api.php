@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Mcp\Controllers\McpController;
 use App\Modules\Mcp\Controllers\ResourceController;
 use App\Modules\Mcp\Controllers\ToolController;
+use App\Modules\Mcp\Controllers\McpTestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,4 +59,20 @@ Route::prefix('api/mcp')->middleware(['api'])->group(function () {
 Route::prefix('mcp/sse')->middleware(['mcp.auth'])->group(function () {
     Route::get('/events', [McpController::class, 'sseEvents']);
     Route::post('/send', [McpController::class, 'sseSend']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| MCP Test Routes
+|--------------------------------------------------------------------------
+|
+| Routes for testing MCP functionality
+|
+*/
+
+Route::prefix('api/mcp/test')->group(function () {
+    Route::get('/status', [McpTestController::class, 'getStatus']);
+    Route::get('/functions', [McpTestController::class, 'testMcpFunctions']);
+    Route::post('/tool/{toolName}', [McpTestController::class, 'testTool']);
+    Route::get('/resource/{resourceUri}', [McpTestController::class, 'testResource'])->where('resourceUri', '.*');
 });

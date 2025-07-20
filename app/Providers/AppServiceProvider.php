@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,7 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-                // 注册自定义日志驱动
+        // 设置默认字符串长度，以兼容MySQL的索引限制
+        Schema::defaultStringLength(191);
+        
+        // 注册自定义日志驱动
         $this->app->make('log')->extend('size_rotating_daily', function ($app, $config) {
             $logger = new \App\Core\Logging\SizeRotatingDailyLogger();
             return $logger($config);

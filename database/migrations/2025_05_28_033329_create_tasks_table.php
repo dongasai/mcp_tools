@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
-            $table->foreignId('agent_id')->nullable()->constrained()->onDelete('set null');
+            // 临时移除 agent_id 外键约束，将在后续迁移中添加
+            $table->unsignedBigInteger('agent_id')->nullable();
             $table->foreignId('project_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('parent_task_id')->nullable()->constrained('tasks')->onDelete('cascade');
             $table->string('title');

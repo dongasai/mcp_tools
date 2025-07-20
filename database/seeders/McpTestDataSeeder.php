@@ -4,9 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Modules\User\Models\User;
-use App\Modules\Project\Models\Project;
-use App\Modules\Agent\Models\Agent;
+use App\Models\User;
+use App\Models\Project;
+use App\Models\Agent;
 use Illuminate\Support\Facades\Hash;
 
 class McpTestDataSeeder extends Seeder
@@ -25,8 +25,7 @@ class McpTestDataSeeder extends Seeder
                 'email' => 'test@example.com',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
-                'status' => User::STATUS_ACTIVE,
-                'role' => User::ROLE_USER,
+                'status' => 'active',
             ]
         );
 

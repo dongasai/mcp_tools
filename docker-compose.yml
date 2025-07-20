@@ -8,13 +8,14 @@ services:
       dockerfile: Dockerfile.dev
     container_name: mcp-tools-app
     restart: unless-stopped
-    working_dir: /var/www/html
+    working_dir: /data/dongasai/mcp_tools/
     volumes:
-      - .:/var/www/html
-      - ./docker/supervisord.dev.conf:/etc/supervisor/conf.d/laravel.conf
+      - .:/data/dongasai/mcp_tools/
+      - ./docker/supervisord.local.conf:/etc/supervisor/conf.d/laravel.conf
       - ./storage/supervisor/:/var/log/supervisor/
     ports:
       - "34004:80"
+      - "34005:34005"
     environment:
       - APP_ENV=local
       - APP_DEBUG=true

@@ -83,6 +83,18 @@ return [
             'class' => \App\Modules\Mcp\Tools\AgentTool::class,
             'description' => 'Manage agents - create, update, and query agent information',
         ],
+        'ask_question' => [
+            'class' => \App\Modules\Mcp\Tools\AskQuestionTool::class,
+            'description' => 'Agent向用户提出问题，获取指导、确认或澄清',
+        ],
+        'get_questions' => [
+            'class' => \App\Modules\Mcp\Tools\GetQuestionsTool::class,
+            'description' => '获取问题列表，支持多种过滤条件',
+        ],
+        'check_answer' => [
+            'class' => \App\Modules\Mcp\Tools\CheckAnswerTool::class,
+            'description' => '检查问题是否已被回答，获取问题的当前状态和回答内容',
+        ],
     ],
 
     /*

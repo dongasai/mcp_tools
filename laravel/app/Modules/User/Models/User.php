@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
         'avatar',
         'timezone',
@@ -273,39 +274,23 @@ class User extends Authenticatable
 
     /**
      * 获取认证标识符名称（dcat-admin需要）
-     * 告诉dcat-admin使用email字段而不是username字段进行认证
+     * 使用username字段进行认证
      */
     public function getAuthIdentifierName()
     {
-        return 'email';
+        return 'username';
     }
 
     /**
      * 获取用户名（dcat-admin需要）
-     * 返回email作为用户名
+     * 返回username字段
      */
     public function getUsername()
     {
-        return $this->email;
+        return $this->username;
     }
 
-    /**
-     * 获取username属性（映射到email）
-     * 这是为了兼容dcat-admin的认证表单
-     */
-    public function getUsernameAttribute()
-    {
-        return $this->email;
-    }
 
-    /**
-     * 设置username属性（映射到email）
-     * 这是为了兼容dcat-admin的认证表单
-     */
-    public function setUsernameAttribute($value)
-    {
-        $this->attributes['email'] = $value;
-    }
 
     /**
      * 获取用户头像（dcat-admin需要）

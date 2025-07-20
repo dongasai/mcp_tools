@@ -22,6 +22,7 @@ class UserController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('name', '姓名');
             $grid->column('email', '邮箱');
+            $grid->column('username', '用户名');
             $grid->column('role', '角色')->using([
                 User::ROLE_SUPER_ADMIN => '超级管理员',
                 User::ROLE_ADMIN => '管理员',
@@ -85,6 +86,7 @@ class UserController extends AdminController
             $show->field('id');
             $show->field('name', '姓名');
             $show->field('email', '邮箱');
+            $show->field('username', '用户名');
             $show->field('role', '角色')->using([
                 User::ROLE_SUPER_ADMIN => '超级管理员',
                 User::ROLE_ADMIN => '管理员',
@@ -119,6 +121,7 @@ class UserController extends AdminController
             $form->display('id');
             $form->text('name', '姓名')->required();
             $form->email('email', '邮箱')->required();
+            $form->text('username', '用户名')->required();
             $form->password('password', '密码')->required(function ($form) {
                 return !$form->model()->id;
             });

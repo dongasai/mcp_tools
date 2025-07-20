@@ -1,5 +1,5 @@
-# MCP Tools 开发容器 - 基于  PHP 8.2
-FROM php:8.2-cli
+# MCP Tools 开发容器 - 基于 Apache + PHP 8.2
+FROM php:8.2-apache
 
 # 设置工作目录
 WORKDIR /var/www/html
@@ -34,9 +34,19 @@ RUN docker-php-ext-install \
     sockets \
     zip
 
-
+# 启用 Apache 模块
+RUN a2enmod rewrite headers
 
 # 安装 Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# 配置 Apache
+RUN echo '<VirtualHost *:80>\n\
+    DocumentRoot /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
+# 保持简洁，不运行杂七杂八的

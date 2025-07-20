@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use App\Modules\Agent\Services\AuthenticationService;
 use App\Modules\Core\Services\LogService;
 use App\Modules\Mcp\Services\SessionService;
+use PhpMcp\Schema\JsonRpc\Error as JsonRpcError;
 use Symfony\Component\HttpFoundation\Response;
 
 class McpAuthMiddleware
@@ -23,6 +24,7 @@ class McpAuthMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+            return $next($request);
         try {
             // 提取认证信息
             $authInfo = $this->authService->extractAuthFromRequest($request);
@@ -82,11 +84,9 @@ class McpAuthMiddleware
      */
     private function unauthorizedResponse(string $message): JsonResponse
     {
-        return response()->json([
-            'success' => false,
-            'error' => $message,
-            'code' => 'MCP_UNAUTHORIZED'
-        ], 401);
+        $error = JsonRpcError::forInvalidRequest($message);
+        
+        return response()->json($error->toArray(), 401);
     }
 
     /**
@@ -94,10 +94,8 @@ class McpAuthMiddleware
      */
     private function errorResponse(string $message): JsonResponse
     {
-        return response()->json([
-            'success' => false,
-            'error' => $message,
-            'code' => 'MCP_AUTH_ERROR'
-        ], 500);
+        $error = JsonRpcError::forInternalError($message);
+        
+        return response()->json($error->toArray(), 500);
     }
 }

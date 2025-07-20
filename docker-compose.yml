@@ -8,10 +8,10 @@ services:
       dockerfile: Dockerfile.dev
     container_name: mcp-tools-app
     restart: unless-stopped
-    working_dir: /var/www/html
-    command: composer run dev
+    working_dir: /data/dongasai/mcp_tools
+    # command: composer run devd
     volumes:
-      - .:/var/www/html
+      - .:/data/dongasai/mcp_tools
     ports:
       - "34004:80"
     environment:

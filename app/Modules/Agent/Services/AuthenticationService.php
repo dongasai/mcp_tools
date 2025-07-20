@@ -17,7 +17,7 @@ class AuthenticationService
     /**
      * 通过访问令牌认证Agent
      */
-    public function authenticate(string $token, string $agentId = null): ?Agent
+    public function authenticate(string $token, string $agentId): ?Agent
     {
         try {
             // 从缓存中查找令牌
@@ -63,21 +63,74 @@ class AuthenticationService
     }
 
     /**
+     * 仅通过访问令牌认证Agent（向后兼容方法）
+     */
+    public function authenticateByTokenOnly(string $token): ?Agent
+    {
+        try {
+            // 从缓存中查找令牌
+            $cacheKey = "agent_token:{$token}";
+            $cachedAgentId = Cache::get($cacheKey);
+
+            if ($cachedAgentId) {
+                $agent = Agent::find($cachedAgentId);
+                if ($agent && $this->validateAgentByTokenOnly($agent, $token)) {
+                    return $agent;
+                }
+            }
+
+            // 从数据库查找
+            $agent = Agent::where('access_token', $token)->first();
+
+            if (!$agent) {
+                $this->logger->warning('Agent authentication failed: token not found', [
+                    'token' => substr($token, 0, 10) . '...'
+                ]);
+                return null;
+            }
+
+            if (!$this->validateAgentByTokenOnly($agent, $token)) {
+                return null;
+            }
+
+            // 缓存有效的令牌
+            $ttl = $agent->token_expires_at ? $agent->token_expires_at->diffInSeconds(now()) : 3600;
+            Cache::put($cacheKey, $agent->id, min($ttl, 3600));
+
+            return $agent;
+
+        } catch (\Exception $e) {
+            $this->logger->error('Token-only authentication error', [
+                'token' => substr($token, 0, 10) . '...',
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
      * 验证Agent状态和令牌
      */
-    private function validateAgent(Agent $agent, string $token, string $agentId = null): bool
+    private function validateAgent(Agent $agent, string $token, string $agentId): bool
     {
         // 检查令牌是否匹配
         if ($agent->access_token !== $token) {
             $this->logger->warning('Agent token mismatch', [
-                'agent_id' => $agent->agent_id,
+                'agent_id' => $agent->identifier,
                 'provided_agent_id' => $agentId
             ]);
             return false;
         }
 
-        // 检查Agent ID是否匹配（如果提供）
-        if ($agentId && $agent->identifier !== $agentId) {
+        // 检查Agent ID是否匹配（必须提供且匹配）
+        if (!$agentId) {
+            $this->logger->warning('Agent ID not provided', [
+                'agent_id' => $agent->identifier
+            ]);
+            return false;
+        }
+
+        if ($agent->identifier !== $agentId) {
             $this->logger->warning('Agent ID mismatch', [
                 'expected' => $agent->identifier,
                 'provided' => $agentId
@@ -107,6 +160,40 @@ class AuthenticationService
     }
 
     /**
+     * 验证Agent状态和令牌（仅验证token，不验证agent_id）
+     */
+    private function validateAgentByTokenOnly(Agent $agent, string $token): bool
+    {
+        // 检查令牌是否匹配
+        if ($agent->access_token !== $token) {
+            $this->logger->warning('Agent token mismatch', [
+                'agent_id' => $agent->identifier
+            ]);
+            return false;
+        }
+
+        // 检查令牌是否过期
+        if ($agent->isTokenExpired()) {
+            $this->logger->warning('Agent token expired', [
+                'agent_id' => $agent->identifier,
+                'expired_at' => $agent->token_expires_at
+            ]);
+            return false;
+        }
+
+        // 检查Agent状态
+        if ($agent->status !== Agent::STATUS_ACTIVE) {
+            $this->logger->warning('Agent is not active', [
+                'agent_id' => $agent->identifier,
+                'status' => $agent->status
+            ]);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * 通过Agent ID查找Agent
      */
     public function findByAgentId(string $agentId): ?Agent
@@ -115,12 +202,36 @@ class AuthenticationService
     }
 
     /**
-     * 验证令牌有效性
+     * 验证令牌有效性（仅验证token，不验证agentId）
      */
     public function validateToken(string $token): bool
     {
-        $agent = $this->authenticate($token);
-        return $agent !== null;
+        try {
+            $agent = Agent::where('access_token', $token)->first();
+
+            if (!$agent) {
+                return false;
+            }
+
+            // 检查令牌是否过期
+            if ($agent->isTokenExpired()) {
+                return false;
+            }
+
+            // 检查Agent状态
+            if ($agent->status !== Agent::STATUS_ACTIVE) {
+                return false;
+            }
+
+            return true;
+
+        } catch (\Exception $e) {
+            $this->logger->error('Token validation error', [
+                'token' => substr($token, 0, 10) . '...',
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 
     /**

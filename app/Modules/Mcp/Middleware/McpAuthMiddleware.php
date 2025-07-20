@@ -27,14 +27,19 @@ class McpAuthMiddleware
         try {
             // 提取认证信息
             $authInfo = $this->authService->extractAuthFromRequest($request);
-            
+
             if (!$authInfo['token']) {
                 return $this->unauthorizedResponse('MCP access token required');
             }
 
-            // 认证Agent
-            $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
-            
+            // 认证Agent - 如果没有提供agent_id，尝试通过token查找
+            if ($authInfo['agent_id']) {
+                $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+            } else {
+                // 通过token查找agent（向后兼容）
+                $agent = $this->authService->authenticateByTokenOnly($authInfo['token']);
+            }
+
             if (!$agent) {
                 return $this->unauthorizedResponse('Invalid MCP access token or agent ID');
             }

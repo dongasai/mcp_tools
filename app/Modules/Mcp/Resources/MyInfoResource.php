@@ -95,7 +95,12 @@ class MyInfoResource
             throw new \Exception('No authentication token provided');
         }
 
-        $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+        // 优先使用完整认证，如果没有agent_id则使用token-only认证
+        if ($authInfo['agent_id']) {
+            $agent = $this->authService->authenticate($authInfo['token'], $authInfo['agent_id']);
+        } else {
+            $agent = $this->authService->authenticateByTokenOnly($authInfo['token']);
+        }
 
         if (!$agent) {
             throw new \Exception('Invalid authentication token or agent ID');

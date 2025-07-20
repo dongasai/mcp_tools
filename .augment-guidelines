@@ -10,7 +10,7 @@
 - **MCP 协议**: 基于 Server-Sent Events (SSE) 实现，无 Node.js 依赖
 - **管理界面**: dcat/laravel-admin 构建双后台系统
 - **数据验证**: inhere/php-validate 包，Validation 和 Validator 分离
-- **数据库**: 开发环境使用 SQLite，生产环境支持 MySQL
+- **数据库**: 兼容 SQLite， MySQL8.0+
 - **实时通信**: 纯 PHP SSE 实现配合 ReactPHP
 
 ## 开发工作流偏好

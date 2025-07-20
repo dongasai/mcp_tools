@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'agent.project' => \App\Modules\Agent\Middleware\ProjectAccessMiddleware::class,
             // MCP认证中间件
             'mcp.auth' => \App\Modules\Mcp\Middleware\McpAuthMiddleware::class,
+            // MCP中间件（用于php-mcp/laravel包）
+            'mcp' => \App\Modules\Mcp\Middleware\McpAuthMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -47,6 +47,13 @@ Route::group([
     // Agent管理
     $router->resource('agents', 'AgentController');
 
+    // 问题管理
+    $router->resource('questions', 'QuestionController');
+    $router->get('questions/{id}/answer', 'QuestionController@answer');
+    $router->post('questions/{id}/answer', 'QuestionController@answer');
+    $router->post('questions/{id}/ignore', 'QuestionController@ignore');
+    $router->get('questions/pending', 'QuestionController@pending');
+
     // 个人设置
     $router->get('profile', 'ProfileController@index');
     $router->post('profile/update', 'ProfileController@updateProfile');

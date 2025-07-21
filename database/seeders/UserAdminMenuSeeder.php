@@ -58,9 +58,19 @@ class UserAdminMenuSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'id' => 5,
+                'id' => 10,
                 'parent_id' => 0,
                 'order' => 5,
+                'title' => '问题管理',
+                'icon' => 'feather icon-help-circle',
+                'uri' => 'questions',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 5,
+                'parent_id' => 0,
+                'order' => 6,
                 'title' => '个人设置',
                 'icon' => 'feather icon-user',
                 'uri' => 'profile',
@@ -70,7 +80,7 @@ class UserAdminMenuSeeder extends Seeder
             [
                 'id' => 6,
                 'parent_id' => 0,
-                'order' => 6,
+                'order' => 7,
                 'title' => 'GitHub集成',
                 'icon' => 'feather icon-github',
                 'uri' => 'github',
@@ -80,7 +90,7 @@ class UserAdminMenuSeeder extends Seeder
             [
                 'id' => 7,
                 'parent_id' => 0,
-                'order' => 7,
+                'order' => 8,
                 'title' => '开发工具',
                 'icon' => 'feather icon-tool',
                 'uri' => '#',

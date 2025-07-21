@@ -255,6 +255,18 @@ class AdminTablesSeeder extends Seeder
                 'show'          => 1,
                 'extension'     => '',
             ],
+            [
+                'id'            => 15,
+                'parent_id'     => 11,
+                'order'         => 13,
+                'title'         => '问题管理',
+                'icon'          => '',
+                'uri'           => 'questions',
+                'created_at'    => $createdAt,
+                'updated_at'    => $createdAt,
+                'show'          => 1,
+                'extension'     => '',
+            ],
             // 开发工具
             [
                 'id'            => 13,

@@ -20,4 +20,8 @@ Route::group([
     $router->resource('agents', 'AgentController');
     $router->resource('tasks', 'TaskController');
 
+    // 问题管理特殊路由（必须在resource之前）
+    $router->get('questions/stats', 'QuestionController@stats');
+    $router->resource('questions', 'QuestionController');
+
 });

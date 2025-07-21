@@ -21,6 +21,7 @@ class UserController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('name', '姓名');
             $grid->column('email', '邮箱');
+            $grid->column('username', 'username');
             $grid->column('role', '角色')->using([
                 User::ROLE_SUPER_ADMIN => '超级管理员',
                 User::ROLE_ADMIN => '管理员',
@@ -82,6 +83,7 @@ class UserController extends AdminController
         return Show::make($id, User::query(), function (Show $show) {
             $show->field('id');
             $show->field('name', '姓名');
+            $show->field('username', 'username');
             $show->field('email', '邮箱');
             $show->field('role', '角色')->using([
                 User::ROLE_SUPER_ADMIN => '超级管理员',
@@ -131,7 +133,7 @@ class UserController extends AdminController
             $form->display('id');
             $form->text('name', '姓名')->required();
             $form->email('email', '邮箱')->required();
-            
+            $form->email('username', 'username')->required();
             // 只有在创建时才显示密码字段
             if ($form->isCreating()) {
                 $form->password('password', '密码')->required();

@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', 'size_rotating_daily'),
 
     /*
     |--------------------------------------------------------------------------
@@ -73,6 +73,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'size_rotating_daily' => [
+            'driver' => 'size_rotating_daily',
+            'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', default: 3),
+            'max_file_size' => env('LOG_MAX_FILE_SIZE', '100K'),
+            'permission' => 0777,
+            'locking' => false,
+            'replace_placeholders' => true,
+        ],
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

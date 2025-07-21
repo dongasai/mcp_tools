@@ -63,15 +63,15 @@ class SizeRotatingDailyLogger
     protected function parseLevel(string $level): int
     {
         return match (strtolower($level)) {
-            'debug' => Level::DEBUG->value(),
-            'info' => Level::INFO->value(),
-            'notice' => Level::NOTICE->value(),
-            'warning' => Level::WARNING->value(),
-            'error' => Level::ERROR->value(),
-            'critical' => Level::CRITICAL->value(),
-            'alert' => Level::ALERT->value(),
-            'emergency' => Level::EMERGENCY->value(),
-            default => Level::DEBUG->value(),
+            'debug' => Level::Debug->value,
+            'info' => Level::Info->value,
+            'notice' => Level::Notice->value,
+            'warning' => Level::Warning->value,
+            'error' => Level::Error->value,
+            'critical' => Level::Critical->value,
+            'alert' => Level::Alert->value,
+            'emergency' => Level::Emergency->value,
+            default => Level::Debug->value,
         };
     }
 

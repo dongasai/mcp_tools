@@ -1,7 +1,7 @@
 # MCP Tools 项目 - 'MCP内容'清单
 
-**更新时间**: 2025年07月21日 06:30:00 CST
-**版本**: 1.2.0
+**更新时间**: 2025年07月21日 08:30:00 CST
+**版本**: 1.2.1
 **基于**: php-mcp/laravel 包
 
 ## 概述
@@ -33,7 +33,7 @@
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `createMainTask()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ⚠️ 需修正（当前需要projectId参数，但应该自动使用Agent的项目）
+- **实现状态**: ⚠️ 需修正（当前需要projectId参数，但应该自动使用Agent绑定的项目。Agent模型已支持project_id字段，但工具方法尚未更新）
 - **描述**: 创建主任务
 - **当前参数**:
   - `projectId` (string): 项目ID ⚠️ **应该移除，Agent和项目强绑定**
@@ -63,7 +63,7 @@
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `listTasks()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ⚠️ 需修正（当前有projectId参数，但应该自动使用Agent的项目）
+- **实现状态**: ⚠️ 需修正（当前有projectId参数，但应该自动使用Agent绑定的项目。Agent模型已支持project_id字段，但工具方法尚未更新）
 - **描述**: 获取任务列表
 - **当前参数**:
   - `status` (string, 可选): 状态过滤
@@ -125,7 +125,7 @@
 - **文件**: `app/Modules/Mcp/Tools/GetQuestionsTool.php`
 - **方法**: `getQuestions()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ⚠️ 需修正（当前有project_id参数，但应该自动使用Agent的项目）
+- **实现状态**: ⚠️ 需修正（当前有project_id参数，但应该自动使用Agent绑定的项目。Agent模型已支持project_id字段，但工具方法尚未更新）
 - **描述**: 获取问题列表，支持多种过滤条件
 - **当前参数**:
   - `status` (string, 可选): 问题状态 (PENDING/ANSWERED/IGNORED)
@@ -148,7 +148,7 @@
 
 ### 1.3 项目管理工具 ❌ 未注册/已实现 ⚠️ 不合理的，MCP不能进行项目管理
 
-#### project_manager ❌ 未注册/已实现 
+#### project_manager ❌ 未注册/已实现  ⚠️ 不合理的，MCP不能进行项目管理
 - **文件**: `app/Modules/Mcp/Tools/ProjectTool.php`
 - **注册状态**: ❌ 未被MCP发现（缺少属性标记）
 - **实现状态**: ✅ 完整实现
@@ -158,7 +158,7 @@
 
 ### 1.4 Agent管理工具 ❌ 未注册/已实现 ⚠️ 不合理的，MCP不能进行Agent管理
 
-#### agent_manager ❌ 未注册/已实现
+#### agent_manager ❌ 未注册/已实现 ⚠️ 不合理的，MCP不能进行Agent管理
 - **文件**: `app/Modules/Mcp/Tools/AgentTool.php`
 - **注册状态**: ❌ 未被MCP发现（缺少属性标记）
 - **实现状态**: ✅ 完整实现
@@ -252,6 +252,29 @@
 - **描述**: 任务信息访问和管理
 - **功能**: 支持任务列表、详情、状态更新等操作
 - **权限**: 基于Agent身份和任务访问权限
+
+## 修正记录
+
+### 2025年07月21日 08:30 - Agent项目关系修正 ✅
+
+**修正内容**:
+1. **Agent模型权限方法更新** (`app/Modules/Agent/Models/Agent.php`):
+   - 修正 `hasProjectAccess()` 方法使用 `project_id` 字段
+   - 更新 `setProjectAccess()` 和 `removeProjectAccess()` 方法
+   - 修正 `scopeWithProjectAccess()` 查询作用域
+
+2. **AuthorizationService权限检查更新** (`app/Modules/Agent/Services/AuthorizationService.php`):
+   - 修正 `canAccessProject()` 方法使用强绑定模式
+   - 更新 `getAccessibleProjects()` 方法返回单个项目
+
+3. **文档状态更新**:
+   - 更新工具实现状态描述，明确指出Agent模型已支持但工具方法尚未更新
+   - 标记需要进一步修正的工具：`create_main_task`、`list_tasks`、`get_questions`
+
+**待完成**:
+- 修正 `TaskTool::createMainTask()` 方法自动使用Agent绑定的项目
+- 修正 `TaskTool::listTasks()` 方法移除projectId参数
+- 修正 `GetQuestionsTool::getQuestions()` 方法移除project_id参数
 
 
 

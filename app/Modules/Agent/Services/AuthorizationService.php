@@ -45,13 +45,12 @@ class AuthorizationService
                 return false;
             }
 
-            // 检查Agent是否有项目访问权限
-            $allowedProjects = $agent->allowed_projects ?? [];
-            if (!in_array($projectId, $allowedProjects)) {
+            // 检查Agent是否有项目访问权限（强绑定模式）
+            if ($agent->project_id !== $projectId) {
                 $this->logger->warning('Agent does not have access to project', [
                     'agent_id' => $agent->agent_id,
                     'project_id' => $projectId,
-                    'allowed_projects' => $allowedProjects
+                    'agent_project_id' => $agent->project_id
                 ]);
                 return false;
             }
@@ -180,19 +179,18 @@ class AuthorizationService
     public function getAccessibleProjects(Agent $agent): array
     {
         $cacheKey = "agent_projects:{$agent->id}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($agent) {
-            $allowedProjectIds = $agent->allowed_projects ?? [];
-            
-            if (empty($allowedProjectIds)) {
+            if (!$agent->project_id) {
                 return [];
             }
 
-            return Project::whereIn('id', $allowedProjectIds)
+            $project = Project::where('id', $agent->project_id)
                 ->where('status', 'active')
                 ->select('id', 'name', 'status')
-                ->get()
-                ->toArray();
+                ->first();
+
+            return $project ? [$project->toArray()] : [];
         });
     }
 

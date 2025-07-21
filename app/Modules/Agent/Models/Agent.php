@@ -181,29 +181,23 @@ class Agent extends Model
      */
     public function hasProjectAccess(int $projectId): bool
     {
-        return in_array($projectId, $this->allowed_projects ?? []);
+        return $this->project_id === $projectId;
     }
 
     /**
-     * 添加项目权限
+     * 设置Agent的项目权限（强绑定到单个项目）
      */
-    public function addProjectAccess(int $projectId): void
+    public function setProjectAccess(int $projectId): void
     {
-        $projects = $this->allowed_projects ?? [];
-        if (!in_array($projectId, $projects)) {
-            $projects[] = $projectId;
-            $this->update(['allowed_projects' => $projects]);
-        }
+        $this->update(['project_id' => $projectId]);
     }
 
     /**
      * 移除项目权限
      */
-    public function removeProjectAccess(int $projectId): void
+    public function removeProjectAccess(): void
     {
-        $projects = $this->allowed_projects ?? [];
-        $projects = array_filter($projects, fn($pid) => $pid !== $projectId);
-        $this->update(['allowed_projects' => array_values($projects)]);
+        $this->update(['project_id' => null]);
     }
 
     /**
@@ -251,7 +245,7 @@ class Agent extends Model
      */
     public function scopeWithProjectAccess($query, int $projectId)
     {
-        return $query->whereJsonContains('allowed_projects', $projectId);
+        return $query->where('project_id', $projectId);
     }
 
     /**

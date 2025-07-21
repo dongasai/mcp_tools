@@ -70,8 +70,7 @@
             "@php -r \"echo 'SQLite 数据库文件已创建\\n';\"",
             "@php artisan migrate --graceful --ansi",
             "@php -r \"echo '\\n🌱 运行数据库种子...\\n';\"",
-            "@php artisan db:seed --class=AdminTablesSeeder --ansi || echo '管理员种子已存在，跳过'",
-            "@php artisan db:seed --class=UserAdminMenuSeeder --ansi || echo '用户管理菜单种子已存在，跳过'",
+            "@php artisan db:seed --ansi || echo '初始数据填充完成'",
             "@php -r \"echo '\\n📦 发布资源文件...\\n';\"",
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "@php artisan vendor:publish --tag=dcat-admin-config --ansi",
@@ -90,13 +89,6 @@
             "@php -r \"echo '\\n🔐 设置权限...\\n';\"",
             "@php -r \"chmod('storage', 0775); chmod('bootstrap/cache', 0775);\"",
             "@php -r \"echo '\\n✅ 项目初始化完成!\\n\\n';\"",
-            "@php -r \"echo '🌐 访问地址:\\n';\"",
-            "@php -r \"echo '   - 主应用: http://localhost:34004\\n';\"",
-            "@php -r \"echo '   - 超级管理员后台: http://localhost:34004/super-admin\\n';\"",
-            "@php -r \"echo '   - 用户后台: http://localhost:34004/user-admin\\n';\"",
-            "@php -r \"echo '   - MCP SSE 端点: http://localhost:34004/mcp/sse/connect\\n\\n';\"",
-            "@php -r \"echo '🚀 启动开发服务器:\\n';\"",
-            "@php -r \"echo '   composer run dev\\n\\n';\"",
             "@php -r \"echo '📚 更多信息请查看 docs/ 目录\\n';\""
         ],
         "uninit": [

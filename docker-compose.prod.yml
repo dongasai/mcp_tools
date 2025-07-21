@@ -5,22 +5,13 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    container_name: mcp-tools-app
+      dockerfile: Dockerfile
+    container_name: mcp-tools-run
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
-      - ./laravel:/var/www/html
+      - ./.env:/var/www/html/.env
     ports:
-      - "34004:80"
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-    networks:
-      - mcp-network
+      - "34006:80"
 
 
-
-networks:
-  mcp-network:
-    driver: bridge

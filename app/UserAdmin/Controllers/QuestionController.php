@@ -25,29 +25,7 @@ class QuestionController extends AdminController
         $this->questionService = $questionService;
     }
 
-    public function index(Content $content)
-    {
-        return $content
-            ->title($this->title)
-            ->description('管理Agent提出的问题')
-            ->body($this->grid());
-    }
-
-    public function show($id, Content $content)
-    {
-        return $content
-            ->title($this->title)
-            ->description('问题详情')
-            ->body($this->detail($id));
-    }
-
-    public function edit($id, Content $content)
-    {
-        return $content
-            ->title($this->title)
-            ->description('回答问题')
-            ->body($this->form()->edit($id));
-    }
+    
 
     protected function grid()
     {

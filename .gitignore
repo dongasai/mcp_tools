@@ -22,3 +22,4 @@ yarn-error.log
 /.vscode
 /.zed
 composer.local.yml
+public/phpinfo.php

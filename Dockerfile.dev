@@ -34,6 +34,9 @@ RUN docker-php-ext-install \
     sockets \
     zip
 
+# 复制自定义 PHP 配置
+COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+
 # 启用 Apache 模块
 RUN a2enmod rewrite headers
 

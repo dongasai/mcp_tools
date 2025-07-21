@@ -2,7 +2,7 @@
 
 ## 概述
 
-Agent代理模块负责管理AI Agent的完整生命周期，包括注册、认证、权限控制、状态管理等。该模块是MCP Tools系统中Agent管理的核心，确保每个Agent都有明确的身份标识和访问权限。Agent模块与User模块协作，但专注于AI Agent的管理，不直接处理人类用户的管理。
+Agent代理模块负责管理AI Agent的完整生命周期，包括注册、认证、权限控制、状态管理等。该模块是MCP Tools系统中Agent管理的核心，采用**一对多强绑定关系**设计：一个项目可以有多个Agent，但每个Agent只属于一个项目，确保权限隔离和资源安全。Agent模块与User模块协作，但专注于AI Agent的管理，不直接处理人类用户的管理。
 
 ## 职责范围
 
@@ -56,8 +56,68 @@ Agent代理模块负责管理AI Agent的完整生命周期，包括注册、认�
 ### 🔄 与其他模块的协作
 - **User模块**：获取Agent所属用户的信息和权限
 - **MCP模块**：为MCP连接提供Agent认证服务
-- **Project模块**：验证Agent对项目的访问权限
+- **Project模块**：验证Agent对项目的访问权限（一对多强绑定关系）
 - **Task模块**：验证Agent对任务的操作权限
+
+## 关系设计
+
+### Agent-Project关系（一对多强绑定）
+
+**设计原则**：
+- 一个项目可以有多个Agent
+- 每个Agent只属于一个项目
+- Agent与项目之间是强绑定关系，不可为空
+
+**数据库设计**：
+```sql
+-- agents表结构
+CREATE TABLE agents (
+    id BIGINT PRIMARY KEY,
+    user_id BIGINT NOT NULL,           -- 所属用户
+    project_id BIGINT NOT NULL,        -- 所属项目（外键，强绑定）
+    identifier VARCHAR(255) UNIQUE,    -- Agent唯一标识符
+    name VARCHAR(255),                 -- Agent名称
+    status ENUM('active', 'inactive', 'suspended', 'pending'),
+    -- 其他字段...
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+```
+
+**模型关系**：
+```php
+// Agent模型
+class Agent extends Model
+{
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function canAccessProject(int $projectId): bool
+    {
+        return $this->project_id === $projectId;
+    }
+}
+
+// Project模型
+class Project extends Model
+{
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+}
+```
+
+**权限控制**：
+- Agent只能访问所属项目的资源
+- 项目级权限隔离，确保数据安全
+- 支持项目管理员管理项目内的Agent
+
+**业务场景**：
+- 开发团队项目：多个AI助手协作处理不同任务
+- 客户项目：专门的Agent团队服务特定客户
+- 部门项目：部门内多个Agent处理部门业务
 
 ## 目录结构
 

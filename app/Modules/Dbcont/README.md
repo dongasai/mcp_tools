@@ -1,8 +1,16 @@
-# 数据库连接模块 (Dbcont)
+# 数据库连接模块 (Dbcont) 
+
+> 内部模块不提供开放对外能力，提供可供其他模块调用的Service
 
 ## 概述
 
-数据库连接模块为 MCP Tools 项目提供安全的数据库访问和 SQL 执行能力。该模块允许 Agent 通过 MCP 协议安全地连接和操作外部数据库，支持细粒度的权限控制和审计日志。
+数据库连接模块是 MCP Tools 项目的内部服务模块，为其他模块提供安全的数据库访问和 SQL 执行能力。该模块不直接对外提供 API 或 MCP 接口，而是通过服务层为其他模块（如 MCP 模块、项目模块等）提供数据库操作服务，支持细粒度的权限控制和审计日志。
+
+**设计原则**：
+- **内部服务**：仅提供服务层接口，不暴露控制器或路由
+- **模块间调用**：通过依赖注入为其他模块提供数据库服务
+- **统一管理**：集中管理所有外部数据库连接和权限
+- **安全优先**：提供统一的安全验证和审计机制
 
 ## 核心功能
 
@@ -28,28 +36,17 @@
 
 ## 架构设计
 
-### 模块结构
+### 模块结构（内部服务模块）
 ```
 app/Modules/Dbcont/
-├── Controllers/
-│   ├── DatabaseConnectionController.php    # 数据库连接管理
-│   └── SqlExecutionController.php          # SQL执行控制器
 ├── Models/
 │   ├── DatabaseConnection.php              # 数据库连接模型
 │   └── SqlExecutionLog.php                 # SQL执行日志模型
 ├── Services/
-│   ├── DatabaseConnectionService.php       # 连接管理服务
-│   ├── SqlExecutionService.php             # SQL执行服务
+│   ├── DatabaseConnectionService.php       # 连接管理服务（主要对外接口）
+│   ├── SqlExecutionService.php             # SQL执行服务（主要对外接口）
 │   ├── PermissionService.php               # 权限管理服务
 │   └── SecurityService.php                 # 安全验证服务
-├── Tools/
-│   ├── SqlExecuteTool.php                  # SQL执行MCP工具
-│   └── DatabaseQueryTool.php               # 数据库查询MCP工具
-├── Resources/
-│   └── DatabaseResource.php                # 数据库连接MCP资源
-├── Middleware/
-│   ├── DatabaseAccessMiddleware.php        # 数据库访问中间件
-│   └── SqlValidationMiddleware.php         # SQL验证中间件
 ├── Enums/
 │   ├── DatabaseType.php                    # 数据库类型枚举
 │   ├── PermissionLevel.php                 # 权限级别枚举
@@ -65,6 +62,9 @@ app/Modules/Dbcont/
 ├── Validation/
 │   ├── DatabaseConnectionValidation.php    # 连接配置验证
 │   └── SqlStatementValidation.php          # SQL语句验证
+├── Contracts/
+│   ├── DatabaseConnectionInterface.php     # 连接服务接口
+│   └── SqlExecutionInterface.php           # SQL执行服务接口
 ├── database/
 │   └── migrations/
 │       ├── create_database_connections_table.php
@@ -72,9 +72,11 @@ app/Modules/Dbcont/
 │       └── create_sql_execution_logs_table.php
 ├── config/
 │   └── dbcont.php                          # 模块配置文件
-└── routes/
-    └── api.php                             # API路由定义
+└── Providers/
+    └── DbcontServiceProvider.php           # 服务提供者
 ```
+
+**注意**：作为内部模块，不包含 Controllers、Routes、Tools、Resources 等对外暴露的组件。
 
 ## 数据模型设计
 
@@ -125,40 +127,112 @@ app/Modules/Dbcont/
 - executed_at: 执行时间
 ```
 
-## MCP 集成
+## 服务接口
 
-### MCP 工具
+### 主要服务类
 
-#### 1. SQL执行工具 (sql_execute)
-- **功能**：执行SQL语句并返回结果
-- **权限验证**：基于Agent权限和数据库连接权限
-- **参数**：
-  - `connection_id`: 数据库连接ID
-  - `sql`: SQL语句
-  - `timeout`: 执行超时时间（可选）
-- **返回**：查询结果或执行状态
+#### 1. DatabaseConnectionService
+数据库连接管理服务，提供连接的创建、管理和监控功能。
 
-#### 2. 数据库查询工具 (database_query)
-- **功能**：提供结构化的数据库查询接口
-- **权限验证**：基于表级权限控制
-- **参数**：
-  - `connection_id`: 数据库连接ID
-  - `table`: 表名
-  - `columns`: 查询字段（可选）
-  - `where`: 查询条件（可选）
-  - `limit`: 结果限制（可选）
-- **返回**：格式化的查询结果
+**主要方法**：
+```php
+// 创建数据库连接
+public function createConnection(array $config): DatabaseConnection
 
-### MCP 资源
+// 获取项目的数据库连接列表
+public function getProjectConnections(int $projectId): Collection
 
-#### 数据库连接资源 (database://)
-- **URI模式**：`database://{connection_id}/{path}`
-- **支持的路径**：
-  - `database://list` - 获取可用数据库连接列表
-  - `database://{id}` - 获取特定数据库连接信息
-  - `database://{id}/tables` - 获取数据库表列表
-  - `database://{id}/schema/{table}` - 获取表结构信息
-  - `database://{id}/status` - 获取连接状态
+// 测试数据库连接
+public function testConnection(int $connectionId): bool
+
+// 获取连接状态
+public function getConnectionStatus(int $connectionId): array
+
+// 获取数据库表列表
+public function getTables(int $connectionId): array
+
+// 获取表结构信息
+public function getTableSchema(int $connectionId, string $table): array
+```
+
+#### 2. SqlExecutionService
+SQL执行服务，提供安全的SQL执行和结果处理功能。
+
+**主要方法**：
+```php
+// 执行SQL查询
+public function executeQuery(int $connectionId, string $sql, int $agentId, array $options = []): array
+
+// 执行结构化查询
+public function executeStructuredQuery(int $connectionId, array $queryParams, int $agentId): array
+
+// 验证SQL语句安全性
+public function validateSql(string $sql, PermissionLevel $level): bool
+
+// 获取查询执行历史
+public function getExecutionHistory(int $agentId, array $filters = []): Collection
+```
+
+#### 3. PermissionService
+权限管理服务，处理Agent对数据库的访问权限。
+
+**主要方法**：
+```php
+// 检查Agent是否有数据库访问权限
+public function hasConnectionAccess(int $agentId, int $connectionId): bool
+
+// 检查Agent是否有表访问权限
+public function hasTableAccess(int $agentId, int $connectionId, string $table): bool
+
+// 检查Agent是否有操作权限
+public function hasOperationPermission(int $agentId, int $connectionId, string $operation): bool
+
+// 获取Agent的权限级别
+public function getPermissionLevel(int $agentId, int $connectionId): PermissionLevel
+
+// 设置Agent权限
+public function setAgentPermission(int $agentId, int $connectionId, array $permissions): void
+```
+
+### 其他模块调用示例
+
+#### MCP模块中使用数据库服务
+```php
+// 在MCP工具中注入数据库服务
+class SqlExecuteTool
+{
+    public function __construct(
+        private SqlExecutionService $sqlService,
+        private PermissionService $permissionService
+    ) {}
+
+    public function execute(array $params): array
+    {
+        // 验证权限
+        if (!$this->permissionService->hasConnectionAccess($agentId, $connectionId)) {
+            throw new PermissionDeniedException();
+        }
+
+        // 执行SQL
+        return $this->sqlService->executeQuery($connectionId, $sql, $agentId);
+    }
+}
+```
+
+#### 项目模块中管理数据库连接
+```php
+// 在项目服务中使用数据库连接服务
+class ProjectService
+{
+    public function __construct(
+        private DatabaseConnectionService $dbService
+    ) {}
+
+    public function getProjectDatabases(int $projectId): array
+    {
+        return $this->dbService->getProjectConnections($projectId)->toArray();
+    }
+}
 
 ## 安全机制
 
@@ -254,16 +328,31 @@ AgentDatabasePermission::create([
 ]);
 ```
 
-### 3. MCP工具调用
-```json
+### 3. 服务调用示例
+```php
+// 在其他模块中使用数据库服务
+class SomeController
 {
-    "method": "tools/call",
-    "params": {
-        "name": "sql_execute",
-        "arguments": {
-            "connection_id": 1,
-            "sql": "SELECT * FROM users WHERE status = 'active' LIMIT 10"
+    public function __construct(
+        private SqlExecutionService $sqlService,
+        private PermissionService $permissionService
+    ) {}
+
+    public function executeQuery(Request $request)
+    {
+        $agentId = $request->get('agent_id');
+        $connectionId = $request->get('connection_id');
+        $sql = $request->get('sql');
+
+        // 检查权限
+        if (!$this->permissionService->hasConnectionAccess($agentId, $connectionId)) {
+            throw new PermissionDeniedException('Agent无权访问此数据库连接');
         }
+
+        // 执行查询
+        $result = $this->sqlService->executeQuery($connectionId, $sql, $agentId);
+
+        return response()->json($result);
     }
 }
 ```
@@ -271,10 +360,10 @@ AgentDatabasePermission::create([
 ## 开发状态
 
 ### 当前状态
-- **设计阶段**：✅ 完成 - 架构设计和文档编写
+- **设计阶段**：✅ 完成 - 内部服务模块架构设计和文档编写
 - **模型实现**：❌ 待开发 - 数据模型和迁移文件
-- **服务层**：❌ 待开发 - 核心业务逻辑
-- **MCP集成**：❌ 待开发 - MCP工具和资源
+- **服务层**：❌ 待开发 - 核心业务逻辑和服务接口
+- **服务注册**：❌ 待开发 - 服务提供者和依赖注入配置
 - **安全机制**：❌ 待开发 - 权限控制和安全验证
 - **测试覆盖**：❌ 待开发 - 单元测试和集成测试
 
@@ -282,9 +371,11 @@ AgentDatabasePermission::create([
 1. **创建数据库迁移文件**：定义数据表结构
 2. **实现核心模型**：DatabaseConnection、AgentDatabasePermission、SqlExecutionLog
 3. **开发服务层**：连接管理、SQL执行、权限验证服务
-4. **集成MCP协议**：实现MCP工具和资源
-5. **安全机制实现**：SQL验证、权限控制、审计日志
-6. **编写测试用例**：确保功能正确性和安全性
+4. **创建服务提供者**：注册服务到Laravel容器
+5. **实现服务接口**：定义清晰的服务契约
+6. **安全机制实现**：SQL验证、权限控制、审计日志
+7. **编写测试用例**：确保功能正确性和安全性
+8. **集成到其他模块**：为MCP模块等提供数据库服务支持
 
 ## 技术依赖
 
@@ -296,9 +387,19 @@ AgentDatabasePermission::create([
 - **Events**：事件驱动的架构支持
 
 ### 第三方包
-- **php-mcp/laravel**：MCP协议集成
 - **inhere/php-validate**：数据验证
-- **dcat/laravel-admin**：后台管理界面
+- **dcat/laravel-admin**：后台管理界面（用于数据库连接配置管理）
+
+### 模块间依赖
+- **Core模块**：日志服务、事件系统
+- **Agent模块**：Agent权限验证
+- **Project模块**：项目关联和权限控制
+- **User模块**：用户身份验证
+
+### 服务提供方式
+- **依赖注入**：通过Laravel服务容器注册和解析服务
+- **接口契约**：定义清晰的服务接口，便于测试和扩展
+- **事件驱动**：通过事件系统与其他模块解耦通信
 
 ### 安全考虑
 - **参数化查询**：防止SQL注入攻击

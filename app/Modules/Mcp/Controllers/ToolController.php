@@ -11,7 +11,6 @@ use App\Modules\Mcp\Tools\ProjectTool;
 use App\Modules\Mcp\Tools\TaskTool;
 use App\Modules\Mcp\Tools\AgentTool;
 use App\Modules\Mcp\Tools\AskQuestionTool;
-use App\Modules\Mcp\Tools\CheckAnswerTool;
 use App\Modules\Mcp\Tools\GetQuestionsTool;
 use App\Modules\Mcp\Tools\QuestionBatchTool;
 
@@ -24,7 +23,6 @@ class ToolController extends Controller
         private TaskTool $taskTool,
         private AgentTool $agentTool,
         private AskQuestionTool $askQuestionTool,
-        private CheckAnswerTool $checkAnswerTool,
         private GetQuestionsTool $getQuestionsTool,
         private QuestionBatchTool $questionBatchTool
     ) {}
@@ -160,7 +158,6 @@ class ToolController extends Controller
             'task_manager' => $this->taskTool,
             'agent_manager' => $this->agentTool,
             'ask_question' => $this->askQuestionTool,
-            'check_answer' => $this->checkAnswerTool,
             'get_questions' => $this->getQuestionsTool,
             'question_batch' => $this->questionBatchTool,
             default => null

@@ -50,7 +50,7 @@ return [
         'allowed_types' => ['jpg', 'jpeg', 'png', 'gif'],
         'storage_disk' => env('USER_AVATAR_STORAGE_DISK', 'public'),
         'storage_path' => env('USER_AVATAR_STORAGE_PATH', 'avatars'),
-        'default_gravatar' => env('USER_DEFAULT_GRAVATAR', true),
+        'default_avatar' => env('USER_DEFAULT_AVATAR', 'images/default-avatar.png'),
     ],
 
     /*

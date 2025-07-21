@@ -33,4 +33,4 @@ php artisan mcp:list templates
 # JSON output
 php artisan mcp:list --json
 
-
+https://context7.com/zavierd/dcat-admin-doc/llms.txt?topic=%E8%A1%8C%E6%93%8D%E4%BD%9C

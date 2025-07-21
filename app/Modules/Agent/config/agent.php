@@ -85,7 +85,7 @@ return [
     // Agent集成配置
     'integrations' => [
         'github' => [
-            'enabled' => env('AGENT_GITHUB_INTEGRATION', true),
+            'enabled' => env('AGENT_GITHUB_INTEGRATION', false),
             'webhook_secret' => env('AGENT_GITHUB_WEBHOOK_SECRET'),
         ],
         'slack' => [

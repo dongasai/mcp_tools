@@ -182,7 +182,7 @@ class GitHubController extends AdminController
                 'github_id' => '12345678',
                 'github_username' => 'demo_user',
                 'github_name' => 'Demo User',
-                'avatar_url' => 'https://avatars.githubusercontent.com/u/12345678',
+                'avatar_url' => asset('images/default-avatar.png'),
                 'access_token' => 'demo_token_' . time(),
                 'token_type' => 'bearer',
                 'scope' => 'repo,user',

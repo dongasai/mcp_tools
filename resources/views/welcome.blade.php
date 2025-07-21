@@ -7,13 +7,12 @@
         <title>Laravel</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- 使用系统字体，不依赖外部服务 -->
 
         <!-- Styles -->
         <style>
             body {
-                font-family: 'Figtree', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
                 margin: 0;
                 padding: 2rem;
                 background-color: #f3f4f6;

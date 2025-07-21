@@ -77,9 +77,8 @@ class User extends Authenticatable
             return asset('storage/' . $this->avatar);
         }
 
-        // 使用Gravatar作为默认头像
-        $hash = md5(strtolower(trim($this->email)));
-        return "https://www.gravatar.com/avatar/{$hash}?d=identicon&s=200";
+        // 使用本地默认头像
+        return asset(config('user.avatar.default_avatar', 'images/default-avatar.png'));
     }
 
     /**

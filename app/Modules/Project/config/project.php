@@ -69,7 +69,7 @@ return [
     // 项目集成配置
     'integrations' => [
         'github' => [
-            'enabled' => env('PROJECT_GITHUB_INTEGRATION', true),
+            'enabled' => env('PROJECT_GITHUB_INTEGRATION', false),
             'auto_sync' => env('PROJECT_GITHUB_AUTO_SYNC', false),
             'webhook_secret' => env('PROJECT_GITHUB_WEBHOOK_SECRET'),
         ],

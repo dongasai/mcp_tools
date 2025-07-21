@@ -39,7 +39,7 @@ class McpTestDataSeeder extends Seeder
                 'description' => 'MCP 测试默认项目',
                 'user_id' => $user->id,
                 'status' => 'active',
-                'repository_url' => 'https://github.com/example/default-project',
+                'repository_url' => null, // 不使用外部仓库URL
                 'settings' => [
                     'auto_sync' => true,
                     'notifications' => true,

@@ -29,18 +29,13 @@
 
 ### 1.1 任务管理工具 ✅ 已注册/已实现
 
-#### create_main_task ⚠️ 已注册/需修正
+#### create_main_task ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `createMainTask()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ⚠️ 需修正（当前需要projectId参数，但应该自动使用Agent绑定的项目。Agent模型已支持project_id字段，但工具方法尚未更新）
+- **实现状态**: ✅ 已修正（自动使用Agent绑定的项目）
 - **描述**: 创建主任务
-- **当前参数**:
-  - `projectId` (string): 项目ID ⚠️ **应该移除，Agent和项目强绑定**
-  - `title` (string): 任务标题
-  - `description` (string, 可选): 任务描述
-  - `priority` (string, 可选): 优先级 (默认: medium)
-- **建议参数**:
+- **参数**:
   - `title` (string): 任务标题
   - `description` (string, 可选): 任务描述
   - `priority` (string, 可选): 优先级 (默认: medium)
@@ -59,17 +54,13 @@
   - `priority` (string, 可选): 优先级 (默认: medium)
 - **权限**: 需要 `create_task` 权限和父任务访问权限
 
-#### list_tasks ⚠️ 已注册/需修正
+#### list_tasks ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `listTasks()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ⚠️ 需修正（当前有projectId参数，但应该自动使用Agent绑定的项目。Agent模型已支持project_id字段，但工具方法尚未更新）
+- **实现状态**: ✅ 已修正（自动使用Agent绑定的项目）
 - **描述**: 获取任务列表
-- **当前参数**:
-  - `status` (string, 可选): 状态过滤
-  - `type` (string, 可选): 任务类型过滤
-  - `projectId` (string, 可选): 项目ID过滤 ⚠️ **应该移除，Agent和项目强绑定**
-- **建议参数**:
+- **参数**:
   - `status` (string, 可选): 状态过滤
   - `type` (string, 可选): 任务类型过滤
   - `assignedToMe` (bool, 可选): 是否只显示分配给当前Agent的任务
@@ -121,22 +112,13 @@
 
 ### 1.2 问题管理工具 ✅ 已注册/已实现
 
-#### get_questions ⚠️ 已注册/需修正
+#### get_questions ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/GetQuestionsTool.php`
 - **方法**: `getQuestions()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ⚠️ 需修正（当前有project_id参数，但应该自动使用Agent绑定的项目。Agent模型已支持project_id字段，但工具方法尚未更新）
+- **实现状态**: ✅ 已修正（自动使用Agent绑定的项目）
 - **描述**: 获取问题列表，支持多种过滤条件
-- **当前参数**:
-  - `status` (string, 可选): 问题状态 (PENDING/ANSWERED/IGNORED)
-  - `priority` (string, 可选): 优先级 (URGENT/HIGH/MEDIUM/LOW)
-  - `question_type` (string, 可选): 问题类型 (CHOICE/FEEDBACK)
-  - `task_id` (int, 可选): 任务ID过滤
-  - `project_id` (int, 可选): 项目ID过滤 ⚠️ **应该移除，Agent和项目强绑定**
-  - `limit` (int, 可选): 返回数量限制 (默认: 10)
-  - `only_mine` (bool, 可选): 是否只返回当前Agent的问题 (默认: true)
-  - `include_expired` (bool, 可选): 是否包含已过期的问题 (默认: false)
-- **建议参数**:
+- **参数**:
   - `status` (string, 可选): 问题状态 (PENDING/ANSWERED/IGNORED)
   - `priority` (string, 可选): 优先级 (URGENT/HIGH/MEDIUM/LOW)
   - `question_type` (string, 可选): 问题类型 (CHOICE/FEEDBACK)
@@ -271,10 +253,12 @@
    - 更新工具实现状态描述，明确指出Agent模型已支持但工具方法尚未更新
    - 标记需要进一步修正的工具：`create_main_task`、`list_tasks`、`get_questions`
 
-**待完成**:
-- 修正 `TaskTool::createMainTask()` 方法自动使用Agent绑定的项目
-- 修正 `TaskTool::listTasks()` 方法移除projectId参数
-- 修正 `GetQuestionsTool::getQuestions()` 方法移除project_id参数
+4. **MCP工具方法更新** (`app/Modules/Mcp/Tools/`):
+   - 修正 `TaskTool::createMainTask()` 方法移除projectId参数，自动使用Agent绑定的项目
+   - 修正 `TaskTool::listTasks()` 方法移除projectId参数，增加assignedToMe和limit参数
+   - 修正 `GetQuestionsTool::getQuestions()` 方法移除project_id参数，自动使用Agent绑定的项目
+
+**已完成**: ✅ 所有Agent项目强绑定相关的修正已完成
 
 
 

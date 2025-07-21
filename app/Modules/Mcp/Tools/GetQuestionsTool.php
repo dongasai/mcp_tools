@@ -24,7 +24,6 @@ class GetQuestionsTool
         ?string $priority = null,
         ?string $question_type = null,
         ?int $task_id = null,
-        ?int $project_id = null,
         int $limit = 10,
         bool $only_mine = true,
         bool $include_expired = false
@@ -41,8 +40,13 @@ class GetQuestionsTool
                 throw new \Exception('Agent不存在');
             }
 
+            // 检查Agent是否绑定了项目
+            if (!$agent->project_id) {
+                throw new \Exception('Agent is not bound to any project');
+            }
+
             // 准备过滤条件
-            $filters = [];
+            $filters = ['project_id' => $agent->project_id];
 
             // 默认只返回当前Agent的问题
             if ($only_mine) {
@@ -64,10 +68,6 @@ class GetQuestionsTool
 
             if ($task_id) {
                 $filters['task_id'] = $task_id;
-            }
-
-            if ($project_id) {
-                $filters['project_id'] = $project_id;
             }
 
             // 过期问题处理

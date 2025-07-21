@@ -37,9 +37,8 @@ class TaskMcpTestController extends Controller
             }
 
             $result = $this->taskTool->createMainTask(
-                (string)$project->id,
                 'MCP 测试主任务',
-                '通过 MCP TaskTool 创建的测试任务（需要认证）',
+                '通过 MCP TaskTool 创建的测试任务（需要认证，自动使用Agent绑定的项目）',
                 'medium'
             );
 

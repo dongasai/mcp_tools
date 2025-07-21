@@ -26,16 +26,16 @@ class TaskTool
      * 创建主任务
      */
     #[McpTool(name: 'create_main_task')]
-    public function createMainTask(string $projectId, string $title, string $description = '', string $priority = 'medium'): array
+    public function createMainTask(string $title, string $description = '', string $priority = 'medium'): array
     {
         try {
             // 获取认证的Agent和用户
             $agent = $this->getCurrentAgent();
             $user = \App\Modules\User\Models\User::find($agent->user_id);
 
-            // 验证项目访问权限
-            if (!$this->authzService->canAccessProject($agent, (int)$projectId)) {
-                throw new \Exception("Access denied to project {$projectId}");
+            // 检查Agent是否绑定了项目
+            if (!$agent->project_id) {
+                throw new \Exception('Agent is not bound to any project');
             }
 
             // 验证创建任务权限
@@ -44,7 +44,7 @@ class TaskTool
             }
 
             $taskData = [
-                'project_id' => $projectId,
+                'project_id' => $agent->project_id,
                 'title' => $title,
                 'description' => $description,
                 'type' => TASKTYPE::MAIN->value,
@@ -74,7 +74,7 @@ class TaskTool
             // 使用错误处理服务处理错误
             $errorResponse = $this->errorHandler->handleError($e, $sessionId, [
                 'tool' => 'create_main_task',
-                'project_id' => $projectId,
+                'project_id' => $agent->project_id ?? null,
                 'agent_id' => $agent->identifier ?? 'unknown'
             ]);
 
@@ -128,15 +128,21 @@ class TaskTool
      * 获取任务列表
      */
     #[McpTool(name: 'list_tasks')]
-    public function listTasks(string $status = '', string $type = '', string $projectId = ''): array
+    public function listTasks(string $status = '', string $type = '', bool $assignedToMe = false, int $limit = 20): array
     {
         try {
-            $user = \App\Modules\User\Models\User::find($this->getUserIdFromAgent());
-            
-            $filters = [];
+            $agent = $this->getCurrentAgent();
+            $user = \App\Modules\User\Models\User::find($agent->user_id);
+
+            // 检查Agent是否绑定了项目
+            if (!$agent->project_id) {
+                throw new \Exception('Agent is not bound to any project');
+            }
+
+            $filters = ['project_id' => $agent->project_id];
             if ($status) $filters['status'] = $status;
             if ($type) $filters['type'] = $type;
-            if ($projectId) $filters['project_id'] = $projectId;
+            if ($assignedToMe) $filters['agent_id'] = $agent->id;
             
             $tasks = $this->taskService->getUserTasks($user, $filters);
 

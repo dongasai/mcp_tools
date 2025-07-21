@@ -3,6 +3,10 @@
 namespace App\Modules\Mcp\Tools;
 
 use PhpMcp\Server\Attributes\McpTool;
+use PhpMcp\Server\ToolCallInterface;
+use PhpMcp\Server\ToolResultInterface;
+use PhpMcp\Server\ToolResult;
+use PhpMcp\Server\Content\TextContent;
 use App\Modules\Agent\Services\QuestionService;
 use App\Modules\Agent\Services\AgentService;
 use App\Modules\Core\Contracts\LogInterface;

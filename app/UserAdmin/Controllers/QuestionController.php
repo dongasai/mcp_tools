@@ -241,11 +241,11 @@ class QuestionController extends AdminController
 
         // 保存时自动设置回答者和回答时间
         $form->saving(function (Form $form) {
-            $user = $this->getCurrentUser();
+            $user = Auth::guard('user-admin')->user();
             if ($user) {
-                $form->answered_by = $user->id;
-                $form->answered_at = now();
-                $form->status = AgentQuestion::STATUS_ANSWERED;
+                $form->model()->answered_by = $user->id;
+                $form->model()->answered_at = now();
+                $form->model()->status = AgentQuestion::STATUS_ANSWERED;
             }
         });
 
@@ -327,11 +327,11 @@ class QuestionController extends AdminController
         $form->hidden('id')->value($question->id);
 
         $form->saving(function (Form $form) {
-            $user = $this->getCurrentUser();
+            $user = Auth::guard('user-admin')->user();
             if ($user) {
-                $form->answered_by = $user->id;
-                $form->answered_at = now();
-                $form->status = AgentQuestion::STATUS_ANSWERED;
+                $form->model()->answered_by = $user->id;
+                $form->model()->answered_at = now();
+                $form->model()->status = AgentQuestion::STATUS_ANSWERED;
             }
         });
 

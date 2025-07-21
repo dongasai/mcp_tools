@@ -6,6 +6,7 @@ use PhpMcp\Server\Attributes\McpTool;
 use App\Modules\Agent\Services\QuestionService;
 use App\Modules\Agent\Services\AuthenticationService;
 use App\Modules\Core\Contracts\LogInterface;
+use App\Modules\Agent\Models\AgentQuestion;
 
 class AskQuestionTool
 {
@@ -16,7 +17,7 @@ class AskQuestionTool
     ) {}
 
     /**
-     * Agent向用户提出问题，获取指导、确认或澄清
+     * Agent向用户提出问题，等待回答（阻塞式，超时600秒）
      */
     #[McpTool(name: 'ask_question')]
     public function askQuestion(
@@ -27,7 +28,7 @@ class AskQuestionTool
         ?int $task_id = null,
         ?array $context = null,
         ?array $answer_options = null,
-        int $expires_in = 3600
+        int $timeout = 600
     ): array
     {
         try {
@@ -47,7 +48,7 @@ class AskQuestionTool
                 throw new \Exception('Agent is not bound to any project');
             }
 
-            // 准备问题数据
+            // 准备问题数据，设置过期时间为超时时间
             $questionData = [
                 'agent_id' => $agent->id,
                 'user_id' => $agent->user_id,
@@ -56,6 +57,7 @@ class AskQuestionTool
                 'content' => $content,
                 'question_type' => $question_type,
                 'priority' => $priority,
+                'expires_in' => $timeout, // 使用超时时间作为过期时间
             ];
 
             // 可选字段
@@ -71,28 +73,78 @@ class AskQuestionTool
                 $questionData['answer_options'] = $answer_options;
             }
 
-            if ($expires_in) {
-                $questionData['expires_in'] = $expires_in;
-            }
-
             // 创建问题
             $question = $this->questionService->createQuestion($questionData);
 
-            $this->logger->info('Question created via MCP', [
+            $this->logger->info('Question created via MCP, waiting for answer', [
                 'question_id' => $question->id,
                 'agent_id' => $agentId,
                 'question_type' => $question->question_type,
                 'priority' => $question->priority,
+                'timeout' => $timeout,
             ]);
 
-            // 返回成功结果
-            return [
-                'success' => true,
+            // 阻塞式等待回答
+            $startTime = time();
+            $pollInterval = 2; // 每2秒检查一次
+
+            while (time() - $startTime < $timeout) {
+                // 重新获取问题状态
+                $question->refresh();
+
+                // 检查是否已被回答
+                if ($question->status === AgentQuestion::STATUS_ANSWERED) {
+                    $this->logger->info('Question answered', [
+                        'question_id' => $question->id,
+                        'agent_id' => $agentId,
+                        'answer_time' => time() - $startTime,
+                    ]);
+
+                    return [
+                        'success' => true,
+                        'question_id' => $question->id,
+                        'status' => 'ANSWERED',
+                        'answer' => $question->answer,
+                        'answer_choice' => $question->answer_choice,
+                        'answered_at' => $question->answered_at?->toISOString(),
+                        'answered_by' => $question->answered_by,
+                        'wait_time' => time() - $startTime,
+                    ];
+                }
+
+                // 检查是否被忽略
+                if ($question->status === AgentQuestion::STATUS_IGNORED) {
+                    $this->logger->info('Question ignored', [
+                        'question_id' => $question->id,
+                        'agent_id' => $agentId,
+                    ]);
+
+                    return [
+                        'success' => false,
+                        'question_id' => $question->id,
+                        'status' => 'IGNORED',
+                        'error' => '问题被用户忽略',
+                        'wait_time' => time() - $startTime,
+                    ];
+                }
+
+                // 等待下次检查
+                sleep($pollInterval);
+            }
+
+            // 超时处理
+            $this->logger->warning('Question timeout', [
                 'question_id' => $question->id,
-                'status' => $question->status,
-                'created_at' => $question->created_at->toISOString(),
-                'expires_at' => $question->expires_at?->toISOString(),
-                'message' => '问题已成功创建，等待用户回答',
+                'agent_id' => $agentId,
+                'timeout' => $timeout,
+            ]);
+
+            return [
+                'success' => false,
+                'question_id' => $question->id,
+                'status' => 'TIMEOUT',
+                'error' => "等待回答超时（{$timeout}秒）",
+                'wait_time' => $timeout,
             ];
 
         } catch (\InvalidArgumentException $e) {

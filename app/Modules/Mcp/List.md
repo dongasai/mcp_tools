@@ -13,13 +13,13 @@
 ## 当前状态
 
 ### 发现统计（通过 `php artisan mcp:list` 获取）
-- **工具 (Tools)**: 10 个已注册
+- **工具 (Tools)**: 9 个已注册
 - **资源 (Resources)**: 2 个已注册
 - **提示 (Prompts)**: 0 个
 - **模板 (Templates)**: 0 个
 
 ### 实现统计
-- **已实现工具**: 10 个
+- **已实现工具**: 9 个
 - **已实现资源**: 4 个（2个未被发现）
 
 
@@ -170,8 +170,13 @@
 - **文件**: `app/Modules/Mcp/Tools/AskQuestionTool.php`
 - **方法**: `askQuestion()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ✅ 已修复并实现（重写为属性模式）
-- **描述**: Agent向用户提出问题，获取指导、确认或澄清
+- **实现状态**: ✅ 已修复并实现（阻塞式等待回答）
+- **描述**: Agent向用户提出问题，等待回答（阻塞式，超时600秒）
+- **工作模式**:
+  - 创建问题后阻塞等待用户回答
+  - 每2秒检查一次回答状态
+  - 用户回答后立即返回结果
+  - 超时或被忽略时返回相应状态
 - **参数**:
   - `title` (string): 问题标题
   - `content` (string): 详细问题描述
@@ -180,18 +185,11 @@
   - `task_id` (int, 可选): 关联的任务ID
   - `context` (array, 可选): 问题上下文信息
   - `answer_options` (array, 可选): 可选答案列表（选择类问题使用）
-  - `expires_in` (int, 可选): 过期时间（秒，默认: 3600）
+  - `timeout` (int, 可选): 超时时间（秒，默认: 600）
+- **返回值**:
+  - 成功时返回用户回答和相关信息
+  - 超时或被忽略时返回错误状态
 - **权限**: 自动使用Agent绑定的项目
-
-#### check_answer ✅ 已注册/已实现
-- **文件**: `app/Modules/Mcp/Tools/CheckAnswerTool.php`
-- **方法**: `checkAnswer()`
-- **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ✅ 已修复并实现（重写为属性模式）
-- **描述**: 检查问题是否已被回答，获取问题的当前状态和回答内容
-- **参数**:
-  - `question_id` (int): 问题ID
-- **权限**: 只能查看自己创建的问题
 
 ## 2. MCP 资源 (Resources)
 
@@ -278,18 +276,19 @@
    - 从旧的接口模式重写为 `#[McpTool]` 属性模式
    - 移除project_id参数，自动使用Agent绑定的项目
    - 更新依赖注入使用 `AuthenticationService`
-   - 简化参数和返回值结构
+   - 实现阻塞式等待回答机制（600秒超时）
+   - 每2秒轮询检查回答状态
+   - 支持立即返回用户回答或超时状态
 
-2. **CheckAnswerTool重写** (`app/Modules/Mcp/Tools/CheckAnswerTool.php`):
-   - 从禁用状态重新创建为 `#[McpTool]` 属性模式
-   - 实现权限检查，只能查看自己创建的问题
-   - 返回完整的问题状态和回答信息
+2. **CheckAnswerTool移除** (`app/Modules/Mcp/Tools/CheckAnswerTool.php`):
+   - 删除CheckAnswerTool，因为ask_question已实现阻塞式等待
+   - 简化工作流程，无需Agent主动检查回答状态
 
 3. **工具发现统计更新**:
-   - 工具总数从8个增加到10个
-   - 新增 `ask_question` 和 `check_answer` 工具
+   - 工具总数从8个增加到9个（移除了check_answer）
+   - 优化了 `ask_question` 工具的用户体验
 
-**已完成**: ✅ 所有Agent项目强绑定和问题管理工具修正已完成
+**设计改进**: ✅ 实现了更符合用户期望的阻塞式提问机制
 
 
 

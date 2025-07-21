@@ -13,13 +13,13 @@
 ## 当前状态
 
 ### 发现统计（通过 `php artisan mcp:list` 获取）
-- **工具 (Tools)**: 8 个已注册
+- **工具 (Tools)**: 10 个已注册
 - **资源 (Resources)**: 2 个已注册
 - **提示 (Prompts)**: 0 个
 - **模板 (Templates)**: 0 个
 
 ### 实现统计
-- **已实现工具**: 8 个
+- **已实现工具**: 10 个
 - **已实现资源**: 4 个（2个未被发现）
 
 
@@ -164,21 +164,34 @@
 
 
 
-### 1.7 禁用的工具 ⚠️ 已禁用/需重写
+### 1.7 问题管理工具 ✅ 已注册/已实现
 
-#### AskQuestionTool ⚠️ 已禁用/需重写
-- **文件**: `app/Modules/Mcp/Tools/AskQuestionTool.php.disabled`
-- **注册状态**: ⚠️ 已禁用
-- **实现状态**: ⚠️ 需要重写为属性模式
-- **原因**: 使用了不存在的接口 `PhpMcp\Laravel\Contracts\ToolInterface`
-- **计划**: 重写为使用 `#[McpTool]` 属性
+#### ask_question ✅ 已注册/已实现
+- **文件**: `app/Modules/Mcp/Tools/AskQuestionTool.php`
+- **方法**: `askQuestion()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 已修复并实现（重写为属性模式）
+- **描述**: Agent向用户提出问题，获取指导、确认或澄清
+- **参数**:
+  - `title` (string): 问题标题
+  - `content` (string): 详细问题描述
+  - `question_type` (string): 问题类型 (CHOICE/FEEDBACK)
+  - `priority` (string, 可选): 优先级 (默认: MEDIUM)
+  - `task_id` (int, 可选): 关联的任务ID
+  - `context` (array, 可选): 问题上下文信息
+  - `answer_options` (array, 可选): 可选答案列表（选择类问题使用）
+  - `expires_in` (int, 可选): 过期时间（秒，默认: 3600）
+- **权限**: 自动使用Agent绑定的项目
 
-#### CheckAnswerTool ⚠️ 已禁用/需重写
-- **文件**: `app/Modules/Mcp/Tools/CheckAnswerTool.php.disabled`
-- **注册状态**: ⚠️ 已禁用
-- **实现状态**: ⚠️ 需要重写为属性模式
-- **原因**: 使用了不存在的接口 `PhpMcp\Laravel\Contracts\ToolInterface`
-- **计划**: 重写为使用 `#[McpTool]` 属性
+#### check_answer ✅ 已注册/已实现
+- **文件**: `app/Modules/Mcp/Tools/CheckAnswerTool.php`
+- **方法**: `checkAnswer()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 已修复并实现（重写为属性模式）
+- **描述**: 检查问题是否已被回答，获取问题的当前状态和回答内容
+- **参数**:
+  - `question_id` (int): 问题ID
+- **权限**: 只能查看自己创建的问题
 
 ## 2. MCP 资源 (Resources)
 
@@ -258,7 +271,25 @@
    - 修正 `TaskTool::listTasks()` 方法移除projectId参数，增加assignedToMe和limit参数
    - 修正 `GetQuestionsTool::getQuestions()` 方法移除project_id参数，自动使用Agent绑定的项目
 
-**已完成**: ✅ 所有Agent项目强绑定相关的修正已完成
+### 2025年07月21日 08:45 - 问题管理工具修复 ✅
+
+**修复内容**:
+1. **AskQuestionTool重写** (`app/Modules/Mcp/Tools/AskQuestionTool.php`):
+   - 从旧的接口模式重写为 `#[McpTool]` 属性模式
+   - 移除project_id参数，自动使用Agent绑定的项目
+   - 更新依赖注入使用 `AuthenticationService`
+   - 简化参数和返回值结构
+
+2. **CheckAnswerTool重写** (`app/Modules/Mcp/Tools/CheckAnswerTool.php`):
+   - 从禁用状态重新创建为 `#[McpTool]` 属性模式
+   - 实现权限检查，只能查看自己创建的问题
+   - 返回完整的问题状态和回答信息
+
+3. **工具发现统计更新**:
+   - 工具总数从8个增加到10个
+   - 新增 `ask_question` 和 `check_answer` 工具
+
+**已完成**: ✅ 所有Agent项目强绑定和问题管理工具修正已完成
 
 
 

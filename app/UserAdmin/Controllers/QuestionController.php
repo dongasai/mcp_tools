@@ -66,7 +66,7 @@ class QuestionController extends AdminController
             $grid->column('expires_at', '过期时间')->display(function ($value) {
                 if (!$value) return '-';
                 $expiresAt = \Carbon\Carbon::parse($value);
-                if ($expiresAt->isPast() && $this->status === AgentQuestion::STATUS_PENDING) {
+                if ($expiresAt->isPast()) {
                     return '<span class="text-danger">' . $expiresAt->format('Y-m-d H:i') . ' (已过期)</span>';
                 }
                 return $expiresAt->format('Y-m-d H:i');
@@ -108,9 +108,9 @@ class QuestionController extends AdminController
                 $actions->disableEdit();
 
                 // 只有待回答的问题才能回答
-                if ($this->status === AgentQuestion::STATUS_PENDING) {
-                    $actions->append(new \App\UserAdmin\Actions\Grid\AnswerQuestionAction());
-                    $actions->append(new \App\UserAdmin\Actions\Grid\IgnoreQuestionAction());
+                if ($actions->row->status === AgentQuestion::STATUS_PENDING) {
+                    $actions->append(new \App\UserAdmin\Actions\Question\AnswerQuestionAction());
+                    $actions->append(new \App\UserAdmin\Actions\Question\IgnoreQuestionAction());
                 }
             });
 
@@ -157,7 +157,10 @@ class QuestionController extends AdminController
         $show->field('agent.name', 'Agent名称');
         $show->field('task.title', '关联任务');
 
-        // 问题类型已移除，默认为文本问题
+        $show->field('question_type', '问题类型')->using([
+            AgentQuestion::TYPE_CHOICE => '选择题',
+            AgentQuestion::TYPE_FEEDBACK => '反馈',
+        ]);
 
         $show->field('priority', '优先级')->using([
             AgentQuestion::PRIORITY_URGENT => '紧急',
@@ -213,7 +216,7 @@ class QuestionController extends AdminController
     /**
      * 回答问题页面
      */
-    public function answer($id, Content $content)
+    public function answer($id, Content $content, Request $request)
     {
         $question = AgentQuestion::findOrFail($id);
 
@@ -224,9 +227,31 @@ class QuestionController extends AdminController
         }
 
         if ($question->status !== AgentQuestion::STATUS_PENDING) {
+            if ($request->isMethod('post')) {
+                return response()->json(['error' => '此问题已经处理过了'], 400);
+            }
             return redirect()->back()->with('error', '此问题已经处理过了');
         }
 
+        // 处理POST请求（回答问题）
+        if ($request->isMethod('post')) {
+            $validated = $request->validate([
+                'answer' => 'required|string',
+                'answer_type' => 'sometimes|string|in:TEXT',
+            ]);
+
+            // 更新问题
+            $question->answer = $validated['answer'];
+            $question->answer_type = $validated['answer_type'] ?? AgentQuestion::ANSWER_TYPE_TEXT;
+            $question->answered_by = $user->id;
+            $question->answered_at = now();
+            $question->status = AgentQuestion::STATUS_ANSWERED;
+            $question->save();
+
+            return response()->json(['success' => true, 'message' => '问题回答成功']);
+        }
+
+        // 处理GET请求（显示回答表单页面）
         return $content
             ->title('回答问题')
             ->description($question->title)

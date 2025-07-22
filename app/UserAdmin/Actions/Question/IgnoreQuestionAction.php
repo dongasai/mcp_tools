@@ -1,6 +1,6 @@
 <?php
 
-namespace App\UserAdmin\Actions\Grid;
+namespace App\UserAdmin\Actions\Question;
 
 use App\Modules\Agent\Models\AgentQuestion;
 use Dcat\Admin\Actions\Response;

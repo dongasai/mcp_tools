@@ -5,6 +5,7 @@ namespace App\UserAdmin\Actions\Question;
 use App\Modules\Agent\Models\AgentQuestion;
 use Dcat\Admin\Actions\Response;
 use Dcat\Admin\Grid\RowAction;
+use Dcat\Admin\Widgets\Modal;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,15 +35,8 @@ class AnswerQuestionAction extends RowAction
     }
 
     public function render2()
-    {   
-        
-            // Answer2QuestionForm
-        // 实例化表单类并传递自定义参数
-        $form = $this->ConfigEditForm::make();
-        $form->payload([
-                           'id'    => $this->getKey(),
-                           'value' => $this->getRow()->value1
-                       ]);
+    {
+        $form = Answer2QuestionForm::makeWithQuestionId($this->getKey());
 
         return Modal::make()
             ->lg()

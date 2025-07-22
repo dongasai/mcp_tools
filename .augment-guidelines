@@ -26,8 +26,8 @@
 
 ## 架构设计原则
 - **双后台架构**:
-  - 超级管理员后台 (/super-admin) 用于系统级管理，采用dcat-admin构建
-  - 用户后台 (/user-admin) 用于个人项目/任务/Agent 管理，采用dcat-admin构建
+  - 超级管理员后台 (/super-admin) 用于系统级管理，采用dcat-admin构建，默认用户admin,密码admin
+  - 用户后台 (/user-admin) 用于个人项目/任务/Agent 管理，采用dcat-admin构建，默认用户testuser,密码password
 - **任务层次**: 主任务由用户管理，子任务由 Agent 自主创建和维护
 - **MCP 协议专注**: 专门用于任务处理，不管理用户
 - **Agent 访问控制**: 项目级权限和细粒度操作控制

@@ -4,14 +4,14 @@ namespace App\Modules\Mcp\Tools;
 
 use PhpMcp\Server\Attributes\McpTool;
 use App\Modules\Agent\Services\QuestionService;
-use App\Modules\Agent\Services\AgentService;
+use App\Modules\Agent\Services\AuthenticationService;
 use App\Modules\Core\Contracts\LogInterface;
 
 class GetQuestionsTool
 {
     public function __construct(
         private QuestionService $questionService,
-        private AgentService $agentService,
+        private AuthenticationService $authService,
         private LogInterface $logger
     ) {}
 
@@ -34,7 +34,7 @@ class GetQuestionsTool
                 throw new \Exception('无法获取Agent身份信息');
             }
 
-            $agent = $this->agentService->findByIdentifier($agentId);
+            $agent = $this->authService->findByAgentId($agentId);
             if (!$agent) {
                 throw new \Exception('Agent不存在');
             }
@@ -80,7 +80,7 @@ class GetQuestionsTool
                 'total' => $questions->total(),
                 'per_page' => $questions->perPage(),
                 'current_page' => $questions->currentPage(),
-                'questions' => $questions->items()->map(function ($question) {
+                'questions' => $questions->map(function ($question) {
                     return [
                         'id' => $question->id,
                         'title' => $question->title,

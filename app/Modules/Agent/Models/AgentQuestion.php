@@ -23,6 +23,7 @@ class AgentQuestion extends Model
         'title',
         'content',
         'context',
+        'question_type',
         'priority',
         'status',
         'answer',
@@ -43,7 +44,9 @@ class AgentQuestion extends Model
         'deleted_at' => 'datetime',
     ];
 
-    // 问题类型已移除，默认为文本问题
+    // 问题类型常量
+    const TYPE_CHOICE = 'CHOICE';
+    const TYPE_FEEDBACK = 'FEEDBACK';
 
     // 优先级常量
     const PRIORITY_URGENT = 'URGENT';

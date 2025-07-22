@@ -6,6 +6,9 @@ use Illuminate\Console\Command;
 use App\Modules\User\Models\User;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ *
+ */
 class ResetUserPassword extends Command
 {
     /**

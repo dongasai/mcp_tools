@@ -23,6 +23,7 @@ class AskQuestionTool
     public function askQuestion(
         string $title,
         string $content,
+        string $question_type = 'FEEDBACK',
         string $priority = 'MEDIUM',
         ?int $task_id = null,
         ?array $context = null,
@@ -53,6 +54,7 @@ class AskQuestionTool
                 'project_id' => $agent->project_id, // 自动使用Agent绑定的项目
                 'title' => $title,
                 'content' => $content,
+                'question_type' => $question_type,
                 'priority' => $priority,
                 'expires_in' => $timeout, // 使用超时时间作为过期时间
             ];

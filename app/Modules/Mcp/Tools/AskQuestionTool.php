@@ -23,11 +23,9 @@ class AskQuestionTool
     public function askQuestion(
         string $title,
         string $content,
-        string $question_type,
         string $priority = 'MEDIUM',
         ?int $task_id = null,
         ?array $context = null,
-        ?array $answer_options = null,
         int $timeout = 600
     ): array
     {
@@ -55,7 +53,6 @@ class AskQuestionTool
                 'project_id' => $agent->project_id, // 自动使用Agent绑定的项目
                 'title' => $title,
                 'content' => $content,
-                'question_type' => $question_type,
                 'priority' => $priority,
                 'expires_in' => $timeout, // 使用超时时间作为过期时间
             ];
@@ -69,17 +66,12 @@ class AskQuestionTool
                 $questionData['context'] = $context;
             }
 
-            if ($answer_options) {
-                $questionData['answer_options'] = $answer_options;
-            }
-
             // 创建问题
             $question = $this->questionService->createQuestion($questionData);
 
             $this->logger->info('Question created via MCP, waiting for answer', [
                 'question_id' => $question->id,
                 'agent_id' => $agentId,
-                'question_type' => $question->question_type,
                 'priority' => $question->priority,
                 'timeout' => $timeout,
             ]);
@@ -151,7 +143,6 @@ class AskQuestionTool
             $this->logger->warning('Invalid question data', [
                 'error' => $e->getMessage(),
                 'title' => $title,
-                'question_type' => $question_type,
             ]);
 
             return [
@@ -163,7 +154,6 @@ class AskQuestionTool
             $this->logger->error('Failed to create question', [
                 'error' => $e->getMessage(),
                 'title' => $title,
-                'question_type' => $question_type,
             ]);
 
             return [

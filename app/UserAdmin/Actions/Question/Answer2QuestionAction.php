@@ -54,7 +54,7 @@ class Answer2QuestionAction extends AnswerQuestionAction
         // 验证回答内容
         $validated = $request->validate([
             'answer' => 'required|string',
-            'answer_type' => 'sometimes|string|in:TEXT,CHOICE,JSON',
+            'answer_type' => 'sometimes|string|in:TEXT',
         ]);
 
         // 更新问题

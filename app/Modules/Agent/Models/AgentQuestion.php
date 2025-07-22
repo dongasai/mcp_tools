@@ -23,7 +23,6 @@ class AgentQuestion extends Model
         'title',
         'content',
         'context',
-        'question_type',
         'priority',
         'status',
         'answer',
@@ -44,9 +43,7 @@ class AgentQuestion extends Model
         'deleted_at' => 'datetime',
     ];
 
-    // 问题类型常量
-    const TYPE_CHOICE = 'CHOICE';
-    const TYPE_FEEDBACK = 'FEEDBACK';
+    // 问题类型已移除，默认为文本问题
 
     // 优先级常量
     const PRIORITY_URGENT = 'URGENT';
@@ -61,9 +58,6 @@ class AgentQuestion extends Model
 
     // 回答类型常量
     const ANSWER_TYPE_TEXT = 'TEXT';
-    const ANSWER_TYPE_CHOICE = 'CHOICE';
-    const ANSWER_TYPE_JSON = 'JSON';
-    const ANSWER_TYPE_FILE = 'FILE';
 
     /**
      * 关联到Agent
@@ -276,15 +270,11 @@ class AgentQuestion extends Model
     }
 
     /**
-     * 获取问题类型标签
+     * 获取问题类型标签（已废弃）
      */
     public function getTypeLabel(): string
     {
-        return match($this->question_type) {
-            self::TYPE_CHOICE => '选择类',
-            self::TYPE_FEEDBACK => '反馈类',
-            default => '未知',
-        };
+        return '文本问题';
     }
 
     /**
@@ -308,17 +298,6 @@ class AgentQuestion extends Model
     {
         $this->status = self::STATUS_IGNORED;
         return $this->save();
-    }
-
-    /**
-     * 获取所有问题类型
-     */
-    public static function getQuestionTypes(): array
-    {
-        return [
-            self::TYPE_CHOICE => '选择类',
-            self::TYPE_FEEDBACK => '反馈类',
-        ];
     }
 
     /**

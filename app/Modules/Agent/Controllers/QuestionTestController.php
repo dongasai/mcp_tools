@@ -37,7 +37,7 @@ class QuestionTestController extends BaseController
                 'user_id' => $user->id,
                 'title' => '测试问题 - ' . now()->format('Y-m-d H:i:s'),
                 'content' => '这是一个通过API创建的测试问题。请问您希望我如何处理这个任务？',
-                'question_type' => AgentQuestion::TYPE_CHOICE,
+                'question_type' => AgentQuestion::TYPE_FEEDBACK,
                 'priority' => AgentQuestion::PRIORITY_HIGH,
                 'context' => [
                     'source' => 'api_test',
@@ -211,7 +211,7 @@ class QuestionTestController extends BaseController
             }
 
             $questions = [];
-            $questionTypes = [AgentQuestion::TYPE_CHOICE, AgentQuestion::TYPE_FEEDBACK];
+            $questionTypes = [AgentQuestion::TYPE_FEEDBACK];
             $priorities = [
                 AgentQuestion::PRIORITY_URGENT,
                 AgentQuestion::PRIORITY_HIGH,
@@ -225,7 +225,7 @@ class QuestionTestController extends BaseController
                     'user_id' => $user->id,
                     'title' => "批量测试问题 #{$i}",
                     'content' => "这是第 {$i} 个批量创建的测试问题。",
-                    'question_type' => $questionTypes[($i - 1) % 2],
+                    'question_type' => $questionTypes[0],
                     'priority' => $priorities[($i - 1) % 4],
                     'context' => [
                         'batch' => true,
@@ -234,13 +234,7 @@ class QuestionTestController extends BaseController
                     ],
                 ];
 
-                if ($questionData['question_type'] === AgentQuestion::TYPE_CHOICE) {
-                    $questionData['answer_options'] = [
-                        "选项A-{$i}",
-                        "选项B-{$i}",
-                        "选项C-{$i}",
-                    ];
-                }
+                // 移除选项设置，因为只支持文本回答
 
                 $question = $this->questionService->createQuestion($questionData);
                 $questions[] = $question;
@@ -444,10 +438,9 @@ class QuestionTestController extends BaseController
                 'user_id' => $user->id,
                 'title' => '即将过期的测试问题',
                 'content' => '这个问题将在5分钟后过期，用于测试过期处理功能。',
-                'question_type' => AgentQuestion::TYPE_CHOICE,
+                'question_type' => AgentQuestion::TYPE_FEEDBACK,
                 'priority' => AgentQuestion::PRIORITY_HIGH,
                 'expires_in' => 300, // 5分钟
-                'answer_options' => ['继续', '暂停', '取消'],
             ];
 
             $question = $this->questionService->createQuestion($questionData);

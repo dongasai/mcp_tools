@@ -5,7 +5,7 @@ namespace App\UserAdmin\Controllers;
 use App\Modules\Agent\Models\AgentQuestion;
 use App\Modules\Agent\Models\Agent;
 use App\Models\Task;
-use App\Modules\Agent\Services\QuestionService;
+
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Form;
@@ -18,141 +18,126 @@ class QuestionController extends AdminController
 {
     protected $title = '问题管理';
 
-    protected $questionService;
 
-    public function __construct(QuestionService $questionService)
-    {
-        $this->questionService = $questionService;
-    }
 
-    
+
 
     protected function grid()
     {
-        $grid = new Grid(new AgentQuestion());
+        return Grid::make(new AgentQuestion(), function (Grid $grid) {
 
-        // 加载关联关系
-        $grid->model()->with(['agent', 'task', 'answeredBy']);
+            // 加载关联关系
+            $grid->model()->with(['agent', 'task', 'answeredBy']);
 
-        // 只显示当前用户的问题
-        $user = $this->getCurrentUser();
-        if ($user) {
-            $grid->model()->where('user_id', $user->id);
-        }
-
-        $grid->column('id', 'ID')->sortable();
-        $grid->column('title', '问题标题')->limit(50);
-        $grid->column('agent.name', 'Agent名称');
-        $grid->column('task.title', '关联任务')->limit(30);
-        
-        $grid->column('question_type', '问题类型')->using([
-            AgentQuestion::TYPE_CHOICE => '选择类',
-            AgentQuestion::TYPE_FEEDBACK => '反馈类',
-        ])->label([
-            AgentQuestion::TYPE_CHOICE => 'primary',
-            AgentQuestion::TYPE_FEEDBACK => 'info',
-        ]);
-        
-        $grid->column('priority', '优先级')->using([
-            AgentQuestion::PRIORITY_URGENT => '紧急',
-            AgentQuestion::PRIORITY_HIGH => '高',
-            AgentQuestion::PRIORITY_MEDIUM => '中',
-            AgentQuestion::PRIORITY_LOW => '低',
-        ])->label([
-            AgentQuestion::PRIORITY_URGENT => 'danger',
-            AgentQuestion::PRIORITY_HIGH => 'warning',
-            AgentQuestion::PRIORITY_MEDIUM => 'primary',
-            AgentQuestion::PRIORITY_LOW => 'default',
-        ]);
-        
-        $grid->column('status', '状态')->using([
-            AgentQuestion::STATUS_PENDING => '待回答',
-            AgentQuestion::STATUS_ANSWERED => '已回答',
-            AgentQuestion::STATUS_IGNORED => '已忽略',
-        ])->label([
-            AgentQuestion::STATUS_PENDING => 'warning',
-            AgentQuestion::STATUS_ANSWERED => 'success',
-            AgentQuestion::STATUS_IGNORED => 'default',
-        ]);
-        
-        $grid->column('answered_at', '回答时间');
-        $grid->column('expires_at', '过期时间')->display(function ($value) {
-            if (!$value) return '-';
-            $expiresAt = \Carbon\Carbon::parse($value);
-            if ($expiresAt->isPast() && $this->status === AgentQuestion::STATUS_PENDING) {
-                return '<span class="text-danger">' . $expiresAt->format('Y-m-d H:i') . ' (已过期)</span>';
-            }
-            return $expiresAt->format('Y-m-d H:i');
-        });
-        $grid->column('created_at', '创建时间')->sortable();
-
-        // 过滤器
-        $grid->filter(function (Grid\Filter $filter) use ($user) {
-            $filter->like('title', '问题标题');
-            
+            // 只显示当前用户的问题
+            $user = $this->getCurrentUser();
             if ($user) {
-                $filter->equal('agent_id', 'Agent')->select(
-                    Agent::where('user_id', $user->id)->pluck('name', 'id')
-                );
-                $filter->equal('task_id', '任务')->select(
-                    Task::where('user_id', $user->id)->pluck('title', 'id')
-                );
+                $grid->model()->where('user_id', $user->id);
             }
-            
-            $filter->equal('question_type', '问题类型')->select([
-                AgentQuestion::TYPE_CHOICE => '选择类',
-                AgentQuestion::TYPE_FEEDBACK => '反馈类',
-            ]);
-            
-            $filter->equal('priority', '优先级')->select([
+
+            $grid->column('id', 'ID')->sortable();
+            $grid->column('title', '问题标题')->limit(50);
+            $grid->column('agent.name', 'Agent名称');
+            $grid->column('task.title', '关联任务')->limit(30);
+
+            $grid->column('priority', '优先级')->using([
                 AgentQuestion::PRIORITY_URGENT => '紧急',
                 AgentQuestion::PRIORITY_HIGH => '高',
                 AgentQuestion::PRIORITY_MEDIUM => '中',
                 AgentQuestion::PRIORITY_LOW => '低',
+            ])->label([
+                AgentQuestion::PRIORITY_URGENT => 'danger',
+                AgentQuestion::PRIORITY_HIGH => 'warning',
+                AgentQuestion::PRIORITY_MEDIUM => 'primary',
+                AgentQuestion::PRIORITY_LOW => 'default',
             ]);
-            
-            $filter->equal('status', '状态')->select([
+
+            $grid->column('status', '状态')->using([
                 AgentQuestion::STATUS_PENDING => '待回答',
                 AgentQuestion::STATUS_ANSWERED => '已回答',
                 AgentQuestion::STATUS_IGNORED => '已忽略',
+            ])->label([
+                AgentQuestion::STATUS_PENDING => 'warning',
+                AgentQuestion::STATUS_ANSWERED => 'success',
+                AgentQuestion::STATUS_IGNORED => 'default',
             ]);
-            
-            $filter->between('created_at', '创建时间')->datetime();
-        });
 
-        // 操作列
-        $grid->actions(function (Grid\Displayers\Actions $actions) {
-            $actions->disableDelete();
-            $actions->disableEdit();
+            $grid->column('answered_at', '回答时间');
+            $grid->column('expires_at', '过期时间')->display(function ($value) {
+                if (!$value) return '-';
+                $expiresAt = \Carbon\Carbon::parse($value);
+                if ($expiresAt->isPast() && $this->status === AgentQuestion::STATUS_PENDING) {
+                    return '<span class="text-danger">' . $expiresAt->format('Y-m-d H:i') . ' (已过期)</span>';
+                }
+                return $expiresAt->format('Y-m-d H:i');
+            });
+            $grid->column('created_at', '创建时间')->sortable();
 
-            // 只有待回答的问题才能回答
-            if ($this->status === AgentQuestion::STATUS_PENDING) {
-                $actions->append(new \App\UserAdmin\Actions\Grid\AnswerQuestionAction());
-                $actions->append(new \App\UserAdmin\Actions\Grid\IgnoreQuestionAction());
-            }
-        });
+            // 过滤器
+            $grid->filter(function (Grid\Filter $filter) use ($user) {
+                $filter->like('title', '问题标题');
 
-        // 工具栏
-        $grid->tools(function (Grid\Tools $tools) {
-            $tools->append('<a href="' . admin_url('user-admin/questions/pending') . '" class="btn btn-sm btn-warning">
+                if ($user) {
+                    $filter->equal('agent_id', 'Agent')->select(
+                        Agent::where('user_id', $user->id)->pluck('name', 'id')
+                    );
+                    $filter->equal('task_id', '任务')->select(
+                        Task::where('user_id', $user->id)->pluck('title', 'id')
+                    );
+                }
+
+                $filter->equal('priority', '优先级')->select([
+                    AgentQuestion::PRIORITY_URGENT => '紧急',
+                    AgentQuestion::PRIORITY_HIGH => '高',
+                    AgentQuestion::PRIORITY_MEDIUM => '中',
+                    AgentQuestion::PRIORITY_LOW => '低',
+                ]);
+
+                $filter->equal('status', '状态')->select([
+                    AgentQuestion::STATUS_PENDING => '待回答',
+                    AgentQuestion::STATUS_ANSWERED => '已回答',
+                    AgentQuestion::STATUS_IGNORED => '已忽略',
+                ]);
+
+                $filter->between('created_at', '创建时间')->datetime();
+            });
+
+            // 操作列
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+
+                // 只有待回答的问题才能回答
+                if ($this->status === AgentQuestion::STATUS_PENDING) {
+                    $actions->append(new \App\UserAdmin\Actions\Grid\AnswerQuestionAction());
+                    $actions->append(new \App\UserAdmin\Actions\Grid\IgnoreQuestionAction());
+                }
+            });
+
+            // 工具栏
+            $grid->tools(function (Grid\Tools $tools) {
+                $tools->append('<a href="' . admin_url('user-admin/questions/pending') . '" class="btn btn-sm btn-warning">
                 <i class="fa fa-clock-o"></i> 待回答问题
             </a>');
-        });
+            });
 
-        // 默认排序：优先级高的在前，创建时间新的在前
-        $grid->model()->orderByRaw("
-            CASE priority 
-                WHEN 'URGENT' THEN 1 
-                WHEN 'HIGH' THEN 2 
-                WHEN 'MEDIUM' THEN 3 
-                WHEN 'LOW' THEN 4 
+            // 默认排序：优先级高的在前，创建时间新的在前
+            $grid->model()->orderByRaw("
+            CASE priority
+                WHEN 'URGENT' THEN 1
+                WHEN 'HIGH' THEN 2
+                WHEN 'MEDIUM' THEN 3
+                WHEN 'LOW' THEN 4
             END, created_at DESC
         ");
 
-        // 禁用创建按钮（问题只能由Agent创建）
-        $grid->disableCreateButton();
+            // 禁用创建按钮（问题只能由Agent创建）
+            $grid->disableCreateButton();
 
-        return $grid;
+            return $grid;
+        });
+
+
     }
 
     protected function detail($id)
@@ -168,28 +153,25 @@ class QuestionController extends AdminController
         $show->field('id', 'ID');
         $show->field('title', '问题标题');
         $show->field('content', '问题内容')->unescape();
-        
+
         $show->field('agent.name', 'Agent名称');
         $show->field('task.title', '关联任务');
-        
-        $show->field('question_type', '问题类型')->using([
-            AgentQuestion::TYPE_CHOICE => '选择类',
-            AgentQuestion::TYPE_FEEDBACK => '反馈类',
-        ]);
-        
+
+        // 问题类型已移除，默认为文本问题
+
         $show->field('priority', '优先级')->using([
             AgentQuestion::PRIORITY_URGENT => '紧急',
             AgentQuestion::PRIORITY_HIGH => '高',
             AgentQuestion::PRIORITY_MEDIUM => '中',
             AgentQuestion::PRIORITY_LOW => '低',
         ]);
-        
+
         $show->field('status', '状态')->using([
             AgentQuestion::STATUS_PENDING => '待回答',
             AgentQuestion::STATUS_ANSWERED => '已回答',
             AgentQuestion::STATUS_IGNORED => '已忽略',
         ]);
-        
+
         $show->field('context', '上下文')->json();
         $show->field('answer_options', '可选答案')->json();
         $show->field('answer', '回答内容')->unescape();
@@ -209,12 +191,10 @@ class QuestionController extends AdminController
         $form->display('title', '问题标题');
         $form->display('content', '问题内容');
         $form->display('agent.name', 'Agent名称');
-        
+
         $form->textarea('answer', '回答内容')->required()->rows(5);
         $form->select('answer_type', '回答类型')->options([
             AgentQuestion::ANSWER_TYPE_TEXT => '文本',
-            AgentQuestion::ANSWER_TYPE_CHOICE => '选择',
-            AgentQuestion::ANSWER_TYPE_JSON => 'JSON',
         ])->default(AgentQuestion::ANSWER_TYPE_TEXT);
 
         // 保存时自动设置回答者和回答时间
@@ -236,7 +216,7 @@ class QuestionController extends AdminController
     public function answer($id, Content $content)
     {
         $question = AgentQuestion::findOrFail($id);
-        
+
         // 权限检查
         $user = $this->getCurrentUser();
         if ($user && $question->user_id !== $user->id) {
@@ -259,7 +239,7 @@ class QuestionController extends AdminController
     public function ignore($id)
     {
         $question = AgentQuestion::findOrFail($id);
-        
+
         // 权限检查
         $user = $this->getCurrentUser();
         if ($user && $question->user_id !== $user->id) {
@@ -293,7 +273,7 @@ class QuestionController extends AdminController
 
         $form->display('title', '问题标题');
         $form->display('content', '问题内容')->unescape();
-        
+
         if ($question->answer_options) {
             $form->radio('answer', '选择答案')->options(
                 collect($question->answer_options)->pluck('label', 'value')->toArray()

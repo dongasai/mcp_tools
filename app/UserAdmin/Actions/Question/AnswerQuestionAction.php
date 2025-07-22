@@ -34,8 +34,9 @@ class AnswerQuestionAction extends RowAction
     }
 
     public function render2()
-    {
-
+    {   
+        
+            // Answer2QuestionForm
         // 实例化表单类并传递自定义参数
         $form = $this->ConfigEditForm::make();
         $form->payload([
@@ -85,7 +86,7 @@ class AnswerQuestionAction extends RowAction
         // 验证回答内容
         $validated = $request->validate([
             'answer' => 'required|string',
-            'answer_type' => 'sometimes|string|in:TEXT,CHOICE,JSON',
+            'answer_type' => 'sometimes|string|in:TEXT',
         ]);
         return $this->runcall($validated,$user,$question);
     }

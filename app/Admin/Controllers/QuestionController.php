@@ -31,14 +31,6 @@ class QuestionController extends AdminController
             $grid->column('project.name', '所属项目');
             $grid->column('task.title', '关联任务')->limit(30);
             
-            $grid->column('question_type', '问题类型')->using([
-                AgentQuestion::TYPE_CHOICE => '选择类',
-                AgentQuestion::TYPE_FEEDBACK => '反馈类',
-            ])->label([
-                AgentQuestion::TYPE_CHOICE => 'primary',
-                AgentQuestion::TYPE_FEEDBACK => 'info',
-            ]);
-            
             $grid->column('priority', '优先级')->using([
                 AgentQuestion::PRIORITY_URGENT => '紧急',
                 AgentQuestion::PRIORITY_HIGH => '高',
@@ -73,11 +65,6 @@ class QuestionController extends AdminController
                 $filter->equal('user_id', '提问给')->select(User::pluck('name', 'id'));
                 $filter->equal('project_id', '项目')->select(Project::pluck('name', 'id'));
                 $filter->equal('task_id', '任务')->select(Task::pluck('title', 'id'));
-                
-                $filter->equal('question_type', '问题类型')->select([
-                    AgentQuestion::TYPE_CHOICE => '选择类',
-                    AgentQuestion::TYPE_FEEDBACK => '反馈类',
-                ]);
                 
                 $filter->equal('priority', '优先级')->select([
                     AgentQuestion::PRIORITY_URGENT => '紧急',
@@ -131,11 +118,6 @@ class QuestionController extends AdminController
             $show->field('project.name', '所属项目');
             $show->field('task.title', '关联任务');
             
-            $show->field('question_type', '问题类型')->using([
-                AgentQuestion::TYPE_CHOICE => '选择类',
-                AgentQuestion::TYPE_FEEDBACK => '反馈类',
-            ]);
-            
             $show->field('priority', '优先级')->using([
                 AgentQuestion::PRIORITY_URGENT => '紧急',
                 AgentQuestion::PRIORITY_HIGH => '高',
@@ -179,10 +161,7 @@ class QuestionController extends AdminController
             $form->select('project_id', '所属项目')->options(Project::pluck('name', 'id'));
             $form->select('task_id', '关联任务')->options(Task::pluck('title', 'id'));
             
-            $form->select('question_type', '问题类型')->options([
-                AgentQuestion::TYPE_CHOICE => '选择类',
-                AgentQuestion::TYPE_FEEDBACK => '反馈类',
-            ])->required();
+            // 问题类型已移除，默认为文本问题
             
             $form->select('priority', '优先级')->options([
                 AgentQuestion::PRIORITY_URGENT => '紧急',
@@ -203,9 +182,6 @@ class QuestionController extends AdminController
             $form->textarea('answer', '回答内容');
             $form->select('answer_type', '回答类型')->options([
                 AgentQuestion::ANSWER_TYPE_TEXT => '文本',
-                AgentQuestion::ANSWER_TYPE_CHOICE => '选择',
-                AgentQuestion::ANSWER_TYPE_JSON => 'JSON',
-                AgentQuestion::ANSWER_TYPE_FILE => '文件',
             ]);
             
             $form->select('answered_by', '回答者')->options(User::pluck('name', 'id'));

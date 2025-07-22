@@ -43,7 +43,7 @@ class QuestionServiceTest extends TestCase
             'user_id' => $user->id,
             'title' => '测试问题',
             'content' => '这是一个测试问题的内容',
-            'question_type' => AgentQuestion::TYPE_CHOICE,
+            // 问题类型已移除，默认为文本问题
             'priority' => AgentQuestion::PRIORITY_HIGH,
             'context' => ['test' => 'context'],
             'answer_options' => ['选项1', '选项2', '选项3'],
@@ -57,7 +57,7 @@ class QuestionServiceTest extends TestCase
         $this->assertInstanceOf(AgentQuestion::class, $question);
         $this->assertEquals($questionData['title'], $question->title);
         $this->assertEquals($questionData['content'], $question->content);
-        $this->assertEquals($questionData['question_type'], $question->question_type);
+        // 问题类型已移除，默认为文本问题
         $this->assertEquals($questionData['priority'], $question->priority);
         $this->assertEquals(AgentQuestion::STATUS_PENDING, $question->status);
         $this->assertNotNull($question->expires_at);

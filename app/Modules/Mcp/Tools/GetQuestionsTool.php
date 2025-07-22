@@ -22,7 +22,6 @@ class GetQuestionsTool
     public function getQuestions(
         ?string $status = null,
         ?string $priority = null,
-        ?string $question_type = null,
         ?int $task_id = null,
         int $limit = 10,
         bool $only_mine = true,
@@ -62,10 +61,6 @@ class GetQuestionsTool
                 $filters['priority'] = $priority;
             }
 
-            if ($question_type) {
-                $filters['question_type'] = $question_type;
-            }
-
             if ($task_id) {
                 $filters['task_id'] = $task_id;
             }
@@ -90,15 +85,11 @@ class GetQuestionsTool
                         'id' => $question->id,
                         'title' => $question->title,
                         'content' => $question->content,
-                        'question_type' => $question->question_type,
-                        'question_type_label' => $question->getTypeLabel(),
                         'priority' => $question->priority,
                         'priority_label' => $question->getPriorityLabel(),
                         'status' => $question->status,
                         'status_label' => $question->getStatusLabel(),
                         'answer' => $question->answer,
-                        'answer_type' => $question->answer_type,
-                        'answer_options' => $question->answer_options,
                         'context' => $question->context,
                         'task_id' => $question->task_id,
                         'project_id' => $question->project_id,

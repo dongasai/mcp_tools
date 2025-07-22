@@ -26,10 +26,7 @@ class AgentQuestionFactory extends Factory
                 'source' => 'test',
                 'timestamp' => now()->toISOString(),
             ],
-            'question_type' => $this->faker->randomElement([
-                AgentQuestion::TYPE_CHOICE,
-                AgentQuestion::TYPE_FEEDBACK,
-            ]),
+            // 问题类型已移除，默认为文本问题
             'priority' => $this->faker->randomElement([
                 AgentQuestion::PRIORITY_URGENT,
                 AgentQuestion::PRIORITY_HIGH,
@@ -44,36 +41,6 @@ class AgentQuestionFactory extends Factory
             'answered_by' => null,
             'expires_at' => $this->faker->optional()->dateTimeBetween('now', '+1 week'),
         ];
-    }
-
-    /**
-     * 创建选择类问题
-     */
-    public function choice(): static
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'question_type' => AgentQuestion::TYPE_CHOICE,
-                'answer_options' => [
-                    $this->faker->word(),
-                    $this->faker->word(),
-                    $this->faker->word(),
-                ],
-            ];
-        });
-    }
-
-    /**
-     * 创建反馈类问题
-     */
-    public function feedback(): static
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'question_type' => AgentQuestion::TYPE_FEEDBACK,
-                'answer_options' => null,
-            ];
-        });
     }
 
     /**

@@ -188,6 +188,29 @@ git commit -m "修复提问功能的question_type字段缺失问题
 3. **类型验证**：考虑在工具层添加question_type的枚举验证
 4. **向后兼容**：确保现有代码能正确处理新的字段结构
 
+## 后续修复：用户后台问题管理功能
+
+在修复MCP工具后，发现用户后台问题管理功能也存在问题：
+
+### 问题发现
+1. **Action类路径错误**：`AnswerQuestionAction`引用了不存在的`$this->ConfigEditForm`
+2. **命名空间不一致**：`IgnoreQuestionAction`的命名空间与文件位置不匹配
+3. **模型访问错误**：在dcat-admin Grid中使用了错误的`$this`引用方式
+4. **表单组件问题**：`Answer2QuestionForm`不是完整的dcat-admin Form组件
+
+### 修复内容
+1. ✅ 修复`IgnoreQuestionAction`命名空间从`Grid`改为`Question`
+2. ✅ 重构`Answer2QuestionForm`为完整的dcat-admin Form组件
+3. ✅ 修复`AnswerQuestionAction`使用正确的Form组件
+4. ✅ 修复`QuestionController`中的模型访问方式
+5. ✅ 添加必要的类导入和权限检查
+
+### 测试验证
+- ✅ 用户后台问题管理页面正常显示
+- ✅ "回答-文本"按钮正常弹出模态框
+- ✅ 表单可以正常提交并更新问题状态
+- ✅ 成功回答测试问题ID 13，状态从"待回答"变为"已回答"
+
 ## 状态
 
-✅ **已完成** - 提问功能的question_type字段缺失问题已修复，所有相关MCP工具正常工作
+✅ **已完成** - 提问功能的question_type字段缺失问题和用户后台问题管理功能都已修复，所有相关功能正常工作

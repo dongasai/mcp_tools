@@ -39,7 +39,6 @@ class QuestionService
             'question_id' => $question->id,
             'agent_id' => $question->agent_id,
             'user_id' => $question->user_id,
-            'question_type' => $question->question_type,
             'priority' => $question->priority,
         ]);
 
@@ -226,10 +225,7 @@ class QuestionService
             $stats['by_priority'][$priority] = (clone $query)->where('priority', $priority)->count();
         }
 
-        // 按类型统计
-        foreach (AgentQuestion::getQuestionTypes() as $type => $label) {
-            $stats['by_type'][$type] = (clone $query)->where('question_type', $type)->count();
-        }
+        // 问题类型统计已移除（问题类型已简化）
 
         return $stats;
     }
@@ -406,17 +402,12 @@ class QuestionService
      */
     private function validateQuestionData(array $data): void
     {
-        $required = ['agent_id', 'user_id', 'title', 'content', 'question_type'];
-        
+        $required = ['agent_id', 'user_id', 'title', 'content'];
+
         foreach ($required as $field) {
             if (!isset($data[$field]) || empty($data[$field])) {
                 throw new \InvalidArgumentException("Required field '{$field}' is missing or empty");
             }
-        }
-
-        // 验证问题类型
-        if (!in_array($data['question_type'], [AgentQuestion::TYPE_CHOICE, AgentQuestion::TYPE_FEEDBACK])) {
-            throw new \InvalidArgumentException("Invalid question_type: {$data['question_type']}");
         }
 
         // 验证优先级
@@ -454,9 +445,7 @@ class QuestionService
             $query->where('priority', $filters['priority']);
         }
 
-        if (isset($filters['question_type'])) {
-            $query->where('question_type', $filters['question_type']);
-        }
+        // question_type 过滤已移除（问题类型已简化）
 
         if (isset($filters['not_expired']) && $filters['not_expired']) {
             $query->notExpired();
@@ -622,7 +611,7 @@ class QuestionService
             ->where('created_at', '>=', $question->created_at->subHours(24))
             ->orderBy('created_at', 'desc')
             ->limit(5)
-            ->get(['id', 'title', 'content', 'question_type', 'priority', 'status', 'created_at']);
+            ->get(['id', 'title', 'content', 'priority', 'status', 'created_at']);
 
         $context['related_questions'] = $relatedQuestions->toArray();
 
@@ -654,14 +643,7 @@ class QuestionService
 
         $patterns['recent_question_frequency'] = $recentQuestions;
 
-        // 分析问题类型偏好
-        $typeStats = AgentQuestion::where('agent_id', $question->agent_id)
-            ->selectRaw('question_type, COUNT(*) as count')
-            ->groupBy('question_type')
-            ->pluck('count', 'question_type')
-            ->toArray();
-
-        $patterns['type_preferences'] = $typeStats;
+        // 问题类型偏好分析已移除（问题类型已简化）
 
         // 分析优先级模式
         $priorityStats = AgentQuestion::where('agent_id', $question->agent_id)
@@ -692,13 +674,7 @@ class QuestionService
             $query->where('project_id', $filters['project_id']);
         }
 
-        if (isset($filters['type'])) {
-            $query->where('question_type', $filters['type']);
-        }
-
-        if (isset($filters['question_type'])) {
-            $query->where('question_type', $filters['question_type']);
-        }
+        // type 和 question_type 过滤已移除（问题类型已简化）
 
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);

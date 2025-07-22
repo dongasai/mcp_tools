@@ -47,12 +47,12 @@ Route::group([
     // Agent管理
     $router->resource('agents', 'AgentController');
 
-    // 问题管理
-    $router->resource('questions', 'QuestionController');
+    // 问题管理 - 自定义路由必须在resource路由之前
+    $router->get('questions/pending', 'QuestionController@pending');
     $router->get('questions/{id}/answer', 'QuestionController@answer');
     $router->post('questions/{id}/answer', 'QuestionController@answer');
     $router->post('questions/{id}/ignore', 'QuestionController@ignore');
-    $router->get('questions/pending', 'QuestionController@pending');
+    $router->resource('questions', 'QuestionController');
 
     // 个人设置
     $router->get('profile', 'ProfileController@index');

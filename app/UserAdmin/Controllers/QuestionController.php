@@ -116,7 +116,7 @@ class QuestionController extends AdminController
 
             // 工具栏
             $grid->tools(function (Grid\Tools $tools) {
-                $tools->append('<a href="' . admin_url('user-admin/questions/pending') . '" class="btn btn-sm btn-warning">
+                $tools->append('<a href="' . admin_url('questions/pending') . '" class="btn btn-sm btn-warning">
                 <i class="fa fa-clock-o"></i> 待回答问题
             </a>');
             });
@@ -157,10 +157,7 @@ class QuestionController extends AdminController
         $show->field('agent.name', 'Agent名称');
         $show->field('task.title', '关联任务');
 
-        $show->field('question_type', '问题类型')->using([
-            AgentQuestion::TYPE_CHOICE => '选择题',
-            AgentQuestion::TYPE_FEEDBACK => '反馈',
-        ]);
+        // 问题类型字段已移除，跳过显示
 
         $show->field('priority', '优先级')->using([
             AgentQuestion::PRIORITY_URGENT => '紧急',
@@ -278,6 +275,86 @@ class QuestionController extends AdminController
         $question->markAsIgnored();
 
         return redirect()->back()->with('success', '问题已忽略');
+    }
+
+    /**
+     * 待回答问题列表
+     */
+    public function pending(Content $content)
+    {
+        return $content
+            ->title('待回答问题')
+            ->description('需要您回答的问题列表')
+            ->body($this->pendingGrid());
+    }
+
+    /**
+     * 待回答问题表格
+     */
+    private function pendingGrid()
+    {
+        return Grid::make(new AgentQuestion(), function (Grid $grid) {
+            // 加载关联关系
+            $grid->model()->with(['agent', 'task', 'answeredBy']);
+
+            // 只显示当前用户的待回答问题
+            $user = $this->getCurrentUser();
+            if ($user) {
+                $grid->model()->where('user_id', $user->id)
+                    ->where('status', AgentQuestion::STATUS_PENDING);
+            }
+
+            $grid->column('id', 'ID')->sortable();
+            $grid->column('title', '问题标题')->limit(50);
+            $grid->column('agent.name', 'Agent名称');
+            $grid->column('task.title', '关联任务')->limit(30);
+
+            $grid->column('priority', '优先级')->using([
+                AgentQuestion::PRIORITY_URGENT => '紧急',
+                AgentQuestion::PRIORITY_HIGH => '高',
+                AgentQuestion::PRIORITY_MEDIUM => '中',
+                AgentQuestion::PRIORITY_LOW => '低',
+            ])->label([
+                AgentQuestion::PRIORITY_URGENT => 'danger',
+                AgentQuestion::PRIORITY_HIGH => 'warning',
+                AgentQuestion::PRIORITY_MEDIUM => 'primary',
+                AgentQuestion::PRIORITY_LOW => 'default',
+            ]);
+
+            $grid->column('created_at', '创建时间')->sortable();
+            $grid->column('expires_at', '过期时间')->sortable();
+
+            // 操作列
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+                $actions->disableView();
+
+                // 添加回答和忽略按钮
+                $actions->append(new \App\UserAdmin\Actions\Question\AnswerQuestionAction());
+                $actions->append(new \App\UserAdmin\Actions\Question\IgnoreQuestionAction());
+            });
+
+            // 工具栏
+            $grid->tools(function (Grid\Tools $tools) {
+                $tools->append('<a href="' . admin_url('questions') . '" class="btn btn-sm btn-primary">
+                <i class="fa fa-list"></i> 所有问题
+            </a>');
+            });
+
+            // 默认排序：优先级高的在前，创建时间新的在前
+            $grid->model()->orderByRaw("
+            CASE priority
+                WHEN 'URGENT' THEN 1
+                WHEN 'HIGH' THEN 2
+                WHEN 'MEDIUM' THEN 3
+                WHEN 'LOW' THEN 4
+            END, created_at DESC
+        ");
+
+            $grid->disableCreateButton();
+            $grid->disableExport();
+        });
     }
 
     /**

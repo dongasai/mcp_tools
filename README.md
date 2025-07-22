@@ -19,3 +19,4 @@ docker compose -f docker-compose.prod.yml build
 
 
 docker exec -it mcp-tools-run bash
+docker exec -it mcp-tools-run composer run project-init

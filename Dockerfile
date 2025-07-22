@@ -63,4 +63,6 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/vendor \
     && mkdir -p /var/www/.composer \
     && chown -R www-data:www-data /var/www/.composer
-USER root
+USER www-data
+
+RUN composer install

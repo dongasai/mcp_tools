@@ -1,0 +1,18 @@
+[90m= [39m[34;4mApp\Modules\Agent\Models\Agent[39;24m {#6684
+    [34mid[39m: [35m1[39m,
+    [34muser_id[39m: [35m1[39m,
+    [34mname[39m: "[32mTest Agent[39m",
+    [34midentifier[39m: "[32mtest-agent-001[39m",
+    [34mstatus[39m: "[32mactive[39m",
+    [34mdescription[39m: "[32mMCP 测试默认 Agent[39m",
+    [34mcapabilities[39m: "[32m{"task_management":true,"project_query":true,"resource_access":true}[39m",
+    [34mconfiguration[39m: "[32m{"model":"claude-3.5","max_tokens":4000}[39m",
+    [34maccess_token[39m: "[32m123456[39m",
+    [34mtoken_expires_at[39m: [36mnull[39m,
+    [34mallowed_actions[39m: "[32m{"read":true,"create_task":true,"update_task":true,"delete_task":false}[39m",
+    [34mlast_active_at[39m: "[32m2025-07-22 19:02:47[39m",
+    [34mcreated_at[39m: "[32m2025-07-21 06:11:21[39m",
+    [34mupdated_at[39m: "[32m2025-07-22 19:02:47[39m",
+    [34mproject_id[39m: [35m1[39m,
+  }
+

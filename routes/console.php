@@ -34,3 +34,35 @@ Artisan::command('mcp:test-tools', function () {
     $this->info('MCP Tools test completed');
     return 0;
 })->purpose('测试MCP工具功能');
+
+// 注册Agent问题过期处理定时任务
+use Illuminate\Support\Facades\Schedule;
+
+// 每5分钟检查一次过期问题（自动处理已过期的问题）
+Schedule::command('questions:process-expired')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/expired-questions.log'))
+    ->when(function () {
+        return config('agent.question_expiration.enabled', true);
+    });
+
+// 每30分钟发送即将过期的问题提醒
+Schedule::command('questions:process-expired --notify-before=30')
+    ->everyThirtyMinutes()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/question-expiry-reminders.log'))
+    ->when(function () {
+        return config('agent.question_expiration.enabled', true);
+    });
+
+// 每天早上9点发送1小时内过期的高优先级问题提醒
+Schedule::command('questions:process-expired --notify-before=60')
+    ->dailyAt('09:00')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/daily-question-reminders.log'))
+    ->when(function () {
+        return config('agent.question_expiration.enabled', true);
+    });

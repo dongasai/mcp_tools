@@ -49,6 +49,7 @@ class AgentServiceProvider extends ServiceProvider
             $this->commands([
                 \App\Modules\Agent\Commands\GenerateTokenCommand::class,
                 \App\Modules\Agent\Commands\ManagePermissionsCommand::class,
+                \App\Modules\Agent\Commands\ProcessExpiredQuestionsCommand::class,
             ]);
         }
     }

@@ -113,4 +113,16 @@ return [
             'low_uptime_threshold' => 0.95,
         ],
     ],
+
+    // 问题过期处理配置
+    'question_expiration' => [
+        'enabled' => env('AGENT_QUESTION_EXPIRATION_ENABLED', true),
+        'check_frequency_minutes' => env('AGENT_QUESTION_CHECK_FREQUENCY', 5),
+        'default_expiry_minutes' => env('AGENT_QUESTION_DEFAULT_EXPIRY', 60),
+        'expiry_notification_minutes' => env('AGENT_QUESTION_EXPIRY_NOTIFICATION', 30),
+        'notification_priorities' => ['URGENT', 'HIGH'],
+        'auto_ignore_expired' => env('AGENT_QUESTION_AUTO_IGNORE', true),
+        'cleanup_ignored_after_days' => env('AGENT_QUESTION_CLEANUP_DAYS', 30),
+        'max_pending_per_agent' => env('AGENT_QUESTION_MAX_PENDING', 50),
+    ],
 ];

@@ -1,0 +1,12 @@
+#Codeception测试套件配置
+#
+#功能测试套件
+#模拟web请求并使应用程序处理它们
+#包含一个框架模块（Symfony、Yii2、Laravel、Phalcon5）来使用它
+#如果不使用框架，请删除此套件
+
+actor: FunctionalTester
+modules:
+    enabled:
+        # add a framework module here
+step_decorators: ~

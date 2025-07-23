@@ -1,0 +1,9 @@
+#Codeception测试套件配置
+#
+#用于单元或集成测试的套件。
+
+actor: UnitTester
+modules:
+    enabled:
+        - Asserts
+step_decorators: ~

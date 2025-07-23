@@ -16,10 +16,11 @@
     },
     "require-dev": {
         "codeception/codeception": "^5.0",
-        "codeception/module-laravel5": "^3.0",
+        "codeception/module-laravel": "^3.0",
         "codeception/module-webdriver": "^3.0",
         "codeception/module-db": "^3.0",
         "codeception/module-asserts": "^3.0",
+        "codeception/module-phpbrowser": "^3.0",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.1",
         "laravel/pint": "^1.13",

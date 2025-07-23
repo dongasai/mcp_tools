@@ -1,0 +1,15 @@
+#Codeception验收测试套件配置
+#
+#通过使用PhpBrowser模拟浏览器或使用WebDriver在真实浏览器中执行测试。
+#如果您需要WebDriver和PhpBrowser测试，请为每种测试创建一个单独的套件。
+
+actor: AcceptanceTester
+modules:
+    enabled:
+        - PhpBrowser:
+            url: http://127.0.0.1:34004
+# Add Codeception\Step\Retry trait to AcceptanceTester to enable retries
+step_decorators:
+    - Codeception\Step\ConditionalAssertion
+    - Codeception\Step\TryTo
+    - Codeception\Step\Retry

@@ -1,31 +1,12 @@
+namespace: Tests
+support_namespace: Support
 paths:
     tests: tests
     output: tests/_output
-    data: tests/_data
-    support: tests/_support
+    data: tests/Support/Data
+    support: tests/Support
     envs: tests/_envs
-
-settings:
-    bootstrap: _bootstrap.php
-    colors: true
-    memory_limit: 1024M
-
-modules:
-    config:
-        Db:
-            dsn: "sqlite:database/database.sqlite"
-            user: ""
-            password: ""
-            dump: tests/_data/dump.sql
-            populate: true
-            cleanup: true
-            reconnect: false
-
-coverage:
-    enabled: true
-    include:
-        - app/*
-    exclude:
-        - app/Console/*
-        - app/Exceptions/*
-        - app/Providers/*
+actor_suffix: Tester
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed

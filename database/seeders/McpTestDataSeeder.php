@@ -4,9 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\Project;
-use App\Models\Agent;
+use App\Models\AuthUser;
+use App\Modules\Project\Models\Project;
+use App\Modules\Agent\Models\Agent;
 use Illuminate\Support\Facades\Hash;
 
 class McpTestDataSeeder extends Seeder
@@ -17,7 +17,7 @@ class McpTestDataSeeder extends Seeder
     public function run(): void
     {
         // 创建默认用户
-        $user = User::firstOrCreate(
+        $user = AuthUser::firstOrCreate(
             ['email' => 'test@example.com'],
             [
                 'name' => 'Test User',
@@ -25,7 +25,6 @@ class McpTestDataSeeder extends Seeder
                 'email' => 'test@example.com',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
-                'status' => 'active',
             ]
         );
 

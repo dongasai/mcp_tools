@@ -1,95 +1,35 @@
 <?php
 
-namespace App\Modules\Task\Models;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
-use App\Modules\Project\Models\Project;
-use App\Modules\Task\Models\TaskComment;
-use App\Modules\Task\Enums\TASKSTATUS;
-use App\Modules\Task\Enums\TASKTYPE;
-use App\Modules\Task\Enums\TASKPRIORITY;
 
 class Task extends Model
 {
     protected $fillable = [
-        'user_id',
-        'agent_id',
-        'project_id',
-        'parent_task_id',
         'title',
         'description',
-        'type',
         'status',
         'priority',
-        'assigned_to',
+        'labels',
         'due_date',
-        'estimated_hours',
-        'actual_hours',
-        'progress',
-        'tags',
-        'metadata',
-        'result',
+        'solution',
+        'time_spent',
+        'github_issue_url',
+        'github_issue_number',
+        'project_id',
+        'assigned_to',
+        'agent_id',
     ];
 
     protected $casts = [
-        'status' => TASKSTATUS::class,
-        'type' => TASKTYPE::class,
-        'priority' => TASKPRIORITY::class,
-        'tags' => 'array',
-        'metadata' => 'array',
-        'result' => 'array',
+        'labels' => 'array',
         'due_date' => 'datetime',
-        'progress' => 'integer',
-        'estimated_hours' => 'decimal:2',
-        'actual_hours' => 'decimal:2',
     ];
 
     /**
-     * 获取所有可用状态
-     */
-    public static function getStatuses(): array
-    {
-        return TASKSTATUS::selectOptions();
-    }
-
-    /**
-     * 获取所有任务类型
-     */
-    public static function getTypes(): array
-    {
-        return TASKTYPE::selectOptions();
-    }
-
-    /**
-     * 获取所有优先级
-     */
-    public static function getPriorities(): array
-    {
-        return TASKPRIORITY::selectOptions();
-    }
-
-    /**
-     * 关联用户
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * 关联Agent
-     */
-    public function agent(): BelongsTo
-    {
-        return $this->belongsTo(Agent::class);
-    }
-
-    /**
-     * 关联项目
+     * 获取拥有此任务的项目
      */
     public function project(): BelongsTo
     {
@@ -97,230 +37,82 @@ class Task extends Model
     }
 
     /**
-     * 关联父任务
+     * 获取分配给此任务的用户
      */
-    public function parentTask(): BelongsTo
+    public function assignedUser(): BelongsTo
     {
-        return $this->belongsTo(Task::class, 'parent_task_id');
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     /**
-     * 关联子任务
+     * 获取分配给此任务的Agent
      */
-    public function subTasks(): HasMany
+    public function agent(): BelongsTo
     {
-        return $this->hasMany(Task::class, 'parent_task_id');
+        return $this->belongsTo(Agent::class, 'agent_id', 'id');
     }
 
     /**
-     * 关联评论
+     * 查询范围：仅包含待处理的任务
      */
-    public function comments(): HasMany
+    public function scopePending($query)
     {
-        return $this->hasMany(TaskComment::class);
+        return $query->where('status', 'pending');
     }
 
     /**
-     * 检查任务是否为主任务
+     * 查询范围：仅包含已认领的任务
      */
-    public function isMainTask(): bool
+    public function scopeClaimed($query)
     {
-        return $this->type === TASKTYPE::MAIN || $this->parent_task_id === null;
+        return $query->where('status', 'claimed');
     }
 
     /**
-     * 检查任务是否为子任务
+     * 查询范围：仅包含已完成的任务
      */
-    public function isSubTask(): bool
+    public function scopeCompleted($query)
     {
-        return $this->parent_task_id !== null;
+        return $query->where('status', 'completed');
     }
 
     /**
-     * 检查任务是否已完成
+     * 查询范围：按优先级筛选
      */
-    public function isCompleted(): bool
+    public function scopeByPriority($query, $priority)
     {
-        return $this->status === TASKSTATUS::COMPLETED;
+        return $query->where('priority', $priority);
     }
 
     /**
-     * 检查任务是否进行中
+     * 查询范围：按Agent筛选
      */
-    public function isInProgress(): bool
-    {
-        return $this->status === TASKSTATUS::IN_PROGRESS;
-    }
-
-    /**
-     * 检查任务是否被阻塞
-     */
-    public function isBlocked(): bool
-    {
-        return $this->status === TASKSTATUS::BLOCKED;
-    }
-
-    /**
-     * 开始任务
-     */
-    public function start(): void
-    {
-        $this->update(['status' => TASKSTATUS::IN_PROGRESS]);
-    }
-
-    /**
-     * 完成任务
-     */
-    public function complete(): void
-    {
-        $this->update([
-            'status' => TASKSTATUS::COMPLETED,
-            'progress' => 100,
-        ]);
-    }
-
-    /**
-     * 阻塞任务
-     */
-    public function block(): void
-    {
-        $this->update(['status' => TASKSTATUS::BLOCKED]);
-    }
-
-    /**
-     * 取消任务
-     */
-    public function cancel(): void
-    {
-        $this->update(['status' => TASKSTATUS::CANCELLED]);
-    }
-
-    /**
-     * 更新进度
-     */
-    public function updateProgress(int $progress): void
-    {
-        $progress = max(0, min(100, $progress));
-        $this->update(['progress' => $progress]);
-
-        // 如果进度达到100%，自动完成任务
-        if ($progress === 100 && !$this->isCompleted()) {
-            $this->complete();
-        }
-    }
-
-    /**
-     * 获取完成率
-     */
-    public function getCompletionRate(): float
-    {
-        if ($this->isMainTask()) {
-            $subTasks = $this->subTasks;
-            if ($subTasks->isEmpty()) {
-                return (float) $this->progress;
-            }
-
-            $totalProgress = $subTasks->sum('progress');
-            $taskCount = $subTasks->count();
-            return $taskCount > 0 ? round($totalProgress / $taskCount, 2) : 0.0;
-        }
-
-        return (float) $this->progress;
-    }
-
-    /**
-     * 查询作用域：按状态筛选
-     */
-    public function scopeByStatus($query, TASKSTATUS|string $status)
-    {
-        $statusValue = $status instanceof TASKSTATUS ? $status->value : $status;
-        return $query->where('status', $statusValue);
-    }
-
-    /**
-     * 查询作用域：按类型筛选
-     */
-    public function scopeByType($query, TASKTYPE|string $type)
-    {
-        $typeValue = $type instanceof TASKTYPE ? $type->value : $type;
-        return $query->where('type', $typeValue);
-    }
-
-    /**
-     * 查询作用域：主任务
-     */
-    public function scopeMainTasks($query)
-    {
-        return $query->whereNull('parent_task_id');
-    }
-
-    /**
-     * 查询作用域：子任务
-     */
-    public function scopeSubTasks($query)
-    {
-        return $query->whereNotNull('parent_task_id');
-    }
-
-    /**
-     * 查询作用域：按用户筛选
-     */
-    public function scopeByUser($query, int $userId)
-    {
-        return $query->where('user_id', $userId);
-    }
-
-    /**
-     * 查询作用域：按Agent筛选
-     */
-    public function scopeByAgent($query, int $agentId)
+    public function scopeByAgent($query, $agentId)
     {
         return $query->where('agent_id', $agentId);
     }
 
     /**
-     * 查询作用域：按项目筛选
+     * 检查任务是否已过期
      */
-    public function scopeByProject($query, int $projectId)
+    public function isOverdue(): bool
     {
-        return $query->where('project_id', $projectId);
+        return $this->due_date && $this->due_date->isPast() && !in_array($this->status, ['completed', 'cancelled']);
     }
 
     /**
-     * 查询作用域：按优先级筛选
+     * 获取任务的标签
      */
-    public function scopeByPriority($query, TASKPRIORITY|string $priority)
+    public function getLabelsAttribute($value)
     {
-        $priorityValue = $priority instanceof TASKPRIORITY ? $priority->value : $priority;
-        return $query->where('priority', $priorityValue);
+        return $value ? json_decode($value, true) : [];
     }
 
     /**
-     * 查询作用域：搜索任务
+     * 设置任务的标签
      */
-    public function scopeSearch($query, string $search)
+    public function setLabelsAttribute($value)
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
-        });
-    }
-
-    /**
-     * 查询作用域：即将到期的任务
-     */
-    public function scopeDueSoon($query, int $days = 7)
-    {
-        return $query->where('due_date', '<=', now()->addDays($days))
-                    ->where('status', '!=', TASKSTATUS::COMPLETED);
-    }
-
-    /**
-     * 查询作用域：已逾期的任务
-     */
-    public function scopeOverdue($query)
-    {
-        return $query->where('due_date', '<', now())
-                    ->where('status', '!=', TASKSTATUS::COMPLETED);
+        $this->attributes['labels'] = json_encode($value);
     }
 }

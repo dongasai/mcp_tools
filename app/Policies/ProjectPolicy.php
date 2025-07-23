@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\Project;
-use App\Models\ProjectMember;
-use App\Models\User;
+use App\Modules\Project\Models\Project;
+use App\Modules\Project\Models\ProjectMember;
+use App\Modules\User\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy

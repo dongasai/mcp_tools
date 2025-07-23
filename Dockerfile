@@ -32,17 +32,16 @@ RUN docker-php-ext-install \
     gd \
     zip \
     sockets \
-    zip opcache
+    opcache
+
+# 复制自定义 PHP 配置
+COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # 启用 Apache 模块
 RUN a2enmod rewrite headers
 
 # 安装 Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# 
-COPY . /var/www/html
-RUN composer install
 
 # 配置 Apache
 RUN echo '<VirtualHost *:80>\n\
@@ -53,4 +52,17 @@ RUN echo '<VirtualHost *:80>\n\
     </Directory>\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-# 保持简洁，不运行杂七杂八的
+# 复制项目文件
+COPY . /var/www/html
+
+# 设置正确的权限
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/vendor \
+    && mkdir -p /var/www/.composer \
+    && chown -R www-data:www-data /var/www/.composer
+USER www-data
+
+RUN composer install

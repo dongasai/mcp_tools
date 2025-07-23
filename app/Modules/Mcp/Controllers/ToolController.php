@@ -11,7 +11,7 @@ use App\Modules\Mcp\Tools\ProjectTool;
 use App\Modules\Mcp\Tools\TaskTool;
 use App\Modules\Mcp\Tools\AgentTool;
 use App\Modules\Mcp\Tools\AskQuestionTool;
-use App\Modules\Mcp\Tools\GetQuestionsTool;
+
 use App\Modules\Mcp\Tools\QuestionBatchTool;
 
 class ToolController extends Controller
@@ -23,7 +23,6 @@ class ToolController extends Controller
         private TaskTool $taskTool,
         private AgentTool $agentTool,
         private AskQuestionTool $askQuestionTool,
-        private GetQuestionsTool $getQuestionsTool,
         private QuestionBatchTool $questionBatchTool
     ) {}
 
@@ -95,6 +94,12 @@ class ToolController extends Controller
 
             // 验证权限
             if (!$this->mcpService->validateAgentAccess($agentId, 'tool', 'call')) {
+                $this->logger->warning('Access denied for tool call', [
+                    'agent_id' => $agentId,
+                    'tool' => $tool,
+                    'action' => 'call'
+                ]);
+                
                 return response()->json([
                     'success' => false,
                     'error' => 'Access denied for tool call'
@@ -158,7 +163,6 @@ class ToolController extends Controller
             'task_manager' => $this->taskTool,
             'agent_manager' => $this->agentTool,
             'ask_question' => $this->askQuestionTool,
-            'get_questions' => $this->getQuestionsTool,
             'question_batch' => $this->questionBatchTool,
             default => null
         };

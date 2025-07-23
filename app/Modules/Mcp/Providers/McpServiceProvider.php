@@ -35,9 +35,21 @@ class McpServiceProvider extends ServiceProvider
         // 加载路由
         $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
+        // 注册中间件
+        $this->registerMiddleware();
+
         // 注册MCP资源和工具
         $this->registerMcpResources();
         $this->registerMcpTools();
+    }
+
+    /**
+     * 注册中间件
+     */
+    protected function registerMiddleware(): void
+    {
+        // 注册MCP速率限制中间件
+
     }
 
     /**

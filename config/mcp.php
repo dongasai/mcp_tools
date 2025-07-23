@@ -15,6 +15,7 @@ return [
         'name' => env('MCP_SERVER_NAME', 'Laravel MCP'),
         'version' => env('MCP_SERVER_VERSION', '1.0.0'),
         'instructions' => env('MCP_SERVER_INSTRUCTIONS'),
+        'transport' => env('MCP_SERVER_TRANSPORT', 'http_integrated'),
     ],
 
     /*
@@ -31,7 +32,7 @@ return [
         'base_path' => base_path(),
         'directories' => array_filter(
             explode(',', 
-                env('MCP_DISCOVERY_DIRECTORIES', 'app/Mcp,app/Modules/Mcp/Tools')
+                env('MCP_DISCOVERY_DIRECTORIES', 'app/Modules/Mcp/Tools,app/Modules/Mcp/Resources')
             )
         ),
         'exclude_dirs' => [
@@ -202,4 +203,6 @@ return [
         'channel' => env('MCP_LOG_CHANNEL', config('logging.default')),
         'level' => env('MCP_LOG_LEVEL', 'info'),
     ],
+
+
 ];

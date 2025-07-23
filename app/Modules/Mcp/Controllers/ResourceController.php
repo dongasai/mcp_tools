@@ -74,6 +74,12 @@ class ResourceController extends Controller
 
             // 验证权限
             if (!$this->mcpService->validateAgentAccess($agentId, 'resource', 'read')) {
+                $this->logger->warning('Access denied for resource read', [
+                    'agent_id' => $agentId,
+                    'resource' => $resource,
+                    'action' => 'read'
+                ]);
+                
                 return response()->json([
                     'success' => false,
                     'error' => 'Access denied for resource read'
@@ -127,6 +133,12 @@ class ResourceController extends Controller
 
             // 验证权限
             if (!$this->mcpService->validateAgentAccess($agentId, 'resource', 'create')) {
+                $this->logger->warning('Access denied for resource create', [
+                    'agent_id' => $agentId,
+                    'resource' => $resource,
+                    'action' => 'create'
+                ]);
+                
                 return response()->json([
                     'success' => false,
                     'error' => 'Access denied for resource create'
@@ -181,6 +193,12 @@ class ResourceController extends Controller
 
             // 验证权限
             if (!$this->mcpService->validateAgentAccess($agentId, 'resource', 'update')) {
+                $this->logger->warning('Access denied for resource update', [
+                    'agent_id' => $agentId,
+                    'resource' => $resource,
+                    'action' => 'update'
+                ]);
+                
                 return response()->json([
                     'success' => false,
                     'error' => 'Access denied for resource update'
@@ -235,6 +253,12 @@ class ResourceController extends Controller
 
             // 验证权限
             if (!$this->mcpService->validateAgentAccess($agentId, 'resource', 'delete')) {
+                $this->logger->warning('Access denied for resource delete', [
+                    'agent_id' => $agentId,
+                    'resource' => $resource,
+                    'action' => 'delete'
+                ]);
+                
                 return response()->json([
                     'success' => false,
                     'error' => 'Access denied for resource delete'

@@ -13,13 +13,13 @@
 ## 当前状态
 
 ### 发现统计（通过 `php artisan mcp:list` 获取）
-- **工具 (Tools)**: 9 个已注册
+- **工具 (Tools)**: 8 个已注册
 - **资源 (Resources)**: 2 个已注册
 - **提示 (Prompts)**: 0 个
 - **模板 (Templates)**: 0 个
 
 ### 实现统计
-- **已实现工具**: 9 个
+- **已实现工具**: 8 个
 - **已实现资源**: 4 个（2个未被发现）
 
 
@@ -112,21 +112,20 @@
 
 ### 1.2 问题管理工具 ✅ 已注册/已实现
 
-#### get_questions ✅ 已注册/已实现
-- **文件**: `app/Modules/Mcp/Tools/GetQuestionsTool.php`
-- **方法**: `getQuestions()`
+#### ask_question ✅ 已注册/已实现
+- **文件**: `app/Modules/Mcp/Tools/AskQuestionTool.php`
+- **方法**: `askQuestion()`
 - **注册状态**: ✅ 已通过属性自动发现注册
-- **实现状态**: ✅ 已修正（自动使用Agent绑定的项目）
-- **描述**: 获取问题列表，支持多种过滤条件
+- **实现状态**: ✅ 完整实现（阻塞式等待回答）
+- **描述**: Agent向用户提出问题，等待回答（阻塞式，超时600秒）
 - **参数**:
-  - `status` (string, 可选): 问题状态 (PENDING/ANSWERED/IGNORED)
-  - `priority` (string, 可选): 优先级 (URGENT/HIGH/MEDIUM/LOW)
-  - `question_type` (string, 可选): 问题类型 (CHOICE/FEEDBACK)
-  - `task_id` (int, 可选): 任务ID过滤
-  - `limit` (int, 可选): 返回数量限制 (默认: 10)
-  - `only_mine` (bool, 可选): 是否只返回当前Agent的问题 (默认: true)
-  - `include_expired` (bool, 可选): 是否包含已过期的问题 (默认: false)
-- **权限**: 基于Agent身份和项目权限，自动限制为Agent绑定的项目
+  - `title` (string): 问题标题
+  - `content` (string): 问题内容
+  - `priority` (string, 可选): 优先级 (URGENT/HIGH/MEDIUM/LOW，默认: MEDIUM)
+  - `task_id` (int, 可选): 关联任务ID
+  - `context` (array, 可选): 上下文信息
+  - `timeout` (int, 可选): 超时时间（秒，默认: 600）
+- **权限**: 基于Agent身份和项目权限，自动使用Agent绑定的项目
 
 ### 1.3 项目管理工具 ❌ 未注册/已实现 ⚠️ 不合理的，MCP不能进行项目管理
 
@@ -289,6 +288,25 @@
    - 优化了 `ask_question` 工具的用户体验
 
 **设计改进**: ✅ 实现了更符合用户期望的阻塞式提问机制
+
+### 2025年07月23日 13:15 - 移除错误的get_questions工具 ✅
+
+**移除内容**:
+1. **删除GetQuestionsTool** (`app/Modules/Mcp/Tools/GetQuestionsTool.php`):
+   - 移除错误的 `get_questions` MCP工具
+   - 该工具不符合MCP设计原则，Agent应该专注于提问而非查询历史问题
+   - 简化MCP工具集，保持功能聚焦
+
+2. **更新工具统计**:
+   - 工具总数从9个减少到8个
+   - 移除问题管理工具中的 `get_questions` 条目
+   - 保留 `ask_question` 工具作为唯一的问题管理工具
+
+3. **文档清理**:
+   - 更新MCP工具清单，移除相关文档
+   - 清理引用和依赖关系
+
+**设计原则**: ✅ MCP工具应该专注于Agent的核心交互需求，避免不必要的查询功能
 
 
 

@@ -6,6 +6,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Task模型测试路由
+require __DIR__ . '/../app/Modules/Task/routes/test.php';
+
 Route::get('/timeout', function () {
     // 设置响应头，禁用缓冲
     header('Content-Type: text/plain; charset=utf-8');

@@ -33,7 +33,7 @@ class TaskServiceProvider extends ServiceProvider
         ], 'task-config');
 
         // 加载路由
-        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        // $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
         // 暂时注释掉迁移文件加载
         // $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');

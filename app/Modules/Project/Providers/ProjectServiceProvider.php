@@ -33,7 +33,7 @@ class ProjectServiceProvider extends ServiceProvider
         ], 'project-config');
 
         // 加载路由
-        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        // $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
         // 加载迁移
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');

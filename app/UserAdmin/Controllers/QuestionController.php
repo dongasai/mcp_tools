@@ -2,6 +2,7 @@
 
 namespace App\UserAdmin\Controllers;
 
+use App\Modules\Agent\Enums\QuestionPriority;
 use App\Modules\Agent\Models\AgentQuestion;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Task\Models\Task;
@@ -46,17 +47,12 @@ class QuestionController extends AdminController
             $grid->column('agent.name', 'Agent名称');
             $grid->column('task.title', '关联任务')->limit(30);
 
-            $grid->column('priority', '优先级')->using([
-                AgentQuestion::PRIORITY_URGENT => '紧急',
-                AgentQuestion::PRIORITY_HIGH => '高',
-                AgentQuestion::PRIORITY_MEDIUM => '中',
-                AgentQuestion::PRIORITY_LOW => '低',
-            ])->label([
-                AgentQuestion::PRIORITY_URGENT => 'danger',
-                AgentQuestion::PRIORITY_HIGH => 'warning',
-                AgentQuestion::PRIORITY_MEDIUM => 'primary',
-                AgentQuestion::PRIORITY_LOW => 'default',
-            ]);
+            $grid->column('priority', '优先级')->display(function ($value) {
+                if ($value instanceof QuestionPriority) {
+                    return '<span class="label label-' . $value->color() . '">' . $value->label() . '</span>';
+                }
+                return $value;
+            });
 
             $grid->column('status', '状态')->using([
                 AgentQuestion::STATUS_PENDING => '待回答',
@@ -97,10 +93,10 @@ class QuestionController extends AdminController
                 }
 
                 $filter->equal('priority', '优先级')->select([
-                    AgentQuestion::PRIORITY_URGENT => '紧急',
-                    AgentQuestion::PRIORITY_HIGH => '高',
-                    AgentQuestion::PRIORITY_MEDIUM => '中',
-                    AgentQuestion::PRIORITY_LOW => '低',
+                    QuestionPriority::URGENT->value => QuestionPriority::URGENT->label(),
+                    QuestionPriority::HIGH->value => QuestionPriority::HIGH->label(),
+                    QuestionPriority::MEDIUM->value => QuestionPriority::MEDIUM->label(),
+                    QuestionPriority::LOW->value => QuestionPriority::LOW->label(),
                 ]);
 
                 $filter->equal('status', '状态')->select([
@@ -172,12 +168,12 @@ class QuestionController extends AdminController
 
         // 问题类型字段已移除，跳过显示
 
-        $show->field('priority', '优先级')->using([
-            AgentQuestion::PRIORITY_URGENT => '紧急',
-            AgentQuestion::PRIORITY_HIGH => '高',
-            AgentQuestion::PRIORITY_MEDIUM => '中',
-            AgentQuestion::PRIORITY_LOW => '低',
-        ]);
+        $show->field('priority', '优先级')->as(function ($value) {
+            if ($value instanceof QuestionPriority) {
+                return $value->label();
+            }
+            return $value;
+        });
 
         $show->field('status', '状态')->using([
             AgentQuestion::STATUS_PENDING => '待回答',
@@ -322,17 +318,12 @@ class QuestionController extends AdminController
             $grid->column('agent.name', 'Agent名称');
             $grid->column('task.title', '关联任务')->limit(30);
 
-            $grid->column('priority', '优先级')->using([
-                AgentQuestion::PRIORITY_URGENT => '紧急',
-                AgentQuestion::PRIORITY_HIGH => '高',
-                AgentQuestion::PRIORITY_MEDIUM => '中',
-                AgentQuestion::PRIORITY_LOW => '低',
-            ])->label([
-                AgentQuestion::PRIORITY_URGENT => 'danger',
-                AgentQuestion::PRIORITY_HIGH => 'warning',
-                AgentQuestion::PRIORITY_MEDIUM => 'primary',
-                AgentQuestion::PRIORITY_LOW => 'default',
-            ]);
+            $grid->column('priority', '优先级')->display(function ($value) {
+                if ($value instanceof QuestionPriority) {
+                    return '<span class="label label-' . $value->color() . '">' . $value->label() . '</span>';
+                }
+                return $value;
+            });
 
             $grid->column('created_at', '创建时间')->sortable();
             $grid->column('expires_at', '过期时间')->sortable();

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Agent\Models;
 
+use App\Modules\Agent\Enums\QuestionPriority;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Task\Models\Task;
 use App\Modules\Project\Models\Project;
@@ -36,6 +37,7 @@ class AgentQuestion extends Model
     protected $casts = [
         'context' => 'array',
         'answer_options' => 'array',
+        'priority' => QuestionPriority::class,
         'answered_at' => 'datetime',
         'expires_at' => 'datetime',
         'created_at' => 'datetime',
@@ -44,12 +46,6 @@ class AgentQuestion extends Model
     ];
 
     // 问题类型已移除，默认为文本问题
-
-    // 优先级常量
-    const PRIORITY_URGENT = 'URGENT';
-    const PRIORITY_HIGH = 'HIGH';
-    const PRIORITY_MEDIUM = 'MEDIUM';
-    const PRIORITY_LOW = 'LOW';
 
     // 状态常量
     const STATUS_PENDING = 'PENDING';
@@ -128,20 +124,13 @@ class AgentQuestion extends Model
      */
     public function scopeByPriority($query)
     {
-        $priorityOrder = [
-            self::PRIORITY_URGENT => 4,
-            self::PRIORITY_HIGH => 3,
-            self::PRIORITY_MEDIUM => 2,
-            self::PRIORITY_LOW => 1,
-        ];
-
-        return $query->orderByRaw("CASE 
-            WHEN priority = '" . self::PRIORITY_URGENT . "' THEN 4
-            WHEN priority = '" . self::PRIORITY_HIGH . "' THEN 3
-            WHEN priority = '" . self::PRIORITY_MEDIUM . "' THEN 2
-            WHEN priority = '" . self::PRIORITY_LOW . "' THEN 1
-            ELSE 0
-        END DESC");
+        return $query->orderByRaw("CASE
+            WHEN priority = '" . QuestionPriority::URGENT->value . "' THEN 1
+            WHEN priority = '" . QuestionPriority::HIGH->value . "' THEN 2
+            WHEN priority = '" . QuestionPriority::MEDIUM->value . "' THEN 3
+            WHEN priority = '" . QuestionPriority::LOW->value . "' THEN 4
+            ELSE 5
+        END");
     }
 
     /**
@@ -233,13 +222,7 @@ class AgentQuestion extends Model
      */
     public function getPriorityWeight(): int
     {
-        return match($this->priority) {
-            self::PRIORITY_URGENT => 4,
-            self::PRIORITY_HIGH => 3,
-            self::PRIORITY_MEDIUM => 2,
-            self::PRIORITY_LOW => 1,
-            default => 0,
-        };
+        return $this->priority?->value() ?? 0;
     }
 
     /**
@@ -247,13 +230,7 @@ class AgentQuestion extends Model
      */
     public function getPriorityLabel(): string
     {
-        return match($this->priority) {
-            self::PRIORITY_URGENT => '紧急',
-            self::PRIORITY_HIGH => '高',
-            self::PRIORITY_MEDIUM => '中',
-            self::PRIORITY_LOW => '低',
-            default => '未知',
-        };
+        return $this->priority?->label() ?? '未知';
     }
 
     /**
@@ -305,12 +282,7 @@ class AgentQuestion extends Model
      */
     public static function getPriorities(): array
     {
-        return [
-            self::PRIORITY_URGENT => '紧急',
-            self::PRIORITY_HIGH => '高',
-            self::PRIORITY_MEDIUM => '中',
-            self::PRIORITY_LOW => '低',
-        ];
+        return QuestionPriority::keyValuePairs();
     }
 
     /**

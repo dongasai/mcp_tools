@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Modules\Agent\Enums\QuestionPriority;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Agent\Models\AgentQuestion;
 use App\Modules\User\Models\User;
@@ -28,10 +29,10 @@ class AgentQuestionFactory extends Factory
             ],
             // 问题类型已移除，默认为文本问题
             'priority' => $this->faker->randomElement([
-                AgentQuestion::PRIORITY_URGENT,
-                AgentQuestion::PRIORITY_HIGH,
-                AgentQuestion::PRIORITY_MEDIUM,
-                AgentQuestion::PRIORITY_LOW,
+                QuestionPriority::URGENT->value,
+                QuestionPriority::HIGH->value,
+                QuestionPriority::MEDIUM->value,
+                QuestionPriority::LOW->value,
             ]),
             'status' => AgentQuestion::STATUS_PENDING,
             'answer' => null,
@@ -98,7 +99,7 @@ class AgentQuestionFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'priority' => AgentQuestion::PRIORITY_URGENT,
+                'priority' => QuestionPriority::URGENT->value,
             ];
         });
     }
@@ -110,7 +111,7 @@ class AgentQuestionFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'priority' => AgentQuestion::PRIORITY_HIGH,
+                'priority' => QuestionPriority::HIGH->value,
             ];
         });
     }
@@ -122,7 +123,7 @@ class AgentQuestionFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'priority' => AgentQuestion::PRIORITY_MEDIUM,
+                'priority' => QuestionPriority::MEDIUM->value,
             ];
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Agent\Services;
 
+use App\Modules\Agent\Enums\QuestionPriority;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Agent\Models\AgentQuestion;
 use App\Modules\Agent\Events\QuestionCreated;
@@ -236,7 +237,7 @@ class QuestionService
     public function getHighPriorityPendingQuestions(int $limit = 10): Collection
     {
         return AgentQuestion::pending()
-            ->whereIn('priority', [AgentQuestion::PRIORITY_URGENT, AgentQuestion::PRIORITY_HIGH])
+            ->whereIn('priority', [QuestionPriority::URGENT->value, QuestionPriority::HIGH->value])
             ->notExpired()
             ->byPriority()
             ->limit($limit)

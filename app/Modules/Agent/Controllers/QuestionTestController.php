@@ -2,6 +2,7 @@
 
 namespace App\Modules\Agent\Controllers;
 
+use App\Modules\Agent\Enums\QuestionPriority;
 use App\Modules\Agent\Services\QuestionService;
 use App\Modules\Agent\Services\QuestionNotificationService;
 use App\Modules\Agent\Models\Agent;
@@ -38,7 +39,7 @@ class QuestionTestController extends BaseController
                 'title' => '测试问题 - ' . now()->format('Y-m-d H:i:s'),
                 'content' => '这是一个通过API创建的测试问题。请问您希望我如何处理这个任务？',
                 'question_type' => AgentQuestion::TYPE_FEEDBACK,
-                'priority' => AgentQuestion::PRIORITY_HIGH,
+                'priority' => QuestionPriority::HIGH->value,
                 'context' => [
                     'source' => 'api_test',
                     'timestamp' => now()->toISOString(),
@@ -213,10 +214,10 @@ class QuestionTestController extends BaseController
             $questions = [];
             $questionTypes = [AgentQuestion::TYPE_FEEDBACK];
             $priorities = [
-                AgentQuestion::PRIORITY_URGENT,
-                AgentQuestion::PRIORITY_HIGH,
-                AgentQuestion::PRIORITY_MEDIUM,
-                AgentQuestion::PRIORITY_LOW,
+                QuestionPriority::URGENT->value,
+                QuestionPriority::HIGH->value,
+                QuestionPriority::MEDIUM->value,
+                QuestionPriority::LOW->value,
             ];
 
             for ($i = 1; $i <= 5; $i++) {

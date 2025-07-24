@@ -2,6 +2,7 @@
 
 namespace App\Modules\Agent\Services;
 
+use App\Modules\Agent\Enums\QuestionPriority;
 use App\Modules\Agent\Models\AgentQuestion;
 use App\Modules\User\Models\User;
 use App\Modules\Core\Contracts\LogInterface;
@@ -104,7 +105,7 @@ class QuestionNotificationService
             }
 
             // 只对高优先级和紧急问题发送过期提醒
-            if (!in_array($question->priority, [AgentQuestion::PRIORITY_URGENT, AgentQuestion::PRIORITY_HIGH])) {
+            if (!in_array($question->priority, [QuestionPriority::URGENT->value, QuestionPriority::HIGH->value])) {
                 return true;
             }
 
@@ -215,10 +216,10 @@ class QuestionNotificationService
     private function getNotificationMethods(string $priority): array
     {
         return match($priority) {
-            AgentQuestion::PRIORITY_URGENT => ['realtime', 'email', 'push'],
-            AgentQuestion::PRIORITY_HIGH => ['realtime', 'email'],
-            AgentQuestion::PRIORITY_MEDIUM => ['realtime'],
-            AgentQuestion::PRIORITY_LOW => ['realtime'],
+            QuestionPriority::URGENT->value => ['realtime', 'email', 'push'],
+            QuestionPriority::HIGH->value => ['realtime', 'email'],
+            QuestionPriority::MEDIUM->value => ['realtime'],
+            QuestionPriority::LOW->value => ['realtime'],
             default => ['realtime'],
         };
     }

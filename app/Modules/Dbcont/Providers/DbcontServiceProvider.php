@@ -43,5 +43,13 @@ class DbcontServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/dbcont.php' => config_path('dbcont.php'),
         ], 'dbcont-config');
+        
+        // 加载后台菜单配置
+        if (file_exists($menuConfig = config_path('admin-menu.php'))) {
+            require $menuConfig;
+        }
+        
+        // 加载路由
+        $this->loadRoutesFrom(__DIR__ . '/../routes/admin.php');
     }
 }

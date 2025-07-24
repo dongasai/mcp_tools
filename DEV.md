@@ -1,5 +1,7 @@
 # 技术文档
 
+> 这是一个基于 Laravel 的 Model Context Protocol (MCP) 服务器
+
 ## 技术选型
 
 ### 核心框架
@@ -18,8 +20,7 @@
 
 #### 1. php-mcp/laravel
 - **作用**：提供MCP协议的Laravel原生支持
-- **功能**：MCP服务器、资源管理、工具注册
-- **集成位置**：MCP协议模块的核心实现
+- **功能**：MCP服务器、资源管理、工具注册，为MCP提供底层支持
 
 #### 2. dcat/laravel-admin
 - **作用**：快速构建后台管理界面
@@ -43,7 +44,9 @@
 - 模块列表：
     - app/UserAdmin/ 用户后台模块，使用dcatadmin构建
     - app/Admin/ 超级管理员后台模块，使用dcatadmin构建
-    - app/Modules/Mcp Mcp模块
+    - app/Modules/Mcp Mcp模块，MCP底层由`php-mcp/laravel`提供，Mcp模块仅实现逻辑
+    - app/Modules/Agent Agent模块，负责Agent的管理
+    - app/Modules/Agent Agent模块，负责Agent的管理
 
 ### 2. 代码规范
 - PSR-12 代码风格

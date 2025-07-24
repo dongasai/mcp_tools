@@ -123,7 +123,7 @@ app/Modules/UserAdmin/
 ---
 
 **相关文档**：
-- [超级管理员模块](./super-admin.md)
-- [项目模块](./project.md)
-- [任务模块](./task.md)
-- [Agent模块](./agent.md)
+- [超级管理员模块](./Admin.md)
+- [项目模块](/app/Modules/Project/README.md)
+- [任务模块](/app/Modules/Task/README.md)
+- [Agent模块](/app/Modules/Agent/README.md)

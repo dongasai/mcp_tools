@@ -8,6 +8,5 @@ services:
     volumes:
       - ..:/workspace
     ports:
-      - "34004:34004"
+      - "34004:80"
     working_dir: /workspace
-    command: tail -f /dev/null

@@ -10,6 +10,11 @@ class DatabaseConnectionSeeder extends Seeder
 {
     public function run()
     {
+        // 防止重复执行
+        if (DatabaseConnection::where('name', '默认SQLite数据库')->exists()) {
+            return;
+        }
+
         // 创建默认SQLite数据库连接
         $db = DatabaseConnection::create([
             'name' => '默认SQLite数据库',

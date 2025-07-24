@@ -8,6 +8,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(\Database\Seeders\DatabaseConnectionSeeder::class);
+        $this->call(AdminTablesSeeder::class);
+        $this->call(UserAdminMenuSeeder::class);
+        $this->call(McpTestDataSeeder::class);
+        $this->call(DatabaseConnectionSeeder::class);
     }
 }

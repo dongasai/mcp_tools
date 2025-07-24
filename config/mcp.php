@@ -14,8 +14,7 @@ return [
     'server' => [
         'name' => env('MCP_SERVER_NAME', 'Laravel MCP'),
         'version' => env('MCP_SERVER_VERSION', '1.0.0'),
-        'instructions' => env('MCP_SERVER_INSTRUCTIONS'),
-        'transport' => env('MCP_SERVER_TRANSPORT', 'http_integrated'),
+        'instructions' => env('MCP_SERVER_INSTRUCTIONS')
     ],
 
     /*

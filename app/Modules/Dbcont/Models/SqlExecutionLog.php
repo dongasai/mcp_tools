@@ -2,6 +2,7 @@
 
 namespace App\Modules\Dbcont\Models;
 
+use App\Modules\Agent\Models\Agent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -36,6 +37,14 @@ class SqlExecutionLog extends Model
         'result_size' => 'integer',
         'executed_at' => 'datetime',
     ];
+
+    /**
+     * Get the agent that owns the log.
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
 
     /**
      * Get the database connection that owns the log.

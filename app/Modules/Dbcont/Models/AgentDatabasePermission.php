@@ -3,6 +3,7 @@
 namespace App\Modules\Dbcont\Models;
 
 use App\Modules\Dbcont\Enums\PermissionLevel;
+use App\Modules\Agent\Models\Agent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -33,6 +34,14 @@ class AgentDatabasePermission extends Model
         'allowed_tables' => 'array',
         'denied_operations' => 'array',
     ];
+
+    /**
+     * Get the agent that owns the permission.
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
 
     /**
      * Get the database connection that owns the permission.

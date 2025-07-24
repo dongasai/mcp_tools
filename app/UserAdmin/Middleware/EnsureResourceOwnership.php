@@ -8,6 +8,8 @@ use App\Modules\Project\Models\Project;
 use App\Modules\Task\Models\Task;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\User\Models\User;
+use App\Modules\Dbcont\Models\DatabaseConnection;
+use App\Modules\Dbcont\Models\AgentDatabasePermission;
 
 class EnsureResourceOwnership
 {
@@ -42,6 +44,10 @@ class EnsureResourceOwnership
 
         if (str_contains($routeName, 'agents')) {
             return $this->checkAgentOwnership($request, $next, $user, $parameters);
+        }
+
+        if (str_contains($routeName, 'dbcont')) {
+            return $this->checkDbcontOwnership($request, $next, $user, $parameters);
         }
 
         return $next($request);
@@ -92,6 +98,34 @@ class EnsureResourceOwnership
             
             if (!$agent || $agent->user_id !== $user->id) {
                 abort(403, '您没有权限访问该Agent');
+            }
+        }
+
+        return $next($request);
+    }
+
+    /**
+     * 检查Dbcont资源归属
+     */
+    protected function checkDbcontOwnership(Request $request, Closure $next, $user, $parameters)
+    {
+        // 检查数据库连接归属
+        if (isset($parameters['database_connection'])) {
+            $connectionId = $parameters['database_connection'];
+            $connection = DatabaseConnection::find($connectionId);
+
+            if (!$connection || $connection->user_id !== $user->id) {
+                abort(403, '您没有权限访问该数据库连接');
+            }
+        }
+
+        // 检查Agent数据库权限归属
+        if (isset($parameters['agent_permission'])) {
+            $permissionId = $parameters['agent_permission'];
+            $permission = AgentDatabasePermission::with('agent')->find($permissionId);
+
+            if (!$permission || !$permission->agent || $permission->agent->user_id !== $user->id) {
+                abort(403, '您没有权限访问该Agent权限配置');
             }
         }
 

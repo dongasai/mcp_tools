@@ -10,7 +10,7 @@ Admin::routes();
 Route::group([
     'prefix'     => config('user-admin.route.prefix'),
     'namespace'  => config('user-admin.route.namespace'),
-    'middleware' => config('user-admin.route.middleware'),
+    'middleware' => array_merge(config('user-admin.route.middleware'), ['user-admin.resource-ownership']),
 ], function (Router $router) {
 
     // 仪表板
@@ -62,5 +62,17 @@ Route::group([
     $router->get('github', 'GitHubController@index');
     $router->post('github/connect', 'GitHubController@connect');
     $router->delete('github/disconnect', 'GitHubController@disconnect');
+
+    // Dbcont数据库管理
+    $router->resource('dbcont/database-connections', 'DatabaseConnectionController');
+    $router->post('dbcont/database-connections/{id}/test', 'DatabaseConnectionController@testConnection');
+    $router->post('dbcont/database-connections/test-all', 'DatabaseConnectionController@testAllConnections');
+
+    $router->resource('dbcont/agent-permissions', 'AgentDatabasePermissionController');
+
+    $router->get('dbcont/sql-logs', 'SqlExecutionLogController@index');
+    $router->get('dbcont/sql-logs/{id}', 'SqlExecutionLogController@show');
+    $router->post('dbcont/sql-logs/export', 'SqlExecutionLogController@exportLogs');
+    $router->post('dbcont/sql-logs/clear-old', 'SqlExecutionLogController@clearOldLogs');
 
 });

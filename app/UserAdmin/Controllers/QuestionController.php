@@ -4,7 +4,7 @@ namespace App\UserAdmin\Controllers;
 
 use App\Modules\Agent\Models\AgentQuestion;
 use App\Modules\Agent\Models\Agent;
-use App\Models\Task;
+use App\Modules\Task\Models\Task;
 
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Grid;

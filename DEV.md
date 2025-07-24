@@ -5,6 +5,7 @@
 ### 核心框架
 1. **Laravel 11** - 主框架
 2. **SQLite** - 数据库（开发阶段）
+2. **Mysql8.0+** - 数据库（开发阶段）
 
 ### 核心包依赖
 1. **php-mcp/laravel** - MCP协议Laravel集成包
@@ -39,8 +40,10 @@
 
 ### 1. 模块化开发
 - 每个模块独立的目录结构
-- 清晰的模块间依赖关系
-- 统一的接口和服务定义
+- 模块列表：
+    - app/UserAdmin/ 用户后台模块，使用dcatadmin构建
+    - app/Admin/ 超级管理员后台模块，使用dcatadmin构建
+    - app/Modules/Mcp Mcp模块
 
 ### 2. 代码规范
 - PSR-12 代码风格

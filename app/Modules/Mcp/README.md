@@ -2,12 +2,12 @@
 
 ## 概述
 
-MCP协议模块是MCP Tools的核心通信层，负责实现Model Context Protocol (MCP) 1.0标准，提供基于SSE的实时通信服务。该模块专注于为AI Agent提供任务处理和资源访问的标准化接口，不涉及用户管理功能。
+MCP协议模块是MCP Tools的核心通信层，负责实现Model Context Protocol (MCP) 内容。该模块专注于为AI Agent提供任务处理和资源访问的标准化接口，不涉及用户管理功能。
 
 ## 职责范围
 
 ### 1. 协议实现
-- MCP 1.0协议标准实现
+
 - JSON-RPC 2.0消息格式
 - 协议版本协商
 - 能力声明和发现
@@ -33,12 +33,8 @@ MCP协议模块是MCP Tools的核心通信层，负责实现Model Context Protoc
 ## 职责边界
 
 ### ✅ MCP模块负责
-- 实现MCP 1.0协议标准
-- 提供任务相关的Resources和Tools
+- 提供相关的Resources和Tools
 - 管理Agent的MCP连接和会话
-- 处理任务操作请求（创建、更新、查询等）
-- 提供项目和GitHub资源的只读访问
-- SSE实时数据推送
 - 协议级别的错误处理
 
 ### ❌ MCP模块不负责
@@ -58,21 +54,8 @@ MCP协议模块是MCP Tools的核心通信层，负责实现Model Context Protoc
 
 ```
 app/Modules/Mcp/
-├── Server/
-│   ├── McpServer.php              # MCP服务器主类
-│   ├── ConnectionManager.php      # 连接管理器
-│   ├── MessageRouter.php          # 消息路由器
-│   └── CapabilityManager.php      # 能力管理器
-├── Transports/
-│   ├── SseTransport.php           # SSE传输层
-│   ├── WebSocketTransport.php     # WebSocket传输层
-│   ├── StdioTransport.php         # STDIO传输层
-│   └── HttpTransport.php          # HTTP传输层
-├── Protocol/
-│   ├── MessageParser.php          # 消息解析器
-│   ├── ProtocolValidator.php      # 协议验证器
-│   ├── RequestHandler.php         # 请求处理器
-│   └── ResponseBuilder.php        # 响应构建器
+
+
 ├── Resources/
 │   ├── ProjectResource.php        # 项目资源
 │   ├── TaskResource.php           # 任务资源
@@ -93,11 +76,7 @@ app/Modules/Mcp/
 │   ├── MessageReceived.php         # 消息接收事件
 │   ├── ConnectionClosed.php        # 连接关闭事件
 │   └── ErrorOccurred.php           # 错误发生事件
-└── Contracts/
-    ├── TransportInterface.php      # 传输接口
-    ├── ResourceInterface.php       # 资源接口
-    ├── ToolInterface.php           # 工具接口
-    └── MiddlewareInterface.php     # 中间件接口
+
 ```
 
 ## 核心组件

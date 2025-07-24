@@ -2,45 +2,41 @@
 
 ## 概述
 
-MCP协议模块是MCP Tools的核心通信层，负责实现Model Context Protocol (MCP) 内容。该模块专注于为AI Agent提供任务处理和资源访问的标准化接口，不涉及用户管理功能。
+MCP协议模块是MCP Tools的核心通信层，负责实现Model Context Protocol (MCP) 的业务逻辑。该模块专注于为AI Agent提供任务处理和资源访问的标准化接口，不涉及用户管理功能。
+
+**技术架构**：
+- **底层能力**：由 `php-mcp/laravel` 包提供 MCP 协议的底层实现
+- **业务逻辑**：MCP 模块仅负责具体的 MCP 逻辑实现和业务功能
 
 ## 职责范围
 
-### 1. 协议实现
+### 1. MCP 业务逻辑实现
 
-- JSON-RPC 2.0消息格式
-- 协议版本协商
+- 基于 `php-mcp/laravel` 的 Resources 和 Tools 定义
+- Agent 身份验证和权限控制逻辑
+- 业务数据的 MCP 格式转换
+- 特定业务场景的 MCP 操作封装
+
+### 2. 底层协议支持（由 php-mcp/laravel 提供）
+- JSON-RPC 2.0 消息格式处理
+- 协议版本协商机制
 - 能力声明和发现
-
-### 2. 传输层
-- SSE (Server-Sent Events) 传输
-- WebSocket传输支持
-- STDIO传输支持
-- HTTP长连接管理
-
-### 3. 连接管理
-- 客户端连接池
-- 连接状态监控
-- 心跳检测机制
-- 自动重连处理
-
-### 4. 消息路由
-- 请求/响应路由
-- 事件分发机制
-- 消息队列管理
-- 错误处理和重试
+- SSE (Server-Sent Events) 传输实现
+- 连接管理和心跳检测
+- 消息路由和错误处理
 
 ## 职责边界
 
 ### ✅ MCP模块负责
-- 提供相关的Resources和Tools
-- 管理Agent的MCP连接和会话
-- 协议级别的错误处理
+- 定义和实现业务相关的 Resources 和 Tools
+- Agent 身份验证和权限控制的业务逻辑
+- 业务数据与 MCP 协议格式的转换
+- 特定业务场景的 MCP 操作封装
 
 ### ❌ MCP模块不负责
+- MCP 协议底层实现（由 php-mcp/laravel 处理）
+- 传输层和连接管理（由 php-mcp/laravel 处理）
 - 用户账户管理和认证
-- 用户权限验证（由Agent模块处理）
-- 业务逻辑验证（由具体业务模块处理）
 - 数据持久化（通过业务模块调用）
 - 用户界面和管理功能
 
@@ -54,80 +50,79 @@ MCP协议模块是MCP Tools的核心通信层，负责实现Model Context Protoc
 
 ```
 app/Modules/Mcp/
-
-
+├── Services/
+│   ├── McpService.php             # MCP业务服务
+│   ├── ErrorHandlerService.php    # 错误处理服务
+│   └── SessionService.php         # 会话管理服务
 ├── Resources/
 │   ├── ProjectResource.php        # 项目资源
 │   ├── TaskResource.php           # 任务资源
-│   ├── AgentResource.php          # Agent资源
-│   └── GitHubResource.php         # GitHub资源
+│   └── MyInfoResource.php         # 用户信息资源
 ├── Tools/
 │   ├── ProjectTool.php            # 项目工具
 │   ├── TaskTool.php               # 任务工具
 │   ├── AgentTool.php              # Agent工具
-│   └── GitHubTool.php             # GitHub工具
+│   └── AskQuestionTool.php        # 问答工具
 ├── Middleware/
-│   ├── AuthenticationMiddleware.php # 认证中间件
-│   ├── AuthorizationMiddleware.php  # 授权中间件
-│   ├── RateLimitMiddleware.php      # 限流中间件
-│   └── LoggingMiddleware.php        # 日志中间件
-├── Events/
-│   ├── ConnectionEstablished.php   # 连接建立事件
-│   ├── MessageReceived.php         # 消息接收事件
-│   ├── ConnectionClosed.php        # 连接关闭事件
-│   └── ErrorOccurred.php           # 错误发生事件
-
+│   └── McpAuthMiddleware.php       # MCP认证中间件
+└── Providers/
+    └── McpServiceProvider.php     # 服务提供者
 ```
+
+**注意**：
+- 不包含 Controllers 目录，因为 MCP 协议处理由 php-mcp/laravel 包自动完成
+- 不包含 routes 目录，路由由 php-mcp/laravel 包自动管理
+- 不包含 config 目录，使用项目根目录的 config/mcp.php
 
 ## 核心组件
 
-### 1. MCP服务器（基于php-mcp/laravel）
+### 1. MCP业务逻辑层（基于php-mcp/laravel）
 
 **主要功能**：
-- 基于php-mcp/laravel包的MCP服务器实现
-- 集成Agent认证和权限验证
-- 支持资源和工具的动态注册
-- 提供消息验证和路由功能
-- 支持多种传输协议（主要是SSE）
+- 利用 php-mcp/laravel 包提供的底层 MCP 协议能力
+- 实现业务相关的 Resources 和 Tools
+- 集成 Agent 认证和权限验证的业务逻辑
+- 提供业务数据的 MCP 格式转换
+- 封装特定业务场景的 MCP 操作
 
 **核心职责**：
-- MCP协议消息处理
-- Agent身份验证和授权
-- 资源访问控制
-- 工具调用管理
-- 错误处理和响应
+- 业务 Resources 和 Tools 的定义和实现
+- Agent 身份验证和授权的业务逻辑
+- 业务数据访问控制
+- 业务工具调用管理
+- 业务级错误处理和响应
 
-### 2. SSE传输层
+### 2. MCP协议底层（由php-mcp/laravel提供）
 
 **主要功能**：
-- 实现Server-Sent Events传输协议
+- 实现 Server-Sent Events 传输协议
 - 支持实时双向通信
 - 处理连接管理和心跳机制
-- 提供CORS支持和安全控制
+- 提供 CORS 支持和安全控制
 - 支持连接状态监控
 
 **核心特性**：
-- 长连接管理
-- 自动重连机制
+- JSON-RPC 2.0 消息格式处理
+- 协议版本协商和能力声明
+- 长连接管理和自动重连机制
 - 消息队列和缓冲
-- 连接池管理
-- 性能监控和优化
+- 连接池管理和性能监控
 
-### 3. 消息路由器
+### 3. 业务逻辑路由器
 
 **主要功能**：
-- MCP消息的路由和分发
-- 支持动态路由注册
-- 提供标准MCP方法处理
-- 支持中间件管道
-- 错误处理和响应格式化
+- 基于 php-mcp/laravel 的路由能力实现业务逻辑
+- 注册业务相关的 Resources 和 Tools
+- 提供业务特定的 MCP 方法处理
+- 集成业务中间件管道
+- 业务级错误处理和响应格式化
 
-**支持的路由**：
-- 初始化请求处理
-- 资源访问路由
-- 工具调用路由
-- 通知消息路由
-- 自定义扩展路由
+**支持的业务路由**：
+- 项目资源访问路由
+- 任务管理工具路由
+- Agent 认证和授权路由
+- GitHub 集成路由
+- 自定义业务扩展路由
 
 ## MCP资源实现
 

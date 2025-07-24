@@ -29,10 +29,16 @@ class QuestionController extends AdminController
             // 加载关联关系
             $grid->model()->with(['agent', 'task', 'answeredBy']);
 
-            // 只显示当前用户的问题
+            // 只显示当前用户的问题，默认不显示已忽略的问题
             $user = $this->getCurrentUser();
             if ($user) {
                 $grid->model()->where('user_id', $user->id);
+            }
+
+            // 根据请求参数决定是否显示已忽略的问题
+            if (!request()->has('status') || request('status') !== '') {
+                // 默认不显示已忽略的问题（包括过期自动忽略的问题）
+                $grid->model()->where('status', '!=', AgentQuestion::STATUS_IGNORED);
             }
 
             $grid->column('id', 'ID')->sortable();
@@ -63,11 +69,19 @@ class QuestionController extends AdminController
             ]);
 
             $grid->column('answered_at', '回答时间');
-            $grid->column('expires_at', '过期时间')->display(function ($value) {
+            $grid->column('expires_at', '过期时间')->display(function ($value, $column, $model) {
                 if (!$value) return '-';
                 $expiresAt = \Carbon\Carbon::parse($value);
                 if ($expiresAt->isPast()) {
+                    // 如果已过期且状态仍为待回答，说明可能需要手动处理
+                    if ($model->status === AgentQuestion::STATUS_PENDING) {
+                        return '<span class="text-danger"><strong>' . $expiresAt->format('Y-m-d H:i') . ' (已过期，待处理)</strong></span>';
+                    }
                     return '<span class="text-danger">' . $expiresAt->format('Y-m-d H:i') . ' (已过期)</span>';
+                }
+                // 即将过期的警告（30分钟内）
+                if ($expiresAt->diffInMinutes(now()) <= 30) {
+                    return '<span class="text-warning">' . $expiresAt->format('Y-m-d H:i') . ' (即将过期)</span>';
                 }
                 return $expiresAt->format('Y-m-d H:i');
             });
@@ -118,6 +132,9 @@ class QuestionController extends AdminController
             $grid->tools(function (Grid\Tools $tools) {
                 $tools->append('<a href="' . admin_url('questions/pending') . '" class="btn btn-sm btn-warning">
                 <i class="fa fa-clock-o"></i> 待回答问题
+            </a>');
+                $tools->append('<a href="' . admin_url('questions?status=') . '" class="btn btn-sm btn-info">
+                <i class="fa fa-list"></i> 显示所有问题
             </a>');
             });
 

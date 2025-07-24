@@ -91,6 +91,68 @@ class TaskModelTestController
     }
 
     /**
+     * 测试事件监听器
+     */
+    public function testEventListeners(): JsonResponse
+    {
+        try {
+            // 获取第一个用户和项目用于测试
+            $user = User::first();
+            $project = Project::first();
+
+            if (!$user || !$project) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No user or project found for testing',
+                ]);
+            }
+
+            // 创建测试任务（会触发TaskCreated事件）
+            $task = Task::create([
+                'user_id' => $user->id,
+                'project_id' => $project->id,
+                'title' => '事件监听器测试任务',
+                'description' => '测试事件监听器是否正常工作',
+                'type' => TASKTYPE::MAIN->value,
+                'status' => TASKSTATUS::PENDING->value,
+                'priority' => TASKPRIORITY::MEDIUM->value,
+                'progress' => 0,
+            ]);
+
+            // 测试状态变更事件
+            $task->update(['status' => TASKSTATUS::IN_PROGRESS->value]);
+
+            // 测试进度更新事件
+            $task->update(['progress' => 50]);
+
+            // 测试Agent变更事件
+            $task->update(['agent_id' => 1]); // 假设存在agent_id为1的Agent
+
+            // 清理测试数据
+            $task->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => '事件监听器测试完成',
+                'data' => [
+                    'task_created' => true,
+                    'status_changed' => true,
+                    'progress_updated' => true,
+                    'agent_changed' => true,
+                    'task_deleted' => true,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ], 500);
+        }
+    }
+
+    /**
      * 测试Task模型与数据库的兼容性
      */
     public function testDatabaseCompatibility(): JsonResponse

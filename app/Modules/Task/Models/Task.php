@@ -11,9 +11,49 @@ use App\Modules\Agent\Models\Agent;
 use App\Modules\Task\Enums\TASKSTATUS;
 use App\Modules\Task\Enums\TASKTYPE;
 use App\Modules\Task\Enums\TASKPRIORITY;
+use App\Modules\Task\Events\TaskCreated;
+use App\Modules\Task\Events\TaskStatusChanged;
+use App\Modules\Task\Events\TaskProgressUpdated;
+use App\Modules\Task\Events\TaskAgentChanged;
 
 class Task extends Model
 {
+    /**
+     * 模型启动方法
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // 任务创建事件
+        static::created(function ($task) {
+            event(new TaskCreated($task));
+        });
+
+        // 任务更新事件
+        static::updating(function ($task) {
+            $original = $task->getOriginal();
+
+            // 检查状态变更
+            if ($task->isDirty('status')) {
+                $oldStatus = $original['status'] ?? null;
+                event(new TaskStatusChanged($task, $oldStatus));
+            }
+
+            // 检查进度变更
+            if ($task->isDirty('progress')) {
+                $oldProgress = $original['progress'] ?? 0;
+                event(new TaskProgressUpdated($task, $oldProgress));
+            }
+
+            // 检查Agent变更
+            if ($task->isDirty('agent_id')) {
+                $oldAgentId = $original['agent_id'] ?? null;
+                event(new TaskAgentChanged($task, $oldAgentId));
+            }
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'agent_id',

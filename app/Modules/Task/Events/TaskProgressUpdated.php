@@ -8,6 +8,6 @@ class TaskProgressUpdated
 {
     public function __construct(
         public readonly Task $task,
-        public readonly int $previousProgress
+        public readonly int|null $previousProgress
     ) {}
 }

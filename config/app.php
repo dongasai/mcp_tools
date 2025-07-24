@@ -174,7 +174,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         
-        // Dbcont模块服务提供者
+        // 模块服务提供者
         App\Modules\Dbcont\Providers\DbcontServiceProvider::class,
+        App\Modules\Task\Providers\TaskServiceProvider::class,
     ],
 ];

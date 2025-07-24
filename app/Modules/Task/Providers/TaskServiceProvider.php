@@ -12,14 +12,14 @@ class TaskServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // 暂时注释掉Task服务注册
-        // $this->app->singleton(TaskService::class);
+        // 注册Task服务
+        $this->app->singleton(TaskService::class);
 
-        // 暂时注释掉配置文件加载
-        // $this->mergeConfigFrom(
-        //     __DIR__ . '/../config/task.php',
-        //     'task'
-        // );
+        // 加载配置文件
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../../../config/task.php',
+            'task'
+        );
     }
 
     /**
@@ -38,8 +38,10 @@ class TaskServiceProvider extends ServiceProvider
         // 暂时注释掉迁移文件加载
         // $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-        // 暂时注释掉事件监听器和中间件注册
-        // $this->registerEventListeners();
+        // 注册事件监听器
+        $this->registerEventListeners();
+
+        // 暂时注释掉中间件注册（需要先创建中间件类）
         // $this->registerMiddleware();
     }
 
@@ -74,23 +76,40 @@ class TaskServiceProvider extends ServiceProvider
             \App\Modules\Task\Listeners\HandleTaskAgentChange::class
         );
 
-        // Task开始事件
+        // Task评论事件
         $events->listen(
-            \App\Modules\Task\Events\TaskStarted::class,
-            \App\Modules\Task\Listeners\HandleTaskStart::class
+            \App\Modules\Task\Events\TaskCommentCreated::class,
+            [\App\Modules\Task\Listeners\HandleTaskCommentEvents::class, 'handleCommentCreated']
         );
+
+        $events->listen(
+            \App\Modules\Task\Events\TaskCommentUpdated::class,
+            [\App\Modules\Task\Listeners\HandleTaskCommentEvents::class, 'handleCommentUpdated']
+        );
+
+        $events->listen(
+            \App\Modules\Task\Events\TaskCommentDeleted::class,
+            [\App\Modules\Task\Listeners\HandleTaskCommentEvents::class, 'handleCommentDeleted']
+        );
+
+        // TODO: 创建以下监听器类后启用
+        // Task开始事件
+        // $events->listen(
+        //     \App\Modules\Task\Events\TaskStarted::class,
+        //     \App\Modules\Task\Listeners\HandleTaskStart::class
+        // );
 
         // Task完成事件
-        $events->listen(
-            \App\Modules\Task\Events\TaskCompleted::class,
-            \App\Modules\Task\Listeners\HandleTaskCompletion::class
-        );
+        // $events->listen(
+        //     \App\Modules\Task\Events\TaskCompleted::class,
+        //     \App\Modules\Task\Listeners\HandleTaskCompletion::class
+        // );
 
         // Task删除事件
-        $events->listen(
-            \App\Modules\Task\Events\TaskDeleted::class,
-            \App\Modules\Task\Listeners\CleanupTaskData::class
-        );
+        // $events->listen(
+        //     \App\Modules\Task\Events\TaskDeleted::class,
+        //     \App\Modules\Task\Listeners\CleanupTaskData::class
+        // );
     }
 
     /**

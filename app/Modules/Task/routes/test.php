@@ -15,4 +15,5 @@ use App\Modules\Task\Controllers\TaskModelTestController;
 Route::prefix('task-test')->group(function () {
     Route::get('/model', [TaskModelTestController::class, 'testTaskModel']);
     Route::get('/database', [TaskModelTestController::class, 'testDatabaseCompatibility']);
+    Route::get('/events', [TaskModelTestController::class, 'testEventListeners']);
 });

@@ -8,4 +8,5 @@ return [
     App\Modules\Project\Providers\ProjectServiceProvider::class,
     App\Modules\Task\Providers\TaskServiceProvider::class,
     App\Modules\Mcp\Providers\McpServiceProvider::class,
+    App\Modules\Dbcont\Providers\DbcontServiceProvider::class,
 ];

@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Task\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Project\Models\Project;
+use App\Modules\User\Models\User;
+use App\Modules\Agent\Models\Agent;
 
 class Task extends Model
 {

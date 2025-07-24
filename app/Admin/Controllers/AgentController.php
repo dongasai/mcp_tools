@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Modules\Agent\Models\Agent;
 use App\Modules\User\Models\User;
+use App\Modules\Project\Models\Project;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -45,7 +46,7 @@ class AgentController extends AdminController
                 $filter->like('name', 'Agent名称');
                 $filter->like('identifier', 'Agent ID');
                 $filter->equal('user_id', '用户')->select(User::pluck('name', 'id'));
-                $filter->equal('project_id', '项目')->select(\App\Models\Project::pluck('name', 'id'));
+                $filter->equal('project_id', '项目')->select(Project::pluck('name', 'id'));
                 $filter->equal('status', '状态')->select([
                     Agent::STATUS_ACTIVE => '激活',
                     Agent::STATUS_INACTIVE => '未激活',
@@ -100,7 +101,7 @@ class AgentController extends AdminController
             $form->text('name', 'Agent名称')->required();
             $form->text('identifier', 'Agent ID')->required();
             $form->select('user_id', '用户')->options(User::pluck('name', 'id'))->required();
-            $form->select('project_id', '所属项目')->options(\App\Models\Project::pluck('name', 'id'))->required();
+            $form->select('project_id', '所属项目')->options(Project::pluck('name', 'id'))->required();
             $form->select('status', '状态')->options([
                 Agent::STATUS_ACTIVE => '激活',
                 Agent::STATUS_INACTIVE => '未激活',

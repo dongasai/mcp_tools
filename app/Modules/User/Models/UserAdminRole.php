@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\User\Models;
 
 use Dcat\Admin\Models\Role;
 

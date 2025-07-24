@@ -34,6 +34,7 @@
 - **MCP 协议专注**: 专门用于任务处理，不管理用户
 - **Agent 访问控制**: 项目级权限和细粒度操作控制
 - 没有API,没有Restful APi
+- 
 
 ## 代码质量标准
 - 简化 Validation 和 Validator 实现，不使用服务包装器

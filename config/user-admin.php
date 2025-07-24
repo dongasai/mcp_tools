@@ -288,15 +288,15 @@ return [
 
         // Role table and model.
         'roles_table' => 'user_admin_roles',
-        'roles_model' => App\Models\UserAdminRole::class,
+        'roles_model' => App\UserAdmin\Models\UserAdminRole::class,
 
         // Permission table and model.
         'permissions_table' => 'user_admin_permissions',
-        'permissions_model' => App\Models\UserAdminPermission::class,
+        'permissions_model' => App\UserAdmin\Models\UserAdminPermission::class,
 
         // Menu table and model.
         'menu_table' => 'user_admin_menu',
-        'menu_model' => App\Models\UserAdminMenu::class,
+        'menu_model' => App\UserAdmin\Models\UserAdminMenu::class,
 
         // Pivot table for table above.
         'role_users_table'       => 'user_admin_role_users',

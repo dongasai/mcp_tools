@@ -69,19 +69,15 @@ class QuestionController extends AdminController
             ]);
 
             $grid->column('answered_at', '回答时间');
-            $grid->column('expires_at', '过期时间')->display(function ($value, $column, $model) {
+            $grid->column('expires_at', '过期时间')->display(function ($value) {
                 if (!$value) return '-';
                 $expiresAt = \Carbon\Carbon::parse($value);
                 if ($expiresAt->isPast()) {
-                    // 如果已过期且状态仍为待回答，说明可能需要手动处理
-                    if ($model->status === AgentQuestion::STATUS_PENDING) {
-                        return '<span class="text-danger"><strong>' . $expiresAt->format('Y-m-d H:i') . ' (已过期，待处理)</strong></span>';
-                    }
-                    return '<span class="text-danger">' . $expiresAt->format('Y-m-d H:i') . ' (已过期)</span>';
+                    return $expiresAt->format('Y-m-d H:i') . ' (已过期)';
                 }
                 // 即将过期的警告（30分钟内）
                 if ($expiresAt->diffInMinutes(now()) <= 30) {
-                    return '<span class="text-warning">' . $expiresAt->format('Y-m-d H:i') . ' (即将过期)</span>';
+                    return $expiresAt->format('Y-m-d H:i') . ' (即将过期)';
                 }
                 return $expiresAt->format('Y-m-d H:i');
             });

@@ -89,15 +89,18 @@ class ProcessExpiredQuestionsCommand extends Command
 
         $this->info("Found {$expiredQuestions->count()} expired questions:");
 
+        $processedCount = 0;
         foreach ($expiredQuestions as $question) {
             $expiredMinutes = $question->expires_at->diffInMinutes(now());
-            
+
             $this->line("  - Question #{$question->id}: {$question->title} (expired {$expiredMinutes} minutes ago)");
 
             if (!$dryRun) {
                 // 标记为忽略
-                $question->markAsIgnored();
-                
+                if ($question->markAsIgnored()) {
+                    $processedCount++;
+                }
+
                 // 发送过期通知
                 $this->notificationService->notifyQuestionExpired($question);
             }
@@ -106,7 +109,6 @@ class ProcessExpiredQuestionsCommand extends Command
         if ($dryRun) {
             $this->warn('DRY RUN: No questions were marked as ignored.');
         } else {
-            $processedCount = $this->questionService->processExpiredQuestions();
             $this->info("Processed {$processedCount} expired questions.");
         }
     }

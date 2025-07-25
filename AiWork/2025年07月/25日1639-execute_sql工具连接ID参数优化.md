@@ -135,3 +135,38 @@ public function executeSql(string $sql, ?int $connectionId = null, ?int $timeout
 **浏览器测试准备** ✅
 - 打开MCP测试工具：http://localhost:6274/
 - 准备进行实际功能测试
+
+#### 用户反馈响应: test_connection工具同样优化 ✅ (16:50-16:55)
+
+**应用相同优化到test_connection工具** ✅
+1. **修改方法签名** ✅
+   - 将 `connectionId` 参数改为可选：`?int $connectionId = null`
+   - 更新方法注释和MCP工具描述
+
+2. **添加自动连接选择逻辑** ✅
+   - 复用 `getDefaultConnectionId()` 方法
+   - 添加 `$autoSelected` 标记跟踪
+
+3. **增强返回信息** ✅
+   - 在返回结果中添加 `auto_selected` 标记
+   - 提供可用连接数量信息
+   - 当自动选择且有多个连接时，提供提示信息和连接列表
+
+4. **验证测试** ✅
+   - PHP语法检查通过
+   - MCP工具发现正常
+   - 工具描述已更新为"测试数据库连接，连接ID可选（默认使用第一个可用连接）"
+
+**技术实现**:
+```php
+// 原来
+public function testConnection(int $connectionId): array
+
+// 现在
+public function testConnection(?int $connectionId = null): array
+```
+
+**一致性保证**:
+- execute_sql 和 test_connection 工具现在都支持可选连接ID
+- 相同的连接选择算法和返回信息格式
+- 统一的用户体验和错误处理机制

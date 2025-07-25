@@ -205,14 +205,26 @@ class SqlExecutionTool
 
     /**
      * 测试数据库连接
+     *
+     * @param int|null $connectionId 数据库连接ID，如果为null则自动选择第一个可用连接
      */
-    #[McpTool(name: 'test_connection', description: '测试数据库连接')]
-    public function testConnection(int $connectionId): array
+    #[McpTool(name: 'test_connection', description: '测试数据库连接，连接ID可选（默认使用第一个可用连接）')]
+    public function testConnection(?int $connectionId = null): array
     {
         try {
             // 获取当前Agent
             $agent = $this->getCurrentAgent();
-            
+
+            // 如果未指定连接ID，自动选择第一个可用连接
+            $autoSelected = false;
+            if ($connectionId === null) {
+                $connectionId = $this->getDefaultConnectionId($agent->id);
+                if ($connectionId === null) {
+                    throw new \Exception('Agent没有可用的数据库连接');
+                }
+                $autoSelected = true;
+            }
+
             // 验证连接访问权限
             if (!$this->permissionService->hasConnectionAccess($agent->id, $connectionId)) {
                 throw new \Exception('Agent无权访问此数据库连接');
@@ -246,6 +258,9 @@ class SqlExecutionTool
                 'test_time_ms' => $testTime
             ]);
 
+            // 获取可用连接列表（用于提示信息）
+            $availableConnections = $this->permissionService->getAccessibleConnections($agent->id);
+
             return [
                 'success' => true,
                 'test_result' => $testResult,
@@ -254,12 +269,25 @@ class SqlExecutionTool
                     'name' => $connection->name,
                     'type' => $connection->driver,
                     'status' => $connection->status,
+                    'auto_selected' => $autoSelected,
                 ],
                 'test_info' => [
                     'agent_id' => $agent->id,
                     'tested_at' => now()->toISOString(),
                     'test_time_ms' => $testTime,
-                ]
+                    'available_connections_count' => $availableConnections->count(),
+                ],
+                'hints' => $autoSelected && $availableConnections->count() > 1 ? [
+                    'message' => '自动选择了第一个可用连接，您也可以指定其他连接',
+                    'available_connections' => $availableConnections->map(function ($conn) {
+                        return [
+                            'id' => $conn->id,
+                            'name' => $conn->name,
+                            'type' => $conn->driver,
+                            'status' => $conn->status,
+                        ];
+                    })->toArray()
+                ] : null
             ];
 
         } catch (\Exception $e) {

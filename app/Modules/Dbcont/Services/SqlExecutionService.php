@@ -165,7 +165,15 @@ class SqlExecutionService implements SqlExecutionInterface
                 $dsn = "mysql:host={$connection->host};port={$connection->port};dbname={$connection->database}";
                 break;
             case 'sqlite':
-                $dsn = "sqlite:{$connection->database}";
+                // 将相对路径转换为绝对路径
+                $databasePath = $connection->database;
+                if (!empty($databasePath)) {
+                    // 如果路径是相对路径，转换为绝对路径
+                    if (!preg_match('/^\//', $databasePath)) {
+                        $databasePath = database_path($databasePath);
+                    }
+                }
+                $dsn = "sqlite:{$databasePath}";
                 break;
             case 'pgsql':
                 $dsn = "pgsql:host={$connection->host};port={$connection->port};dbname={$connection->database}";

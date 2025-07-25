@@ -265,6 +265,51 @@
 - ✅ 权限控制和数据隔离完善
 - ✅ 所有页面测试通过
 
+### 最新发现和修复的Bug (2025-07-25)
+
+#### Bug #1: Dbcont模块MCP功能Agent身份获取失败 ✅ (已修复)
+**问题描述**:
+- Dbcont模块的MCP工具和资源无法获取Agent身份信息
+- 错误信息："无法获取Agent身份信息"，agent_id显示为null
+- 影响list_connections、test_connection工具和所有资源的正常使用
+
+**根本原因**:
+- MCP中间件使用`$request->attributes->set('mcp_agent_id', $agentId)`设置Agent信息
+- Dbcont模块使用`request()->header('X-MCP-Agent-ID')`尝试获取Agent信息
+- 数据设置和获取方式不匹配，导致Agent信息传递失败
+
+**修复方案**:
+1. 修改所有Dbcont模块中的`getCurrentAgentId()`方法
+2. 优先从请求属性获取：`request()->attributes->get('mcp_agent_id')`
+3. 保留原有的fallback机制作为备选方案
+
+**修复文件**:
+- `app/Modules/Dbcont/Tools/SqlExecutionTool.php`
+- `app/Modules/Dbcont/Resources/DatabaseConnectionResource.php`
+- `app/Modules/Dbcont/Resources/SqlExecutionLogResource.php`
+
+**修复结果**:
+- ✅ Agent身份信息正确获取
+- ✅ list_connections工具返回正确的Agent信息和连接列表
+- ✅ test_connection工具正常执行连接测试
+- ✅ 所有MCP资源可以正常访问
+
+#### Bug #2: 枚举值大小写不匹配 ✅ (已修复)
+**问题描述**:
+- test_connection工具执行时报错："error" is not a valid backing value for enum
+- ConnectionStatus枚举定义为大写，但代码中使用小写值
+
+**修复方案**:
+- 将代码中的'error'改为'ERROR'
+- 将代码中的'active'改为'ACTIVE'
+
+**测试验证**:
+- ✅ 通过MCP Inspector成功测试所有Dbcont工具
+- ✅ Agent认证机制完全正常
+- ✅ 工具返回正确的数据结构和错误信息
+
+**提交记录**: commit 601a572 - "修复Dbcont模块MCP功能Agent身份获取问题"
+
 
 
 

@@ -19,11 +19,16 @@ class SqlExecutionTool
 
     /**
      * 执行SQL查询
+     *
+     * @param int|null $connectionId 数据库连接ID，如果为null则自动选择第一个可用连接
+     * @param string $sql SQL查询语句
+     * @param int|null $timeout 查询超时时间（秒）
+     * @param int|null $maxRows 最大返回行数
      */
-    #[McpTool(name: 'execute_sql', description: '执行SQL查询')]
+    #[McpTool(name: 'execute_sql', description: '执行SQL查询，连接ID可选（默认使用第一个可用连接）')]
     public function executeSql(
-        int $connectionId,
         string $sql,
+        ?int $connectionId = null,
         ?int $timeout = null,
         ?int $maxRows = null
     ): array
@@ -31,7 +36,17 @@ class SqlExecutionTool
         try {
             // 获取当前Agent
             $agent = $this->getCurrentAgent();
-            
+
+            // 如果未指定连接ID，自动选择第一个可用连接
+            $autoSelected = false;
+            if ($connectionId === null) {
+                $connectionId = $this->getDefaultConnectionId($agent->id);
+                if ($connectionId === null) {
+                    throw new \Exception('Agent没有可用的数据库连接');
+                }
+                $autoSelected = true;
+            }
+
             // 验证连接访问权限
             if (!$this->permissionService->hasConnectionAccess($agent->id, $connectionId)) {
                 throw new \Exception('Agent无权访问此数据库连接');
@@ -73,6 +88,9 @@ class SqlExecutionTool
                 'execution_time' => $result['execution_time'] ?? null
             ]);
 
+            // 获取可用连接列表（用于提示信息）
+            $availableConnections = $this->permissionService->getAccessibleConnections($agent->id);
+
             return [
                 'success' => true,
                 'data' => $result,
@@ -80,12 +98,25 @@ class SqlExecutionTool
                     'id' => $connection->id,
                     'name' => $connection->name,
                     'type' => $connection->driver,
+                    'auto_selected' => $autoSelected,
                 ],
                 'execution_info' => [
                     'agent_id' => $agent->id,
                     'executed_at' => now()->toISOString(),
                     'sql_length' => strlen($sql),
-                ]
+                    'available_connections_count' => $availableConnections->count(),
+                ],
+                'hints' => $autoSelected && $availableConnections->count() > 1 ? [
+                    'message' => '自动选择了第一个可用连接，您也可以指定其他连接',
+                    'available_connections' => $availableConnections->map(function ($conn) {
+                        return [
+                            'id' => $conn->id,
+                            'name' => $conn->name,
+                            'type' => $conn->driver,
+                            'status' => $conn->status,
+                        ];
+                    })->toArray()
+                ] : null
             ];
 
         } catch (\Exception $e) {
@@ -279,5 +310,41 @@ class SqlExecutionTool
                request()->header('X-MCP-Agent-ID') ??
                session('mcp_agent_id') ??
                config('mcp.default_agent_id');
+    }
+
+    /**
+     * 获取Agent的默认数据库连接ID
+     *
+     * @param int $agentId Agent ID
+     * @return int|null 连接ID，如果没有可用连接则返回null
+     */
+    private function getDefaultConnectionId(int $agentId): ?int
+    {
+        // 获取Agent有权限的所有连接
+        $connections = $this->permissionService->getAccessibleConnections($agentId);
+
+        if ($connections->isEmpty()) {
+            return null;
+        }
+
+        // 按优先级排序：
+        // 1. 状态为ACTIVE的连接优先
+        // 2. 最近使用的连接优先（通过updated_at判断）
+        // 3. 创建时间最新的连接优先
+        $sortedConnections = $connections->sortByDesc(function ($connection) {
+            $score = 0;
+
+            // 活跃状态加分
+            if ($connection->status === 'ACTIVE') {
+                $score += 1000;
+            }
+
+            // 最近更新时间加分（转换为时间戳）
+            $score += $connection->updated_at->timestamp / 1000;
+
+            return $score;
+        });
+
+        return $sortedConnections->first()->id;
     }
 }

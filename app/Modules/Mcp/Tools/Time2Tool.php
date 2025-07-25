@@ -52,17 +52,6 @@ class Time2Tool
                     'timezone' => config('app.timezone', 'UTC'),
                     'offset' => $now->format('P'),
                 ],
-                'user_info' => [
-                    'id' => $user?->id,
-                    'name' => $user?->name,
-                    'timezone' => $userTimezone,
-                    'locale' => $user?->locale ?: config('app.locale', 'en'),
-                ],
-                'agent_info' => [
-                    'id' => $agent->id,
-                    'identifier' => $agent->identifier,
-                    'name' => $agent->name,
-                ]
             ];
         } catch (\Exception $e) {
             // 如果无法获取用户信息，返回基本时间信息

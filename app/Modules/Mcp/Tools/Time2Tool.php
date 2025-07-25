@@ -32,14 +32,15 @@ class Time2Tool
             $userTimezone = $user?->timezone ?: config('app.timezone', 'UTC');
 
             // 创建当前时间的Carbon实例
-            $now = Carbon::now();
-            $userTime = $now->setTimezone($userTimezone);
+            $utcTime = Carbon::now('UTC');
+            $userTime = Carbon::now($userTimezone);
+            $systemTime = Carbon::now(config('app.timezone', 'UTC'));
 
             return [
                 'utc' => [
-                    'date' => $now->utc()->format('Y-m-d H:i:s'),
-                    'timestamp' => $now->timestamp,
-                    'iso8601' => $now->utc()->toISOString(),
+                    'date' => $utcTime->format('Y-m-d H:i:s'),
+                    'timestamp' => $utcTime->timestamp,
+                    'iso8601' => $utcTime->toISOString(),
                 ],
                 'user' => [
                     'date' => $userTime->format('Y-m-d H:i:s'),
@@ -48,24 +49,25 @@ class Time2Tool
                     'iso8601' => $userTime->toISOString(),
                 ],
                 'system' => [
-                    'date' => $now->format('Y-m-d H:i:s'),
+                    'date' => $systemTime->format('Y-m-d H:i:s'),
                     'timezone' => config('app.timezone', 'UTC'),
-                    'offset' => $now->format('P'),
+                    'offset' => $systemTime->format('P'),
                 ],
             ];
         } catch (\Exception $e) {
             // 如果无法获取用户信息，返回基本时间信息
-            $now = Carbon::now();
+            $utcTime = Carbon::now('UTC');
+            $systemTime = Carbon::now(config('app.timezone', 'UTC'));
             return [
                 'utc' => [
-                    'date' => $now->utc()->format('Y-m-d H:i:s'),
-                    'timestamp' => $now->timestamp,
-                    'iso8601' => $now->utc()->toISOString(),
+                    'date' => $utcTime->format('Y-m-d H:i:s'),
+                    'timestamp' => $utcTime->timestamp,
+                    'iso8601' => $utcTime->toISOString(),
                 ],
                 'system' => [
-                    'date' => $now->format('Y-m-d H:i:s'),
+                    'date' => $systemTime->format('Y-m-d H:i:s'),
                     'timezone' => config('app.timezone', 'UTC'),
-                    'offset' => $now->format('P'),
+                    'offset' => $systemTime->format('P'),
                 ],
                 'error' => 'Unable to get user timezone: ' . $e->getMessage()
             ];

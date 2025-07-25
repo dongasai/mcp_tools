@@ -66,3 +66,34 @@ Schedule::command('questions:process-expired --notify-before=60')
     ->when(function () {
         return config('agent.question_expiration.enabled', true);
     });
+
+// 任务自动流转调度
+// 每小时执行一次任务自动流转（处理超时任务、父子任务关系）
+Schedule::command('task:auto-flow')
+    ->hourly()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/task-auto-flow.log'))
+    ->when(function () {
+        return config('task.automation.enable_auto_flow', true);
+    });
+
+// 每天凌晨2点执行完整的工作流健康检查
+Schedule::command('task:workflow-schedule --type=all')
+    ->dailyAt('02:00')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/task-workflow-schedule.log'))
+    ->when(function () {
+        return config('task.automation.enable_auto_flow', true);
+    });
+
+// 每6小时执行一次工作流健康检查
+Schedule::command('task:workflow-schedule --type=health')
+    ->everySixHours()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/task-workflow-health.log'))
+    ->when(function () {
+        return config('task.automation.enable_auto_flow', true);
+    });

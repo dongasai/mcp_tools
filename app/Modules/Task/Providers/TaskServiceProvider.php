@@ -5,6 +5,8 @@ namespace App\Modules\Task\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Modules\Task\Services\TaskService;
 use App\Modules\Task\Services\TaskWorkflowService;
+use App\Modules\Task\Commands\TaskWorkflowScheduleCommand;
+use App\Modules\Task\Commands\TaskAutoFlowCommand;
 
 class TaskServiceProvider extends ServiceProvider
 {
@@ -44,6 +46,9 @@ class TaskServiceProvider extends ServiceProvider
 
         // 注册事件监听器
         $this->registerEventListeners();
+
+        // 注册命令
+        $this->registerCommands();
 
         // 暂时注释掉中间件注册（需要先创建中间件类）
         // $this->registerMiddleware();
@@ -114,6 +119,19 @@ class TaskServiceProvider extends ServiceProvider
         //     \App\Modules\Task\Events\TaskDeleted::class,
         //     \App\Modules\Task\Listeners\CleanupTaskData::class
         // );
+    }
+
+    /**
+     * 注册命令
+     */
+    protected function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                TaskWorkflowScheduleCommand::class,
+                TaskAutoFlowCommand::class,
+            ]);
+        }
     }
 
     /**

@@ -35,6 +35,11 @@ return [
         'auto_assign_to_agent' => false,
         'auto_update_progress' => true,
         'auto_set_due_dates' => false,
+
+        // 自动流转配置
+        'timeout_hours' => env('TASK_TIMEOUT_HOURS', 72), // 任务超时小时数
+        'reminder_days' => env('TASK_REMINDER_DAYS', 7),   // 提醒天数
+        'enable_auto_flow' => env('TASK_ENABLE_AUTO_FLOW', true), // 启用自动流转
     ],
 
     // 任务通知配置

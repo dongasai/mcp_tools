@@ -4,7 +4,8 @@
 npx -y @modelcontextprotocol/inspector
 
 modelcontextprotocol测试工具已经运行，网址 http://localhost:6274/ 
-对mcp进行测试 
+对mcp进行测试 ，http://127.0.0.1:34004/mcp?token=123456&agent_id=test-agent-001
+
 
 https://packagist.org/packages/php-mcp/laravel
 
@@ -34,3 +35,5 @@ php artisan mcp:list templates
 php artisan mcp:list --json
 
 https://context7.com/zavierd/dcat-admin-doc/llms.txt?topic=%E8%A1%8C%E6%93%8D%E4%BD%9C
+使用mcp
+

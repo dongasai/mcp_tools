@@ -202,10 +202,10 @@ class SqlExecutionTool
             if ($testResult['success']) {
                 $connection->update([
                     'last_tested_at' => now(),
-                    'status' => 'active'
+                    'status' => 'ACTIVE'
                 ]);
             } else {
-                $connection->update(['status' => 'error']);
+                $connection->update(['status' => 'ERROR']);
             }
 
             Log::info('Database connection tested via MCP', [
@@ -274,9 +274,10 @@ class SqlExecutionTool
      */
     private function getCurrentAgentId(): ?string
     {
-        // 从MCP会话中获取Agent ID
-        return request()->header('X-MCP-Agent-ID') ?? 
-               session('mcp_agent_id') ?? 
+        // 从MCP中间件设置的请求属性中获取Agent ID
+        return request()->attributes->get('mcp_agent_id') ??
+               request()->header('X-MCP-Agent-ID') ??
+               session('mcp_agent_id') ??
                config('mcp.default_agent_id');
     }
 }

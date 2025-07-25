@@ -1,7 +1,7 @@
 # MCP Tools 项目 - 'MCP内容'清单
 
-**更新时间**: 2025年07月25日 19:10:00 CST
-**版本**: 1.3.0
+**更新时间**: 2025年07月25日 19:15:00 CST
+**版本**: 2.0.0
 **基于**: php-mcp/laravel 包
 
 ## 概述
@@ -13,18 +13,20 @@
 ## 当前状态
 
 ### 发现统计（通过 `php artisan mcp:list` 获取）
-- **工具 (Tools)**: 8 个已注册
-- **资源 (Resources)**: 2 个已注册
+- **工具 (Tools)**: 11 个已注册
+- **资源 (Resources)**: 6 个已注册
 - **提示 (Prompts)**: 0 个
 - **模板 (Templates)**: 0 个
 
 ### 实现统计
-- **已实现工具**: 8 个
-- **已实现资源**: 4 个（2个未被发现）
+- **已实现工具**: 11 个（全部已注册）
+- **已实现资源**: 6 个（全部已注册）
 
 ## 列表
 
-### MCP工具 (8个已注册)
+### MCP工具 (11个已注册)
+
+#### 任务管理工具 (7个)
 1. **create_main_task** - 创建主任务 ✅
 2. **create_sub_task** - 创建子任务 ✅
 3. **list_tasks** - 获取任务列表 ✅
@@ -32,17 +34,26 @@
 5. **complete_task** - 完成任务 ✅
 6. **add_comment** - 添加评论 ✅
 7. **get_assigned_tasks** - 获取分配给当前Agent的任务 ✅
+
+#### 交互工具 (1个)
 8. **ask_question** - Agent向用户提问（阻塞式等待回答） ✅
 
-### MCP资源 (2个已注册)
-1. **time://get2** - 获取当前时间 ✅
-2. **myinfo://get** - 获取当前Agent和项目信息 ✅
+#### 数据库工具 (3个)
+9. **execute_sql** - 执行SQL查询 ✅
+10. **list_connections** - 获取数据库连接列表 ✅
+11. **test_connection** - 测试数据库连接 ✅
 
-### 未注册但已实现的内容 (不推荐使用)
-1. **project_manager** - 项目管理工具 ❌ (不合理，MCP不应进行项目管理)
-2. **agent_manager** - Agent管理工具 ❌ (不合理，MCP不应进行Agent管理)
-3. **project://{path}** - 项目资源 ❌ (未注册)
-4. **task://{path}** - 任务资源 ❌ (未注册)
+### MCP资源 (6个已注册)
+
+#### 基础资源 (2个)
+1. **time://get2** - 获取当前时间 ✅
+2. **agent://info** - 获取当前Agent和项目信息 ✅
+
+#### 数据库资源 (4个)
+3. **db://connection/{id}** - 数据库连接详情 ✅
+4. **db://connections** - 数据库连接列表 ✅
+5. **sqllog://{agentId}** - SQL执行日志 ✅
+6. **sqllog://stats/{agentId}** - SQL执行统计 ✅
 
 
 
@@ -173,7 +184,43 @@
 
 
 
-### 1.6 时间工具 ✅ 已注册/已实现
+### 1.6 数据库工具 ✅ 已注册/已实现
+
+#### execute_sql ✅ 已注册/已实现
+- **文件**: `app/Modules/Dbcont/Tools/SqlExecutionTool.php`
+- **方法**: `executeSql()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 完整实现
+- **描述**: 执行SQL查询，连接ID可选（默认使用第一个可用连接）
+- **参数**:
+  - `sql` (string): SQL查询语句
+  - `connectionId` (int, 可选): 数据库连接ID，如果为null则自动选择第一个可用连接
+  - `timeout` (int, 可选): 查询超时时间（秒）
+  - `maxRows` (int, 可选): 最大返回行数
+- **权限**: Agent必须有数据库连接访问权限
+- **安全**: 包含SQL验证、权限检查、查询限制
+
+#### list_connections ✅ 已注册/已实现
+- **文件**: `app/Modules/Dbcont/Tools/SqlExecutionTool.php`
+- **方法**: `listConnections()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 完整实现
+- **描述**: 获取数据库连接列表
+- **返回**: Agent有权限访问的数据库连接列表，包含连接信息、权限级别、状态信息
+- **权限**: 只返回Agent有权限的连接
+
+#### test_connection ✅ 已注册/已实现
+- **文件**: `app/Modules/Dbcont/Tools/SqlExecutionTool.php`
+- **方法**: `testConnection()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 完整实现
+- **描述**: 测试数据库连接
+- **参数**:
+  - `connectionId` (int, 可选): 数据库连接ID，如果为null则自动选择第一个可用连接
+- **返回**: 连接测试结果、延迟信息、错误诊断
+- **权限**: Agent必须有数据库连接访问权限
+
+### 1.7 时间工具 ✅ 已注册/已实现
 
 #### time://get2 ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/Time2Tool.php`
@@ -220,7 +267,57 @@
 - **权限**: 基于Agent认证，返回当前Agent的完整信息
 - **用途**: 为AI Agent提供自我认知能力，了解自己的身份、权限和可访问的项目
 
-### 2.3 项目资源 ❌ 未注册/已实现
+### 2.3 数据库资源 ✅ 已注册/已实现
+
+#### db://connection/{id} ✅ 已注册/已实现
+- **文件**: `app/Modules/Dbcont/Resources/DatabaseConnectionResource.php`
+- **方法**: `getDatabaseConnection()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 完整实现
+- **名称**: db_connection
+- **MIME类型**: application/json
+- **描述**: 获取数据库连接详细信息
+- **URI模式**: `db://connection/{id}`
+- **返回**: 包含连接信息、权限详情、统计数据的JSON对象
+- **权限**: Agent必须有对应连接的访问权限
+
+#### db://connections ✅ 已注册/已实现
+- **文件**: `app/Modules/Dbcont/Resources/DatabaseConnectionResource.php`
+- **方法**: `getDatabaseConnectionList()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 完整实现
+- **名称**: db_connection_list
+- **MIME类型**: application/json
+- **描述**: 获取所有可访问的数据库连接列表
+- **URI**: `db://connections`
+- **返回**: Agent有权限的连接列表，包含连接信息和权限级别
+- **权限**: 只返回Agent有权限的连接
+
+#### sqllog://{agentId} ✅ 已注册/已实现
+- **文件**: `app/Modules/Dbcont/Resources/SqlExecutionLogResource.php`
+- **方法**: `getSqlExecutionLog()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 完整实现
+- **名称**: sql_execution_log
+- **MIME类型**: application/json
+- **描述**: 获取Agent的SQL执行日志
+- **URI模式**: `sqllog://{agentId}`
+- **返回**: SQL执行历史记录，支持筛选和分页
+- **权限**: Agent只能访问自己的执行日志
+
+#### sqllog://stats/{agentId} ✅ 已注册/已实现
+- **文件**: `app/Modules/Dbcont/Resources/SqlExecutionLogResource.php`
+- **方法**: `getSqlExecutionStats()`
+- **注册状态**: ✅ 已通过属性自动发现注册
+- **实现状态**: ✅ 完整实现
+- **名称**: sql_execution_stats
+- **MIME类型**: application/json
+- **描述**: 获取SQL执行统计信息
+- **URI模式**: `sqllog://stats/{agentId}`
+- **返回**: 执行统计、性能分析、使用趋势数据
+- **权限**: Agent只能访问自己的统计信息
+
+### 2.4 项目资源 ❌ 未注册/已实现 (已废弃)
 
 #### project://{path} ❌ 未注册/已实现
 - **文件**: `app/Modules/Mcp/Resources/ProjectResource.php`
@@ -231,7 +328,7 @@
 - **功能**: 支持项目列表、详情、创建、更新等操作
 - **权限**: 基于Agent身份和项目访问权限
 
-### 2.4 任务资源 ❌ 未注册/已实现
+### 2.5 任务资源 ❌ 未注册/已实现 (已废弃)
 
 #### task://{path} ❌ 未注册/已实现
 - **文件**: `app/Modules/Mcp/Resources/TaskResource.php`
@@ -241,6 +338,7 @@
 - **描述**: 任务信息访问和管理
 - **功能**: 支持任务列表、详情、状态更新等操作
 - **权限**: 基于Agent身份和任务访问权限
+- **废弃原因**: 任务管理已通过MCP工具实现，资源方式访问不再需要
 
 ## 修正记录
 
@@ -324,6 +422,39 @@
    - 保持了文档的准确性和实用性
 
 **改进效果**: ✅ 提供了更清晰的MCP内容概览，便于快速了解可用功能
+
+### 2025年07月25日 19:15 - 重大更新：Dbcont模块MCP集成完成 ✅
+
+**更新内容**:
+1. **MCP工具数量更新**:
+   - 从8个工具增加到11个工具 (+3个Dbcont工具)
+   - 新增数据库工具：execute_sql, list_connections, test_connection
+
+2. **MCP资源数量更新**:
+   - 从2个资源增加到6个资源 (+4个Dbcont资源)
+   - 新增数据库资源：db://connection/{id}, db://connections, sqllog://{agentId}, sqllog://stats/{agentId}
+
+3. **文档结构重组**:
+   - 按功能分类重新组织工具和资源列表
+   - 任务管理工具(7个) + 交互工具(1个) + 数据库工具(3个)
+   - 基础资源(2个) + 数据库资源(4个)
+
+4. **详细描述完善**:
+   - 为所有数据库工具添加了完整的参数说明、权限要求、安全机制
+   - 为所有数据库资源添加了URI模式、返回格式、权限控制说明
+   - 标记了未注册资源为已废弃状态
+
+5. **版本升级**:
+   - 版本号从1.3.0升级到2.0.0
+   - 反映了Dbcont模块集成带来的重大功能增强
+
+**技术成就**: ✅
+- Agent现在具备完整的数据库访问能力
+- 支持安全的SQL执行、连接管理、日志查询
+- 完善的权限控制和审计机制
+- 11个MCP工具 + 6个MCP资源，功能覆盖全面
+
+**设计原则**: ✅ MCP工具专注于Agent的核心交互需求，数据库功能通过安全的工具接口提供
 
 
 

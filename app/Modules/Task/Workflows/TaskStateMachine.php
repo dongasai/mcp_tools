@@ -4,17 +4,12 @@ namespace App\Modules\Task\Workflows;
 
 use App\Modules\Task\Models\Task;
 use App\Modules\Task\Enums\TASKSTATUS;
-use App\Modules\Task\Workflows\Rules\WorkflowRuleInterface;
-use App\Modules\Task\Workflows\Rules\BasicTransitionRule;
-use App\Modules\Task\Workflows\Rules\SubTaskCompletionRule;
-use App\Modules\Task\Workflows\Rules\ParentTaskStatusRule;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Collection;
 
 /**
  * 任务状态机
- * 
- * 管理任务状态转换的核心类，集成工作流规则和业务逻辑
+ *
+ * 管理任务状态转换的核心类，简化的状态转换逻辑
  */
 class TaskStateMachine
 {
@@ -22,11 +17,6 @@ class TaskStateMachine
      * 任务实例
      */
     private Task $task;
-
-    /**
-     * 工作流规则集合
-     */
-    private Collection $rules;
 
     /**
      * 转换上下文
@@ -45,42 +35,6 @@ class TaskStateMachine
     {
         $this->task = $task;
         $this->context = $context;
-        $this->rules = collect();
-        
-        $this->initializeDefaultRules();
-    }
-
-    /**
-     * 初始化默认规则
-     */
-    private function initializeDefaultRules(): void
-    {
-        $this->addRule(new BasicTransitionRule());
-        $this->addRule(new SubTaskCompletionRule());
-        $this->addRule(new ParentTaskStatusRule());
-    }
-
-    /**
-     * 添加工作流规则
-     */
-    public function addRule(WorkflowRuleInterface $rule): self
-    {
-        $this->rules->push($rule);
-        
-        // 按优先级排序
-        $this->rules = $this->rules->sortBy(fn($rule) => $rule->getPriority());
-        
-        return $this;
-    }
-
-    /**
-     * 移除工作流规则
-     */
-    public function removeRule(string $ruleName): self
-    {
-        $this->rules = $this->rules->reject(fn($rule) => $rule->getName() === $ruleName);
-        
-        return $this;
     }
 
     /**
@@ -89,17 +43,58 @@ class TaskStateMachine
     public function canTransition(TASKSTATUS $toStatus, array $context = []): bool
     {
         $this->clearErrors();
-        $mergedContext = array_merge($this->context, $context);
         $fromStatus = $this->task->status;
 
-        // 应用所有适用的规则进行验证
-        foreach ($this->getApplicableRules($fromStatus, $toStatus, $mergedContext) as $rule) {
-            if (!$rule->validate($this->task, $fromStatus, $toStatus, $mergedContext)) {
-                $this->addError($rule->getName(), $rule->getErrorMessage());
+        // 基础状态转换验证
+        if (!$fromStatus->canTransitionTo($toStatus)) {
+            $this->addError('basic_transition', "不能从{$fromStatus->label()}状态转换到{$toStatus->label()}状态");
+            return false;
+        }
+
+        // 检查是否是无效的转换（相同状态）
+        if ($fromStatus === $toStatus) {
+            $this->addError('same_status', "任务已经是{$toStatus->label()}状态");
+            return false;
+        }
+
+        // 子任务完成规则：主任务只有在所有子任务完成后才能完成
+        if ($this->task->isMainTask() && $toStatus === TASKSTATUS::COMPLETED) {
+            $incompleteSubTasks = $this->task->subTasks()
+                ->whereNotIn('status', [TASKSTATUS::COMPLETED->value, TASKSTATUS::CANCELLED->value])
+                ->count();
+
+            if ($incompleteSubTasks > 0) {
+                $this->addError('sub_task_completion', "任务还有 {$incompleteSubTasks} 个未完成的子任务，无法完成主任务");
+                return false;
             }
         }
 
-        return empty($this->errors);
+        // 父任务状态规则：子任务的状态转换必须符合父任务的状态约束
+        if ($this->task->isSubTask() && $this->task->parentTask !== null) {
+            $parentTask = $this->task->parentTask;
+
+            // 如果父任务已完成或已取消，子任务不能开始或进行中
+            if (in_array($parentTask->status, [TASKSTATUS::COMPLETED, TASKSTATUS::CANCELLED])) {
+                if (in_array($toStatus, [TASKSTATUS::PENDING, TASKSTATUS::IN_PROGRESS])) {
+                    $this->addError('parent_task_status', "父任务已{$parentTask->status->label()}，子任务不能转换为{$toStatus->label()}状态");
+                    return false;
+                }
+            }
+
+            // 如果父任务被阻塞，子任务不能开始
+            if ($parentTask->status === TASKSTATUS::BLOCKED && $toStatus === TASKSTATUS::IN_PROGRESS) {
+                $this->addError('parent_task_blocked', "父任务被阻塞，子任务不能开始执行");
+                return false;
+            }
+
+            // 如果父任务暂停，子任务不能开始
+            if ($parentTask->status === TASKSTATUS::ON_HOLD && $toStatus === TASKSTATUS::IN_PROGRESS) {
+                $this->addError('parent_task_on_hold', "父任务已暂停，子任务不能开始执行");
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -122,14 +117,11 @@ class TaskStateMachine
         }
 
         try {
-            // 执行转换前的规则操作
-            $this->executeBeforeTransition($fromStatus, $toStatus, $mergedContext);
-
             // 执行实际的状态转换
             $this->task->update(['status' => $toStatus->value]);
 
-            // 执行转换后的规则操作
-            $this->executeAfterTransition($fromStatus, $toStatus, $mergedContext);
+            // 执行转换后的处理
+            $this->handleAfterTransition($fromStatus, $toStatus, $mergedContext);
 
             Log::info('Task state transition completed', [
                 'task_id' => $this->task->id,
@@ -151,7 +143,7 @@ class TaskStateMachine
 
             // 回滚状态（如果需要）
             $this->rollbackTransition($fromStatus);
-            
+
             return false;
         }
     }
@@ -184,28 +176,22 @@ class TaskStateMachine
     public function validateTransition(TASKSTATUS $toStatus, array $context = []): array
     {
         $this->clearErrors();
-        $mergedContext = array_merge($this->context, $context);
         $fromStatus = $this->task->status;
 
         $result = [
             'valid' => true,
             'errors' => [],
             'warnings' => [],
-            'applicable_rules' => [],
         ];
 
-        foreach ($this->getApplicableRules($fromStatus, $toStatus, $mergedContext) as $rule) {
-            $result['applicable_rules'][] = [
-                'name' => $rule->getName(),
-                'description' => $rule->getDescription(),
-                'priority' => $rule->getPriority(),
-            ];
+        $isValid = $this->canTransition($toStatus, $context);
+        $result['valid'] = $isValid;
 
-            if (!$rule->validate($this->task, $fromStatus, $toStatus, $mergedContext)) {
-                $result['valid'] = false;
+        if (!$isValid) {
+            foreach ($this->errors as $key => $message) {
                 $result['errors'][] = [
-                    'rule' => $rule->getName(),
-                    'message' => $rule->getErrorMessage(),
+                    'rule' => $key,
+                    'message' => $message,
                 ];
             }
         }
@@ -214,34 +200,70 @@ class TaskStateMachine
     }
 
     /**
-     * 获取适用的规则
+     * 执行转换后的处理
      */
-    private function getApplicableRules(TASKSTATUS $fromStatus, TASKSTATUS $toStatus, array $context): Collection
+    private function handleAfterTransition(TASKSTATUS $fromStatus, TASKSTATUS $toStatus, array $context): void
     {
-        return $this->rules->filter(function ($rule) use ($fromStatus, $toStatus, $context) {
-            return $rule->canApply($this->task, $fromStatus, $toStatus, $context);
-        });
+        // 根据目标状态执行相应的后处理
+        match ($toStatus) {
+            TASKSTATUS::IN_PROGRESS => $this->handleTaskStarted(),
+            TASKSTATUS::COMPLETED => $this->handleTaskCompleted(),
+            TASKSTATUS::BLOCKED => $this->handleTaskBlocked(),
+            TASKSTATUS::CANCELLED => $this->handleTaskCancelled(),
+            TASKSTATUS::ON_HOLD => $this->handleTaskOnHold(),
+            default => null,
+        };
     }
 
     /**
-     * 执行转换前的规则操作
+     * 处理任务开始
      */
-    private function executeBeforeTransition(TASKSTATUS $fromStatus, TASKSTATUS $toStatus, array $context): void
+    private function handleTaskStarted(): void
     {
-        foreach ($this->getApplicableRules($fromStatus, $toStatus, $context) as $rule) {
-            $rule->beforeTransition($this->task, $fromStatus, $toStatus, $context);
-        }
+        Log::debug('Task started', ['task_id' => $this->task->id]);
     }
 
     /**
-     * 执行转换后的规则操作
+     * 处理任务完成
      */
-    private function executeAfterTransition(TASKSTATUS $fromStatus, TASKSTATUS $toStatus, array $context): void
+    private function handleTaskCompleted(): void
     {
-        foreach ($this->getApplicableRules($fromStatus, $toStatus, $context) as $rule) {
-            $rule->afterTransition($this->task, $fromStatus, $toStatus, $context);
+        // 自动设置进度为100%
+        if ($this->task->progress < 100) {
+            $this->task->update(['progress' => 100]);
         }
+
+        Log::debug('Task completed', [
+            'task_id' => $this->task->id,
+            'progress_updated' => $this->task->progress,
+        ]);
     }
+
+    /**
+     * 处理任务阻塞
+     */
+    private function handleTaskBlocked(): void
+    {
+        Log::debug('Task blocked', ['task_id' => $this->task->id]);
+    }
+
+    /**
+     * 处理任务取消
+     */
+    private function handleTaskCancelled(): void
+    {
+        Log::debug('Task cancelled', ['task_id' => $this->task->id]);
+    }
+
+    /**
+     * 处理任务暂停
+     */
+    private function handleTaskOnHold(): void
+    {
+        Log::debug('Task on hold', ['task_id' => $this->task->id]);
+    }
+
+
 
     /**
      * 回滚状态转换

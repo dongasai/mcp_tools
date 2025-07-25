@@ -5,7 +5,6 @@ namespace App\Modules\Task\Services;
 use App\Modules\Task\Models\Task;
 use App\Modules\Task\Enums\TASKSTATUS;
 use App\Modules\Task\Workflows\TaskStateMachine;
-use App\Modules\Task\Workflows\Rules\WorkflowRuleInterface;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -186,15 +185,7 @@ class TaskWorkflowService
         return $results;
     }
 
-    /**
-     * 添加自定义工作流规则
-     */
-    public function addCustomRule(Task $task, WorkflowRuleInterface $rule, array $context = []): TaskStateMachine
-    {
-        $stateMachine = $this->createStateMachine($task, $context);
-        $stateMachine->addRule($rule);
-        return $stateMachine;
-    }
+
 
     /**
      * 获取任务状态转换历史（如果有相关表的话）
@@ -227,13 +218,6 @@ class TaskWorkflowService
         // 检查父任务状态一致性
         if ($task->isSubTask()) {
             $this->checkParentTaskConsistency($task, $health);
-        }
-
-        // 检查状态转换可用性
-        $availableTransitions = $this->getAvailableTransitions($task);
-        if (empty($availableTransitions) && !$task->status->isTerminated()) {
-            $health['is_healthy'] = false;
-            $health['issues'][] = '任务没有可用的状态转换选项';
         }
 
         return $health;

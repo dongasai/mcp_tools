@@ -66,17 +66,6 @@ class TaskWorkflowTestController extends Controller
             // 验证状态
             $statusEnum = TASKSTATUS::from($toStatus);
             
-            // 验证转换
-            $validation = $this->workflowService->validateTransition($task, $statusEnum);
-            
-            if (!$validation['valid']) {
-                return response()->json([
-                    'success' => false,
-                    'error' => '状态转换验证失败',
-                    'validation' => $validation,
-                ], 400);
-            }
-
             // 执行转换
             $success = $this->workflowService->transition($task, $statusEnum, [
                 'test_mode' => true,
@@ -89,7 +78,6 @@ class TaskWorkflowTestController extends Controller
                     'task_id' => $task->id,
                     'old_status' => $request->input('old_status', 'unknown'),
                     'new_status' => $task->fresh()->status->value,
-                    'validation' => $validation,
                 ],
                 'errors' => $success ? [] : $this->workflowService->getTransitionErrors($task, $statusEnum),
             ]);
@@ -137,7 +125,6 @@ class TaskWorkflowTestController extends Controller
                             'status' => $task->status->value,
                         ];
                     }),
-                    'validation' => $this->workflowService->validateTransition($parentTask, TASKSTATUS::COMPLETED),
                 ],
             ]);
 

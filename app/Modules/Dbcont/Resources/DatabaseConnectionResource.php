@@ -2,7 +2,7 @@
 
 namespace App\Modules\Dbcont\Resources;
 
-use PhpMcp\Server\Attributes\McpResource;
+use PhpMcp\Server\Attributes\{McpResource, McpResourceTemplate};
 use App\Modules\Dbcont\Models\DatabaseConnection;
 use App\Modules\Dbcont\Services\PermissionService;
 use App\Modules\Agent\Services\AuthenticationService;
@@ -18,9 +18,10 @@ class DatabaseConnectionResource
     /**
      * 获取数据库连接详细信息
      */
-    #[McpResource(
-        uri: 'db://connection/{id}',
+    #[McpResourceTemplate(
+        uriTemplate: 'db://connection/{id}',
         name: 'db_connection',
+        description: '获取数据库连接详细信息',
         mimeType: 'application/json'
     )]
     public function getDatabaseConnection(string $id): array

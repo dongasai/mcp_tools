@@ -25,6 +25,7 @@ class McpTestDataSeeder extends Seeder
                 'email' => 'test@example.com',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
+                'timezone' => 'Asia/Shanghai',
             ]
         );
 

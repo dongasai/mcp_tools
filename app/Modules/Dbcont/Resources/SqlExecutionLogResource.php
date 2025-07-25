@@ -2,7 +2,7 @@
 
 namespace App\Modules\Dbcont\Resources;
 
-use PhpMcp\Server\Attributes\McpResource;
+use PhpMcp\Server\Attributes\{McpResource, McpResourceTemplate};
 use App\Modules\Dbcont\Models\SqlExecutionLog;
 use App\Modules\Agent\Services\AuthenticationService;
 use Illuminate\Support\Facades\Log;
@@ -16,9 +16,10 @@ class SqlExecutionLogResource
     /**
      * 获取Agent的SQL执行日志
      */
-    #[McpResource(
-        uri: 'db://log/{agentId}',
+    #[McpResourceTemplate(
+        uriTemplate: 'db://log/{agentId}',
         name: 'db_execution_log',
+        description: '获取Agent的SQL执行日志',
         mimeType: 'application/json'
     )]
     public function getSqlExecutionLog(string $agentId, array $params = []): array
@@ -142,9 +143,10 @@ class SqlExecutionLogResource
     /**
      * 获取SQL执行统计信息
      */
-    #[McpResource(
-        uri: 'db://stats/{agentId}',
+    #[McpResourceTemplate(
+        uriTemplate: 'db://stats/{agentId}',
         name: 'db_execution_stats',
+        description: '获取SQL执行统计信息',
         mimeType: 'application/json'
     )]
     public function getSqlExecutionStats(string $agentId, array $params = []): array

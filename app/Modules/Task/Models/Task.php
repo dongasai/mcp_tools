@@ -144,6 +144,14 @@ class Task extends Model
     }
 
     /**
+     * 获取关联的Agent任务
+     */
+    public function agentTasks(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Task\Models\AgentTask::class, 'main_task_id');
+    }
+
+    /**
      * 查询范围：仅包含待处理的任务
      */
     public function scopePending($query)

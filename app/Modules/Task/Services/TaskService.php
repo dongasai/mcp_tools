@@ -9,27 +9,22 @@ use App\Modules\Project\Models\Project;
 use App\Modules\Core\Contracts\LogInterface;
 use App\Modules\Core\Contracts\EventInterface;
 use App\Modules\Core\Validators\SimpleValidator;
-use App\Modules\Task\Helpers\TaskValidationHelper;
 use App\Modules\Task\Enums\TASKSTATUS;
 use App\Modules\Task\Enums\TASKTYPE;
 use App\Modules\Task\Enums\TASKPRIORITY;
-use App\Modules\Task\Services\TaskWorkflowService;
 use Illuminate\Support\Collection;
 
 class TaskService
 {
     protected LogInterface $logger;
     protected EventInterface $eventDispatcher;
-    protected TaskWorkflowService $workflowService;
 
     public function __construct(
         LogInterface $logger,
-        EventInterface $eventDispatcher,
-        TaskWorkflowService $workflowService
+        EventInterface $eventDispatcher
     ) {
         $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;
-        $this->workflowService = $workflowService;
     }
 
     /**
@@ -38,83 +33,44 @@ class TaskService
     public function create(User $user, array $data): Task
     {
         // 验证数据
-        $validatedData = SimpleValidator::check($data, TaskValidationHelper::getCreateTaskRules());
+        $validator = SimpleValidator::make($data, [
+            'title' => 'required|string|min:2|max:255',
+            'description' => 'string|max:2000',
+            'type' => 'string|in:main,sub,milestone,bug,feature,improvement',
+            'priority' => 'string|in:low,medium,high,urgent',
+            'project_id' => 'integer',
+            'agent_id' => 'integer',
+            'parent_task_id' => 'integer',
+            'assigned_to' => 'integer',
+            'due_date' => 'date',
+            'estimated_hours' => 'numeric|min:0',
+            'tags' => 'array',
+            'metadata' => 'array',
+        ]);
 
-        if (empty($validatedData)) {
-            $validator = SimpleValidator::make($data, [
-                'title' => 'required|string|min:2|max:255',
-                'description' => 'string|max:2000',
-                'type' => 'string|in:main,sub,milestone,bug,feature,improvement',
-                'priority' => 'string|in:low,medium,high,urgent',
-                'project_id' => 'integer',
-                'agent_id' => 'integer',
-                'parent_task_id' => 'integer',
-                'assigned_to' => 'string|max:255',
-                'due_date' => 'date',
-                'estimated_hours' => 'numeric|min:0',
-                'tags' => 'array',
-            ]);
-            throw new \InvalidArgumentException('Validation failed: ' . $validator->getFirstError());
+        if ($validator->fails()) {
+            throw new \InvalidArgumentException('验证失败: ' . implode(', ', $validator->errors()));
         }
 
-        // 验证项目权限
-        if (isset($validatedData['project_id'])) {
-            $project = Project::find($validatedData['project_id']);
-            if (!$project || $project->user_id !== $user->id) {
-                throw new \InvalidArgumentException('Invalid project or insufficient permissions');
-            }
-        }
+        $validatedData = $validator->validated();
 
-        // 验证Agent权限
-        if (isset($validatedData['agent_id'])) {
-            $agent = Agent::find($validatedData['agent_id']);
-            if (!$agent || $agent->user_id !== $user->id) {
-                throw new \InvalidArgumentException('Invalid agent or insufficient permissions');
-            }
-        }
-
-        // 验证父任务权限
-        if (isset($validatedData['parent_task_id'])) {
-            $parentTask = Task::find($validatedData['parent_task_id']);
-            if (!$parentTask || $parentTask->user_id !== $user->id) {
-                throw new \InvalidArgumentException('Invalid parent task or insufficient permissions');
-            }
-            // 子任务自动继承父任务的项目
-            $validatedData['project_id'] = $parentTask->project_id;
-            $validatedData['type'] = TASKTYPE::SUB->value;
-        }
+        // 设置默认值
+        $taskData = array_merge([
+            'user_id' => $user->id,
+            'status' => TASKSTATUS::PENDING,
+            'type' => TASKTYPE::MAIN,
+            'priority' => TASKPRIORITY::MEDIUM,
+            'progress' => 0,
+        ], $validatedData);
 
         // 创建任务
-        $task = Task::create([
-            'user_id' => $user->id,
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'] ?? null,
-            'type' => $validatedData['type'] ?? TASKTYPE::MAIN->value,
-            'priority' => $validatedData['priority'] ?? TASKPRIORITY::MEDIUM->value,
-            'project_id' => $validatedData['project_id'] ?? null,
-            'agent_id' => $validatedData['agent_id'] ?? null,
-            'parent_task_id' => $validatedData['parent_task_id'] ?? null,
-            'assigned_to' => $validatedData['assigned_to'] ?? null,
-            'due_date' => $validatedData['due_date'] ?? null,
-            'estimated_hours' => $validatedData['estimated_hours'] ?? null,
-            'status' => TASKSTATUS::PENDING->value,
-            'progress' => 0,
-            'tags' => $validatedData['tags'] ?? [],
-            'metadata' => [],
-            'result' => null,
-        ]);
+        $task = Task::create($taskData);
 
         // 记录日志
         $this->logger->audit('task_created', $user->id, [
             'task_id' => $task->id,
-            'title' => $task->title,
-            'type' => $task->type,
-            'project_id' => $task->project_id,
-            'parent_task_id' => $task->parent_task_id,
+            'task_data' => $taskData,
         ]);
-
-        // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskCreated($task));
 
         return $task;
     }
@@ -125,90 +81,30 @@ class TaskService
     public function update(Task $task, array $data): Task
     {
         // 验证数据
-        $validatedData = SimpleValidator::check($data, TaskValidationHelper::getUpdateTaskRules());
+        $validator = SimpleValidator::make($data, [
+            'title' => 'string|min:2|max:255',
+            'description' => 'string|max:2000',
+            'priority' => 'string|in:low,medium,high,urgent',
+            'assigned_to' => 'integer',
+            'due_date' => 'date',
+            'estimated_hours' => 'numeric|min:0',
+            'tags' => 'array',
+            'metadata' => 'array',
+        ]);
 
-        if (empty($validatedData)) {
-            $validator = SimpleValidator::make($data, [
-                'title' => 'string|min:2|max:255',
-                'description' => 'string|max:2000',
-                'type' => 'string|in:main,sub,milestone,bug,feature,improvement',
-                'priority' => 'string|in:low,medium,high,urgent',
-                'status' => 'string|in:pending,in_progress,completed,blocked,cancelled,on_hold',
-                'agent_id' => 'integer',
-                'assigned_to' => 'string|max:255',
-                'due_date' => 'date',
-                'estimated_hours' => 'numeric|min:0',
-                'actual_hours' => 'numeric|min:0',
-                'progress' => 'integer|min:0|max:100',
-                'tags' => 'array',
-                'result' => 'array',
-            ]);
-            throw new \InvalidArgumentException('Validation failed: ' . $validator->getFirstError());
+        if ($validator->fails()) {
+            throw new \InvalidArgumentException('验证失败: ' . implode(', ', $validator->errors()));
         }
 
-        // 验证Agent权限
-        if (isset($validatedData['agent_id'])) {
-            $agent = Agent::find($validatedData['agent_id']);
-            if (!$agent || $agent->user_id !== $task->user_id) {
-                throw new \InvalidArgumentException('Invalid agent or insufficient permissions');
-            }
-        }
-
-        // 处理日期
-        if (isset($validatedData['due_date'])) {
-            $validatedData['due_date'] = $validatedData['due_date'];
-        }
-
-        // 记录原始状态
-        $originalStatus = $task->status;
-        $originalProgress = $task->progress;
-        $originalAgentId = $task->agent_id;
+        $validatedData = $validator->validated();
 
         // 更新任务
         $task->update($validatedData);
 
-        // 如果状态发生变化，记录日志和分发事件
-        if (isset($validatedData['status']) && $originalStatus !== $validatedData['status']) {
-            $this->logger->audit('task_status_changed', $task->user_id, [
-                'task_id' => $task->id,
-                'old_status' => $originalStatus,
-                'new_status' => $validatedData['status'],
-            ]);
-
-            $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskStatusChanged($task, $originalStatus));
-
-            // 如果任务完成，检查父任务是否应该完成
-            if ($validatedData['status'] === TASKSTATUS::COMPLETED->value && $task->isSubTask()) {
-                $this->checkParentTaskCompletion($task->parentTask);
-            }
-        }
-
-        // 如果进度发生变化，记录日志
-        if (isset($validatedData['progress']) && $originalProgress !== $validatedData['progress']) {
-            $this->logger->audit('task_progress_updated', $task->user_id, [
-                'task_id' => $task->id,
-                'old_progress' => $originalProgress,
-                'new_progress' => $validatedData['progress'],
-            ]);
-
-            $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskProgressUpdated($task, $originalProgress));
-        }
-
-        // 如果Agent发生变化，记录日志和分发事件
-        if (isset($validatedData['agent_id']) && $originalAgentId !== $validatedData['agent_id']) {
-            $this->logger->audit('task_agent_changed', $task->user_id, [
-                'task_id' => $task->id,
-                'old_agent_id' => $originalAgentId,
-                'new_agent_id' => $validatedData['agent_id'],
-            ]);
-
-            $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskAgentChanged($task, $originalAgentId));
-        }
-
-        // 记录更新日志
+        // 记录日志
         $this->logger->audit('task_updated', $task->user_id, [
             'task_id' => $task->id,
-            'updated_fields' => array_keys($validatedData),
+            'updated_data' => $validatedData,
         ]);
 
         return $task->fresh();
@@ -219,24 +115,20 @@ class TaskService
      */
     public function delete(Task $task): bool
     {
-        // 检查是否有子任务
-        $subTasks = $task->subTasks()->count();
-        if ($subTasks > 0) {
-            throw new \InvalidArgumentException('Cannot delete task with sub-tasks');
-        }
-
-        // 记录日志
-        $this->logger->audit('task_deleted', $task->user_id, [
-            'task_id' => $task->id,
-            'title' => $task->title,
-            'type' => $task->type,
-        ]);
-
-        // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskDeleted($task));
+        $taskId = $task->id;
+        $userId = $task->user_id;
 
         // 删除任务
-        return $task->delete();
+        $deleted = $task->delete();
+
+        if ($deleted) {
+            // 记录日志
+            $this->logger->audit('task_deleted', $userId, [
+                'task_id' => $taskId,
+            ]);
+        }
+
+        return $deleted;
     }
 
     /**
@@ -246,30 +138,14 @@ class TaskService
     {
         $originalStatus = $task->status;
 
-        // 使用工作流服务执行状态转换
-        $success = $this->workflowService->transition($task, TASKSTATUS::IN_PROGRESS, [
-            'initiated_by' => 'service',
-            'method' => 'startTask',
-        ]);
-
-        if (!$success) {
-            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::IN_PROGRESS);
-            throw new \InvalidArgumentException('无法开始任务: ' . implode(', ', $errors));
-        }
+        // 简单的状态转换
+        $task->start();
 
         // 记录日志
         $this->logger->audit('task_started', $task->user_id, [
             'task_id' => $task->id,
             'previous_status' => $originalStatus,
         ]);
-
-        // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskStarted($task));
-
-        // 自动开始子任务（如果配置启用）
-        if (config('task.automation.auto_start_sub_tasks', false)) {
-            $this->workflowService->autoStartSubTasks($task);
-        }
 
         return $task->fresh();
     }
@@ -281,17 +157,8 @@ class TaskService
     {
         $originalStatus = $task->status;
 
-        // 使用工作流服务执行状态转换
-        $success = $this->workflowService->transition($task, TASKSTATUS::COMPLETED, [
-            'initiated_by' => 'service',
-            'method' => 'completeTask',
-            'has_result' => !empty($result),
-        ]);
-
-        if (!$success) {
-            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::COMPLETED);
-            throw new \InvalidArgumentException('无法完成任务: ' . implode(', ', $errors));
-        }
+        // 简单的状态转换
+        $task->complete();
 
         // 保存结果
         if ($result) {
@@ -303,256 +170,6 @@ class TaskService
             'task_id' => $task->id,
             'previous_status' => $originalStatus,
             'has_result' => !empty($result),
-        ]);
-
-        // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskCompleted($task));
-
-        // 如果是子任务，使用工作流服务检查父任务自动完成
-        if ($task->isSubTask()) {
-            $this->workflowService->autoCompleteParentTask($task);
-        }
-
-        return $task->fresh();
-    }
-
-    /**
-     * 检查父任务是否应该完成
-     */
-    protected function checkParentTaskCompletion(Task $parentTask): void
-    {
-        if (!$parentTask || $parentTask->isCompleted()) {
-            return;
-        }
-
-        $subTasks = $parentTask->subTasks;
-        $completedSubTasks = $subTasks->where('status', TASKSTATUS::COMPLETED);
-
-        // 如果所有子任务都完成了，自动完成父任务
-        if ($subTasks->count() > 0 && $completedSubTasks->count() === $subTasks->count()) {
-            $this->completeTask($parentTask);
-        }
-    }
-
-    /**
-     * 获取用户的任务列表
-     */
-    public function getUserTasks(User $user, array $filters = []): Collection
-    {
-        $query = Task::byUser($user->id)->with(['user', 'agent', 'project', 'parentTask']);
-
-        // 应用过滤器
-        if (isset($filters['status'])) {
-            $query->byStatus($filters['status']);
-        }
-
-        if (isset($filters['type'])) {
-            $query->byType($filters['type']);
-        }
-
-        if (isset($filters['priority'])) {
-            $query->byPriority($filters['priority']);
-        }
-
-        if (isset($filters['project_id'])) {
-            $query->byProject($filters['project_id']);
-        }
-
-        if (isset($filters['agent_id'])) {
-            $query->byAgent($filters['agent_id']);
-        }
-
-        if (isset($filters['main_tasks_only'])) {
-            $query->mainTasks();
-        }
-
-        if (isset($filters['sub_tasks_only'])) {
-            $query->subTasks();
-        }
-
-        if (isset($filters['search'])) {
-            $query->search($filters['search']);
-        }
-
-        if (isset($filters['due_soon'])) {
-            $query->dueSoon($filters['due_soon']);
-        }
-
-        if (isset($filters['overdue'])) {
-            $query->overdue();
-        }
-
-        return $query->orderBy('created_at', 'desc')->get();
-    }
-
-    /**
-     * 获取系统任务统计信息
-     */
-    public function getSystemStats(): array
-    {
-        try {
-            return [
-                'total_tasks' => Task::count(),
-                'pending_tasks' => Task::byStatus(TASKSTATUS::PENDING)->count(),
-                'in_progress_tasks' => Task::byStatus(TASKSTATUS::IN_PROGRESS)->count(),
-                'completed_tasks' => Task::byStatus(TASKSTATUS::COMPLETED)->count(),
-                'blocked_tasks' => Task::byStatus(TASKSTATUS::BLOCKED)->count(),
-                'main_tasks' => Task::mainTasks()->count(),
-                'sub_tasks' => Task::subTasks()->count(),
-                'overdue_tasks' => Task::overdue()->count(),
-                'due_soon_tasks' => Task::dueSoon()->count(),
-                'tasks_by_priority' => [
-                    'low' => Task::byPriority(TASKPRIORITY::LOW)->count(),
-                    'medium' => Task::byPriority(TASKPRIORITY::MEDIUM)->count(),
-                    'high' => Task::byPriority(TASKPRIORITY::HIGH)->count(),
-                    'urgent' => Task::byPriority(TASKPRIORITY::URGENT)->count(),
-                ],
-                'table_exists' => true,
-            ];
-        } catch (\Exception $e) {
-            return [
-                'total_tasks' => 0,
-                'pending_tasks' => 0,
-                'in_progress_tasks' => 0,
-                'completed_tasks' => 0,
-                'blocked_tasks' => 0,
-                'main_tasks' => 0,
-                'sub_tasks' => 0,
-                'overdue_tasks' => 0,
-                'due_soon_tasks' => 0,
-                'tasks_by_priority' => [
-                    'low' => 0,
-                    'medium' => 0,
-                    'high' => 0,
-                    'urgent' => 0,
-                ],
-                'table_exists' => false,
-                'error' => $e->getMessage(),
-            ];
-        }
-    }
-
-    /**
-     * 检查任务是否可以转换到指定状态
-     */
-    public function canTransition(Task $task, TASKSTATUS $toStatus, array $context = []): bool
-    {
-        return $this->workflowService->canTransition($task, $toStatus, $context);
-    }
-
-    /**
-     * 获取任务可用的状态转换
-     */
-    public function getAvailableTransitions(Task $task, array $context = []): array
-    {
-        return $this->workflowService->getAvailableTransitions($task, $context);
-    }
-
-    /**
-     * 验证状态转换并返回详细信息
-     */
-    public function validateTransition(Task $task, TASKSTATUS $toStatus, array $context = []): array
-    {
-        return $this->workflowService->validateTransition($task, $toStatus, $context);
-    }
-
-    /**
-     * 执行任务状态转换
-     */
-    public function transitionTo(Task $task, TASKSTATUS $toStatus, array $context = []): bool
-    {
-        $success = $this->workflowService->transition($task, $toStatus, $context);
-
-        if ($success) {
-            // 记录状态转换日志
-            $this->logger->audit('task_status_transition', $task->user_id, [
-                'task_id' => $task->id,
-                'to_status' => $toStatus->value,
-                'context' => $context,
-            ]);
-        }
-
-        return $success;
-    }
-
-    /**
-     * 检查任务工作流健康状态
-     */
-    public function checkWorkflowHealth(Task $task): array
-    {
-        return $this->workflowService->checkWorkflowHealth($task);
-    }
-
-    /**
-     * 阻塞任务
-     */
-    public function blockTask(Task $task, string $reason = ''): Task
-    {
-        $success = $this->workflowService->transition($task, TASKSTATUS::BLOCKED, [
-            'initiated_by' => 'service',
-            'method' => 'blockTask',
-            'reason' => $reason,
-        ]);
-
-        if (!$success) {
-            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::BLOCKED);
-            throw new \InvalidArgumentException('无法阻塞任务: ' . implode(', ', $errors));
-        }
-
-        // 记录日志
-        $this->logger->audit('task_blocked', $task->user_id, [
-            'task_id' => $task->id,
-            'reason' => $reason,
-        ]);
-
-        return $task->fresh();
-    }
-
-    /**
-     * 取消任务
-     */
-    public function cancelTask(Task $task, string $reason = ''): Task
-    {
-        $success = $this->workflowService->transition($task, TASKSTATUS::CANCELLED, [
-            'initiated_by' => 'service',
-            'method' => 'cancelTask',
-            'reason' => $reason,
-        ]);
-
-        if (!$success) {
-            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::CANCELLED);
-            throw new \InvalidArgumentException('无法取消任务: ' . implode(', ', $errors));
-        }
-
-        // 记录日志
-        $this->logger->audit('task_cancelled', $task->user_id, [
-            'task_id' => $task->id,
-            'reason' => $reason,
-        ]);
-
-        return $task->fresh();
-    }
-
-    /**
-     * 暂停任务
-     */
-    public function holdTask(Task $task, string $reason = ''): Task
-    {
-        $success = $this->workflowService->transition($task, TASKSTATUS::ON_HOLD, [
-            'initiated_by' => 'service',
-            'method' => 'holdTask',
-            'reason' => $reason,
-        ]);
-
-        if (!$success) {
-            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::ON_HOLD);
-            throw new \InvalidArgumentException('无法暂停任务: ' . implode(', ', $errors));
-        }
-
-        // 记录日志
-        $this->logger->audit('task_on_hold', $task->user_id, [
-            'task_id' => $task->id,
-            'reason' => $reason,
         ]);
 
         return $task->fresh();

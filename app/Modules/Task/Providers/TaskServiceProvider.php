@@ -4,9 +4,6 @@ namespace App\Modules\Task\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Modules\Task\Services\TaskService;
-use App\Modules\Task\Services\TaskWorkflowService;
-use App\Modules\Task\Commands\TaskWorkflowScheduleCommand;
-use App\Modules\Task\Commands\TaskAutoFlowCommand;
 
 class TaskServiceProvider extends ServiceProvider
 {
@@ -126,10 +123,7 @@ class TaskServiceProvider extends ServiceProvider
     protected function registerCommands(): void
     {
         if ($this->app->runningInConsole()) {
-            $this->commands([
-                TaskWorkflowScheduleCommand::class,
-                TaskAutoFlowCommand::class,
-            ]);
+            // 暂时没有命令需要注册
         }
     }
 

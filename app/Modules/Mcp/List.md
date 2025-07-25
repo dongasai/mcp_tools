@@ -1,7 +1,7 @@
 # MCP Tools 项目 - 'MCP内容'清单
 
-**更新时间**: 2025年07月25日 19:15:00 CST
-**版本**: 2.0.0
+**更新时间**: 2025年07月26日 03:30:00 CST
+**版本**: 2.0.1
 **基于**: php-mcp/laravel 包
 
 ## 概述
@@ -27,26 +27,26 @@
 ### MCP工具 (11个已注册)
 
 #### 任务管理工具 (7个)
-1. **create_main_task** - 创建主任务 ✅
-2. **create_sub_task** - 创建子任务 ✅
-3. **list_tasks** - 获取任务列表 ✅
-4. **get_task** - 获取任务详情 ✅
-5. **complete_task** - 完成任务 ✅
-6. **add_comment** - 添加评论 ✅
-7. **get_assigned_tasks** - 获取分配给当前Agent的任务 ✅
+1. **task_create_main** - 创建主任务 ✅
+2. **task_create_sub** - 创建子任务 ✅
+3. **task_list** - 获取任务列表 ✅
+4. **task_get** - 获取任务详情 ✅
+5. **task_complete** - 完成任务 ✅
+6. **task_add_comment** - 添加评论 ✅
+7. **task_get_assigned** - 获取分配给当前Agent的任务 ✅
 
 #### 交互工具 (1个)
-8. **ask_question** - Agent向用户提问（阻塞式等待回答） ✅
+8. **question_ask** - Agent向用户提问（阻塞式等待回答） ✅
 
 #### 数据库工具 (3个)
-9. **execute_sql** - 执行SQL查询 ✅
-10. **list_connections** - 获取数据库连接列表 ✅
-11. **test_connection** - 测试数据库连接 ✅
+9. **db_execute_sql** - 执行SQL查询 ✅
+10. **db_list_connections** - 获取数据库连接列表 ✅
+11. **db_test_connection** - 测试数据库连接 ✅
 
 ### MCP资源 (6个已注册)
 
 #### 基础资源 (2个)
-1. **time://get2** - 获取当前时间 ✅
+1. **time://current** - 获取当前时间 ✅
 2. **agent://info** - 获取当前Agent和项目信息 ✅
 
 #### 数据库资源 (4个)
@@ -62,7 +62,7 @@
 
 ### 1.1 任务管理工具 ✅ 已注册/已实现
 
-#### create_main_task ✅ 已注册/已实现
+#### task_create_main ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `createMainTask()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -74,7 +74,7 @@
   - `priority` (string, 可选): 优先级 (默认: medium)
 - **权限**: 需要 `create_task` 权限，自动使用Agent绑定的项目
 
-#### create_sub_task ✅ 已注册/已实现
+#### task_create_sub ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `createSubTask()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -87,7 +87,7 @@
   - `priority` (string, 可选): 优先级 (默认: medium)
 - **权限**: 需要 `create_task` 权限和父任务访问权限
 
-#### list_tasks ✅ 已注册/已实现
+#### task_list ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `listTasks()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -100,7 +100,7 @@
   - `limit` (int, 可选): 返回数量限制 (默认: 20)
 - **权限**: 基于Agent的项目访问权限，自动限制为Agent绑定的项目
 
-#### get_task ✅ 已注册/已实现
+#### task_get ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `getTask()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -110,7 +110,7 @@
   - `taskId` (string): 任务ID
 - **权限**: 需要任务访问权限
 
-#### complete_task ✅ 已注册/已实现
+#### task_complete ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `completeTask()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -121,7 +121,7 @@
   - `comment` (string, 可选): 完成备注
 - **权限**: 需要 `complete_task` 权限
 
-#### add_comment ✅ 已注册/已实现
+#### task_add_comment ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `addComment()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -132,7 +132,7 @@
   - `content` (string): 评论内容
 - **权限**: 需要任务访问权限
 
-#### get_assigned_tasks ✅ 已注册/已实现
+#### task_get_assigned ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/TaskTool.php`
 - **方法**: `getAssignedTasks()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -145,7 +145,7 @@
 
 ### 1.2 问题管理工具 ✅ 已注册/已实现
 
-#### ask_question ✅ 已注册/已实现
+#### question_ask ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/AskQuestionTool.php`
 - **方法**: `askQuestion()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -186,7 +186,7 @@
 
 ### 1.6 数据库工具 ✅ 已注册/已实现
 
-#### execute_sql ✅ 已注册/已实现
+#### db_execute_sql ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/SqlExecutionTool.php`
 - **方法**: `executeSql()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -200,7 +200,7 @@
 - **权限**: Agent必须有数据库连接访问权限
 - **安全**: 包含SQL验证、权限检查、查询限制
 
-#### list_connections ✅ 已注册/已实现
+#### db_list_connections ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/SqlExecutionTool.php`
 - **方法**: `listConnections()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -209,7 +209,7 @@
 - **返回**: Agent有权限访问的数据库连接列表，包含连接信息、权限级别、状态信息
 - **权限**: 只返回Agent有权限的连接
 
-#### test_connection ✅ 已注册/已实现
+#### db_test_connection ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/SqlExecutionTool.php`
 - **方法**: `testConnection()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -222,7 +222,7 @@
 
 ### 1.7 时间工具 ✅ 已注册/已实现
 
-#### time://get2 ✅ 已注册/已实现
+#### time://current ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/Time2Tool.php`
 - **方法**: `getTime2()`
 - **注册状态**: ✅ 已通过属性自动发现注册
@@ -238,24 +238,24 @@
 
 ### 2.1 时间资源 ✅ 已注册/已实现
 
-#### time://get2 ✅ 已注册/已实现
+#### time://current ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Tools/Time2Tool.php`
 - **方法**: `getTime2()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
-- **名称**: getTime2
+- **名称**: time_current
 - **MIME类型**: application/json
 - **描述**: 获取当前时间
 - **返回**: 包含当前时间戳和格式化时间的JSON对象
 
 ### 2.2 Agent信息资源 ✅ 已注册/已实现
 
-#### myinfo://get ✅ 已注册/已实现
+#### agent://info ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Resources/MyInfoResource.php`
 - **方法**: `getMyInfo()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
-- **名称**: myInfo
+- **名称**: agent_info
 - **MIME类型**: application/json
 - **描述**: 获取当前Agent和项目信息
 - **返回**: 包含以下完整信息的JSON对象：
@@ -298,22 +298,22 @@
 - **方法**: `getSqlExecutionLog()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
-- **名称**: sql_execution_log
+- **名称**: db_execution_log
 - **MIME类型**: application/json
 - **描述**: 获取Agent的SQL执行日志
-- **URI模式**: `sqllog://{agentId}`
+- **URI模式**: `db://log/{agentId}`
 - **返回**: SQL执行历史记录，支持筛选和分页
 - **权限**: Agent只能访问自己的执行日志
 
-#### sqllog://stats/{agentId} ✅ 已注册/已实现
+#### db://stats/{agentId} ✅ 已注册/已实现
 - **文件**: `app/Modules/Mcp/Resources/SqlExecutionLogResource.php`
 - **方法**: `getSqlExecutionStats()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
-- **名称**: sql_execution_stats
+- **名称**: db_execution_stats
 - **MIME类型**: application/json
 - **描述**: 获取SQL执行统计信息
-- **URI模式**: `sqllog://stats/{agentId}`
+- **URI模式**: `db://stats/{agentId}`
 - **返回**: 执行统计、性能分析、使用趋势数据
 - **权限**: Agent只能访问自己的统计信息
 

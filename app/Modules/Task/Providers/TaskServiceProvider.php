@@ -15,8 +15,7 @@ class TaskServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // 注册TaskWorkflowService服务
-        $this->app->singleton(TaskWorkflowService::class);
+        
 
         // 注册Task服务
         $this->app->singleton(TaskService::class);

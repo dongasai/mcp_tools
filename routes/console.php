@@ -23,7 +23,7 @@ Artisan::command('mcp:test-tools', function () {
 
     // 测试工具是否能被实例化
     try {
-        $askTool = app(\App\Modules\Mcp\Tools\AskQuestionTool::class);
+        $askTool = app(\App\Modules\MCP\Tools\AskQuestionTool::class);
         $this->info('✅ AskQuestionTool instantiated successfully');
         $this->info('✅ AskQuestionTool now supports blocking wait for answers (600s timeout)');
     } catch (\Exception $e) {

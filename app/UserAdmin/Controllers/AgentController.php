@@ -7,7 +7,7 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Form;
 use Dcat\Admin\Show;
 use Dcat\Admin\Layout\Content;
-use App\Modules\Mcp\Models\Agent;
+use App\Modules\MCP\Models\Agent;
 use App\Modules\Project\Models\Project;
 use App\Modules\User\Models\User;
 

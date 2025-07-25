@@ -37,7 +37,7 @@ interface ValidationInterface
     /**
      * 验证MCP消息格式
      */
-    public function validateMcpMessage(array $message): array;
+    public function validateMCPMessage(array $message): array;
 
     /**
      * 验证Agent权限

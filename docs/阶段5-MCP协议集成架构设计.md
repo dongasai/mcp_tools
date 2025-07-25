@@ -33,7 +33,7 @@
 ### 2.2 通信模式
 1. **Client-to-Server**: HTTP POST请求发送JSON-RPC消息
 2. **Server-to-Client**: SSE流推送实时消息
-3. **会话管理**: 使用`Mcp-Session-Id`头维护状态
+3. **会话管理**: 使用`MCP-Session-Id`头维护状态
 
 ## 3. 系统架构设计
 
@@ -41,20 +41,20 @@
 ```
 app/Modules/MCP/
 ├── Controllers/
-│   ├── McpServerController.php      # MCP服务端点
+│   ├── MCPServerController.php      # MCP服务端点
 │   ├── AgentAuthController.php      # Agent认证
 │   └── TaskDistributionController.php # 任务分发
 ├── Services/
-│   ├── McpProtocolService.php       # 协议处理
+│   ├── MCPProtocolService.php       # 协议处理
 │   ├── SseStreamService.php         # SSE流管理
 │   ├── AgentSessionService.php      # 会话管理
 │   └── TaskDispatchService.php      # 任务调度
 ├── Models/
 │   ├── AgentSession.php             # Agent会话
-│   ├── McpMessage.php               # MCP消息
+│   ├── MCPMessage.php               # MCP消息
 │   └── TaskAssignment.php           # 任务分配
 ├── Middleware/
-│   ├── McpAuthMiddleware.php        # MCP认证
+│   ├── MCPAuthMiddleware.php        # MCP认证
 │   └── AgentAccessMiddleware.php    # Agent访问控制
 └── Events/
     ├── AgentConnected.php           # Agent连接事件
@@ -111,10 +111,10 @@ CREATE TABLE task_assignments (
 
 ### 4.1 MCP服务端点
 ```php
-// app/Modules/MCP/Controllers/McpServerController.php
-class McpServerController extends Controller
+// app/Modules/MCP/Controllers/MCPServerController.php
+class MCPServerController extends Controller
 {
-    public function handleMcpRequest(Request $request)
+    public function handleMCPRequest(Request $request)
     {
         // 处理HTTP POST的JSON-RPC请求
         $jsonRpcMessage = $request->json()->all();
@@ -139,7 +139,7 @@ class McpServerController extends Controller
     {
         // 处理HTTP GET的SSE流连接
         return response()->stream(function () use ($request) {
-            $sessionId = $request->header('Mcp-Session-Id');
+            $sessionId = $request->header('MCP-Session-Id');
             $this->sseStreamService->streamToAgent($sessionId);
         }, 200, [
             'Content-Type' => 'text/event-stream',

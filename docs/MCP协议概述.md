@@ -399,14 +399,14 @@ eventSource.onopen = function(event) {
 
 eventSource.onmessage = function(event) {
   const data = JSON.parse(event.data);
-  handleMcpMessage(data);
+  handleMCPMessage(data);
 };
 
 eventSource.onerror = function(event) {
   console.error('MCP SSE连接错误:', event);
 };
 
-function handleMcpMessage(data) {
+function handleMCPMessage(data) {
   switch(data.type) {
     case 'connection_established':
       console.log('Agent认证成功:', data.agent_id);
@@ -689,23 +689,23 @@ curl -H "Authorization: Bearer mcp_token_abc123def456..." \
 ## 扩展开发
 
 ### 添加新的MCP工具
-1. 创建工具类：`app/Mcp/Tools/YourTool.php`
-2. 实现工具接口：`McpToolInterface`
-3. 注册工具：在`McpServiceProvider`中注册
-4. 添加测试：`tests/Feature/Mcp/YourToolTest.php`
+1. 创建工具类：`app/MCP/Tools/YourTool.php`
+2. 实现工具接口：`MCPToolInterface`
+3. 注册工具：在`MCPServiceProvider`中注册
+4. 添加测试：`tests/Feature/MCP/YourToolTest.php`
 
 ### 添加新的MCP资源
-1. 创建资源类：`app/Mcp/Resources/YourResource.php`
-2. 实现资源接口：`McpResourceInterface`
+1. 创建资源类：`app/MCP/Resources/YourResource.php`
+2. 实现资源接口：`MCPResourceInterface`
 3. 定义URI模式：在资源类中定义
-4. 注册资源：在`McpServiceProvider`中注册
+4. 注册资源：在`MCPServiceProvider`中注册
 
 ## 纯PHP SSE技术实现
 
 ### PHP SSE服务器架构
 ```php
 // 基于Laravel + ReactPHP的异步SSE服务器
-class McpSseServer
+class MCPSseServer
 {
     private $loop;
     private $connections = [];

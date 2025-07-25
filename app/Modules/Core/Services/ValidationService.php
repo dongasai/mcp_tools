@@ -89,7 +89,7 @@ class ValidationService implements ValidationInterface
     /**
      * 验证MCP消息格式
      */
-    public function validateMcpMessage(array $message): array
+    public function validateMCPMessage(array $message): array
     {
         $rules = [
             'jsonrpc' => 'required|string|in:2.0',

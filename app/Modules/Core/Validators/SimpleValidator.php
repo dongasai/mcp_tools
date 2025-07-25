@@ -151,7 +151,7 @@ class SimpleValidator
     /**
      * 验证MCP消息数据
      */
-    public static function validateMcpMessage(array $data): array
+    public static function validateMCPMessage(array $data): array
     {
         $rules = [
             'jsonrpc' => 'required|string',

@@ -200,7 +200,7 @@ Task任务模块是MCP Tools系统的核心业务模块，实现主任务和子�
 - ✅ Resource URI模式定义
 - ✅ Tool Actions规划
 - ✅ MCP协议基础架构（php-mcp/laravel包）
-- **TaskTool MCP工具完整实现** (`app/Modules/Mcp/Tools/TaskTool.php`)
+- **TaskTool MCP工具完整实现** (`app/Modules/MCP/Tools/TaskTool.php`)
   - ✅ create_main_task - 创建主任务（完整实现）
   - ✅ create_sub_task - 创建子任务（完整实现）
   - ✅ list_tasks - 获取任务列表（完整实现）
@@ -208,12 +208,12 @@ Task任务模块是MCP Tools系统的核心业务模块，实现主任务和子�
   - ✅ complete_task - 完成任务（完整实现）
   - ✅ add_comment - 添加评论（完整实现）
   - ✅ get_assigned_tasks - 获取分配任务（完整实现）
-- **TaskResource MCP资源实现** (`app/Modules/Mcp/Resources/TaskResource.php`)
+- **TaskResource MCP资源实现** (`app/Modules/MCP/Resources/TaskResource.php`)
   - ✅ task://list - 任务列表资源（完整实现）
   - ✅ task://detail/{id} - 任务详情资源（完整实现）
   - ✅ task://assigned/{agentId} - Agent分配任务（完整实现）
   - ✅ task://status/{status} - 按状态筛选任务（完整实现）
-- **TaskMcpTestController测试接口** (`app/Modules/Task/Controllers/TaskMcpTestController.php`)
+- **TaskMCPTestController测试接口** (`app/Modules/Task/Controllers/TaskMCPTestController.php`)
   - ✅ 完整的MCP功能测试套件
   - ✅ 验证所有核心功能正常工作
   - ✅ Agent认证测试

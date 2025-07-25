@@ -65,27 +65,27 @@
 
 ```php
 // Task 模块
-#[McpTool(name: 'task_create_main', description: '创建主任务')]
-#[McpTool(name: 'task_create_sub', description: '创建子任务')]
-#[McpTool(name: 'task_list', description: '获取任务列表')]
-#[McpTool(name: 'task_get', description: '获取任务详情')]
-#[McpTool(name: 'task_complete', description: '完成任务')]
-#[McpTool(name: 'task_add_comment', description: '添加评论')]
-#[McpTool(name: 'task_get_assigned', description: '获取分配的任务')]
+#[MCPTool(name: 'task_create_main', description: '创建主任务')]
+#[MCPTool(name: 'task_create_sub', description: '创建子任务')]
+#[MCPTool(name: 'task_list', description: '获取任务列表')]
+#[MCPTool(name: 'task_get', description: '获取任务详情')]
+#[MCPTool(name: 'task_complete', description: '完成任务')]
+#[MCPTool(name: 'task_add_comment', description: '添加评论')]
+#[MCPTool(name: 'task_get_assigned', description: '获取分配的任务')]
 
 // Database 模块  
-#[McpTool(name: 'db_execute_sql', description: '执行SQL查询')]
-#[McpTool(name: 'db_list_connections', description: '获取数据库连接列表')]
-#[McpTool(name: 'db_test_connection', description: '测试数据库连接')]
+#[MCPTool(name: 'db_execute_sql', description: '执行SQL查询')]
+#[MCPTool(name: 'db_list_connections', description: '获取数据库连接列表')]
+#[MCPTool(name: 'db_test_connection', description: '测试数据库连接')]
 
 // Question 模块
-#[McpTool(name: 'question_ask', description: 'Agent向用户提出问题')]
+#[MCPTool(name: 'question_ask', description: 'Agent向用户提出问题')]
 
 // Agent 模块
-#[McpTool(name: 'agent_get_info', description: '获取Agent信息')]
+#[MCPTool(name: 'agent_get_info', description: '获取Agent信息')]
 
 // Time 模块
-#[McpTool(name: 'time_get_current', description: '获取当前时间')]
+#[MCPTool(name: 'time_get_current', description: '获取当前时间')]
 ```
 
 ## 资源命名规范
@@ -112,36 +112,36 @@
 
 ### 资源命名示例
 
-#### 静态资源（McpResource）
+#### 静态资源（MCPResource）
 用于固定URI的资源：
 
 ```php
 // Agent 模块
-#[McpResource(uri: 'agent://info', name: 'agent_info')]
+#[MCPResource(uri: 'agent://info', name: 'agent_info')]
 
 // Time 模块
-#[McpResource(uri: 'time://current', name: 'time_current')]
+#[MCPResource(uri: 'time://current', name: 'time_current')]
 
 // Database 模块
-#[McpResource(uri: 'db://connections', name: 'db_connection_list')]
+#[MCPResource(uri: 'db://connections', name: 'db_connection_list')]
 ```
 
-#### 动态资源模板（McpResourceTemplate）
+#### 动态资源模板（MCPResourceTemplate）
 用于带参数的资源，遵循RFC 6570 URI模板标准：
 
 ```php
 // Database 模块
-#[McpResourceTemplate(
+#[MCPResourceTemplate(
     uriTemplate: 'db://connection/{id}',
     name: 'db_connection',
     description: '获取数据库连接详细信息'
 )]
-#[McpResourceTemplate(
+#[MCPResourceTemplate(
     uriTemplate: 'db://log/{agentId}',
     name: 'db_execution_log',
     description: '获取Agent的SQL执行日志'
 )]
-#[McpResourceTemplate(
+#[MCPResourceTemplate(
     uriTemplate: 'db://stats/{agentId}',
     name: 'db_execution_stats',
     description: '获取SQL执行统计信息'
@@ -191,8 +191,8 @@
 
 ### 文件修改范围
 
-- `app/Modules/Mcp/Tools/*.php`
-- `app/Modules/Mcp/Resources/*.php`
+- `app/Modules/MCP/Tools/*.php`
+- `app/Modules/MCP/Resources/*.php`
 - `app/Modules/Dbcont/Tools/*.php`
 - `app/Modules/Dbcont/Resources/*.php`
 - 相关文档和配置文件

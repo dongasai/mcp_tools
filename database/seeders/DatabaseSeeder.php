@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AdminTablesSeeder::class);
         $this->call(UserAdminMenuSeeder::class);
-        $this->call(McpTestDataSeeder::class);
+        $this->call(MCPTestDataSeeder::class);
         $this->call(DatabaseConnectionSeeder::class);
     }
 }

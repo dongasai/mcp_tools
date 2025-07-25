@@ -5,14 +5,14 @@ namespace App\Modules\Task\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Modules\Mcp\Tools\TaskTool;
-use App\Modules\Mcp\Resources\TaskResource;
-use App\Modules\Mcp\Services\SessionService;
+use App\Modules\MCP\Tools\TaskTool;
+use App\Modules\MCP\Resources\TaskResource;
+use App\Modules\MCP\Services\SessionService;
 use App\Modules\Task\Models\Task;
 use App\Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
 
-class TaskMcpTestController extends Controller
+class TaskMCPTestController extends Controller
 {
     public function __construct(
         private TaskTool $taskTool,
@@ -228,7 +228,7 @@ class TaskMcpTestController extends Controller
     /**
      * 获取 MCP 工具和资源信息
      */
-    public function getMcpInfo(): JsonResponse
+    public function getMCPInfo(): JsonResponse
     {
         try {
             $taskResourceInfo = [

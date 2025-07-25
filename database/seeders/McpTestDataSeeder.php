@@ -9,7 +9,7 @@ use App\Modules\Project\Models\Project;
 use App\Modules\Agent\Models\Agent;
 use Illuminate\Support\Facades\Hash;
 
-class McpTestDataSeeder extends Seeder
+class MCPTestDataSeeder extends Seeder
 {
     /**
      * Run the database seeds.

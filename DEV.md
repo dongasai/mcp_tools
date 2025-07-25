@@ -44,7 +44,7 @@
 - 模块列表：
     - app/UserAdmin/ 用户后台模块，使用dcatadmin构建
     - app/Admin/ 超级管理员后台模块，使用dcatadmin构建
-    - app/Modules/Mcp Mcp模块，MCP底层由`php-mcp/laravel`提供，Mcp模块仅实现逻辑
+    - app/Modules/MCP MCP模块，MCP底层由`php-mcp/laravel`提供，MCP模块仅实现逻辑
     - app/Modules/Agent Agent模块，负责Agent的管理
     - app/Modules/Agent Agent模块，负责Agent的管理
 

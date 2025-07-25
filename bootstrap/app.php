@@ -16,12 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'user-admin.resource-ownership' => \App\UserAdmin\Middleware\EnsureResourceOwnership::class,
             // Agent认证中间件
-            'agent.auth' => \App\Modules\Mcp\Middleware\AgentAuthMiddleware::class,
-            'agent.project' => \App\Modules\Mcp\Middleware\ProjectAccessMiddleware::class,
+            'agent.auth' => \App\Modules\MCP\Middleware\AgentAuthMiddleware::class,
+            'agent.project' => \App\Modules\MCP\Middleware\ProjectAccessMiddleware::class,
             // MCP认证中间件
-            'mcp.auth' => \App\Modules\Mcp\Middleware\McpAuthMiddleware::class,
+            'mcp.auth' => \App\Modules\MCP\Middleware\MCPAuthMiddleware::class,
             // MCP中间件（用于php-mcp/laravel包）
-            'mcp' => \App\Modules\Mcp\Middleware\McpAuthMiddleware::class,
+            'mcp' => \App\Modules\MCP\Middleware\MCPAuthMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -89,11 +89,27 @@
 - 基础认证和权限配置正确
 - MCP 服务器正常运行
 
-### 🔄 下一步建议
-1. 使用 MCP 测试工具进行完整的功能测试
-2. 测试 SQL 执行功能的安全性和权限控制
-3. 验证日志记录和统计功能
-4. 进行性能和错误处理测试
+### 🔄 MCP Inspector 测试进行中
+- **测试工具**: http://localhost:6274/?MCP_PROXY_AUTH_TOKEN=11629f3f0b276acba501eec40353a81e3590fff115c247209ccf0fad24710b50#resources
+- **Laravel 服务**: 已启动在端口 34004 ✅
+- **工作目录**: /workspace (Docker 容器环境)
+- **测试状态**: 准备进行功能测试
+
+#### 建议测试步骤
+1. **Resources 测试**:
+   - 测试 `dbconnection://list` - 获取数据库连接列表
+   - 测试 `dbconnection://1` - 获取连接详情
+   - 测试 `sqllog://1` - 获取 Agent SQL 日志
+
+2. **Tools 测试**:
+   - 测试 `list_connections` - 获取可访问的连接
+   - 测试 `test_connection` - 测试连接状态
+   - 测试 `execute_sql` - 执行简单查询
+
+3. **权限和安全测试**:
+   - 验证 Agent 权限控制
+   - 测试 SQL 执行限制
+   - 检查错误处理机制
 
 ### 📊 技术验证
 - **MCP 协议集成**: ✅ 成功

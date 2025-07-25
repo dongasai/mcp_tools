@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mcp_sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
-        });
+        //没有意义的，前面已经有Migration创建了
+
+    //     Schema::create('mcp_sessions', function (Blueprint $table) {
+    //         $table->string('id')->primary();
+    //         $table->longText('payload');
+    //         $table->integer('last_activity')->index();
+    //     });
     }
 
     /**
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mcp_sessions');
+        // Schema::dropIfExists('mcp_sessions');
     }
 };

@@ -1,0 +1,55 @@
+# MCP Tools 开发容器 - 基于 Apache + PHP 8.2
+FROM php:8.2-apache
+
+# 设置工作目录
+WORKDIR /var/www/html
+
+# 分多步骤进行，增强缓存，减少重复构建
+# 安装系统依赖 (仅必需的)
+RUN apt-get update
+RUN apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    sqlite3 \
+    libsqlite3-dev \
+    libzip-dev
+
+# 安装 PHP 扩展 (仅必需的)
+RUN docker-php-ext-install \
+    pdo \
+    pdo_sqlite \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip \
+    sockets \
+    zip
+
+# 复制自定义 PHP 配置
+COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+
+# 启用 Apache 模块
+RUN a2enmod rewrite headers
+
+# 安装 Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# 配置 Apache
+RUN echo '<VirtualHost *:80>\n\
+    DocumentRoot /workspace/public\n\
+    <Directory /workspace/public>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+
+# 保持简洁，不运行杂七杂八的

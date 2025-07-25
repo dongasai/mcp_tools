@@ -78,22 +78,4 @@ Schedule::command('task:auto-flow')
         return config('task.automation.enable_auto_flow', true);
     });
 
-// 每天凌晨2点执行完整的工作流健康检查
-Schedule::command('task:workflow-schedule --type=all')
-    ->dailyAt('02:00')
-    ->withoutOverlapping()
-    ->runInBackground()
-    ->appendOutputTo(storage_path('logs/task-workflow-schedule.log'))
-    ->when(function () {
-        return config('task.automation.enable_auto_flow', true);
-    });
-
-// 每6小时执行一次工作流健康检查
-Schedule::command('task:workflow-schedule --type=health')
-    ->everySixHours()
-    ->withoutOverlapping()
-    ->runInBackground()
-    ->appendOutputTo(storage_path('logs/task-workflow-health.log'))
-    ->when(function () {
-        return config('task.automation.enable_auto_flow', true);
-    });
+    

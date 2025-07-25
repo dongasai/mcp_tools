@@ -59,14 +59,9 @@ app/Modules/Task/
 │   ├── TaskService.php             # 主任务服务
 │   ├── SubTaskService.php          # 子任务服务
 │   ├── TaskCommentService.php      # 任务评论服务
-│   ├── TaskWorkflowService.php     # 工作流服务
+
 │   ├── TaskProgressService.php     # 进度计算服务
 │   └── TaskNotificationService.php # 任务通知服务
-├── Controllers/
-│   ├── TaskController.php          # 主任务控制器
-│   ├── SubTaskController.php       # 子任务控制器
-│   ├── TaskCommentController.php   # 任务评论控制器
-│   └── TaskWorkflowController.php  # 工作流控制器
 ├── Resources/
 │   ├── TaskResource.php            # 主任务API资源
 │   ├── SubTaskResource.php         # 子任务API资源
@@ -94,10 +89,6 @@ app/Modules/Task/
 │   ├── UpdateTaskProgress.php      # 更新任务进度
 │   ├── NotifyTaskAssignee.php      # 通知任务负责人
 │   └── LogTaskActivity.php         # 记录任务活动
-├── Workflows/
-│   ├── TaskStateMachine.php        # 任务状态机
-│   ├── SubTaskWorkflow.php         # 子任务工作流
-│   └── TaskCompletionWorkflow.php  # 任务完成工作流
 ├── Observers/
 │   ├── TaskObserver.php            # 主任务观察者
 │   └── SubTaskObserver.php         # 子任务观察者
@@ -106,7 +97,6 @@ app/Modules/Task/
 │   └── SubTaskPolicy.php           # 子任务访问策略
 └── Contracts/
     ├── TaskServiceInterface.php    # 任务服务接口
-    ├── WorkflowInterface.php       # 工作流接口
     └── ProgressCalculatorInterface.php # 进度计算接口
 ```
 

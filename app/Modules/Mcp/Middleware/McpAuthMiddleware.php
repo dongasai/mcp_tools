@@ -5,7 +5,7 @@ namespace App\Modules\Mcp\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Modules\Agent\Services\AuthenticationService;
+use App\Modules\Mcp\Services\AuthenticationService;
 use App\Modules\Core\Services\LogService;
 use App\Modules\Mcp\Services\SessionService;
 use PhpMcp\Schema\JsonRpc\Error as JsonRpcError;

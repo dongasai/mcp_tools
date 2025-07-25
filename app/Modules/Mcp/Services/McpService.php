@@ -3,14 +3,16 @@
 namespace App\Modules\Mcp\Services;
 
 use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Agent\Services\AgentService;
+use App\Modules\Mcp\Services\AgentService;
+use App\Modules\Mcp\Services\AuthorizationService;
 use PhpMcp\Laravel\Facades\Mcp;
 
 class McpService
 {
     public function __construct(
         private LogInterface $logger,
-        private AgentService $agentService
+        private AgentService $agentService,
+        private AuthorizationService $authorizationService
     ) {}
 
     /**
@@ -39,7 +41,7 @@ class McpService
     {
         try {
             // 通过Agent服务验证权限
-            $agent = $this->agentService->findByIdentifier($agentId);
+            $agent = $this->agentService->findByAgentId($agentId);
             
             if (!$agent) {
                 $this->logger->warning('Agent not found', ['agent_id' => $agentId]);
@@ -52,7 +54,7 @@ class McpService
             }
 
             // 检查Agent权限
-            return $this->agentService->hasPermission($agent, $resource, $action);
+            return $this->authorizationService->canPerformAction($agent, $action);
         } catch (\Exception $e) {
             $this->logger->error('Failed to validate agent access', [
                 'agent_id' => $agentId,

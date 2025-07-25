@@ -2,7 +2,7 @@
 
 namespace App\Modules\Mcp\Services;
 
-use App\Modules\Agent\Models\Agent;
+use App\Modules\Mcp\Models\Agent;
 use App\Modules\Core\Services\LogService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;

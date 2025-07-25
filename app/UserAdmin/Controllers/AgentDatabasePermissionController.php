@@ -5,7 +5,7 @@ namespace App\UserAdmin\Controllers;
 use App\Modules\Dbcont\Models\AgentDatabasePermission;
 use App\Modules\Dbcont\Models\DatabaseConnection;
 use App\Modules\Dbcont\Enums\PermissionLevel;
-use App\Modules\Agent\Models\Agent;
+use App\Modules\Mcp\Models\Agent;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;

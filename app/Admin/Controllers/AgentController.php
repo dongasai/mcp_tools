@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Modules\Agent\Models\Agent;
+use App\Modules\Mcp\Models\Agent;
 use App\Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
 use Dcat\Admin\Form;

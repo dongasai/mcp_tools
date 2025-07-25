@@ -13,19 +13,23 @@ use App\Modules\Task\Helpers\TaskValidationHelper;
 use App\Modules\Task\Enums\TASKSTATUS;
 use App\Modules\Task\Enums\TASKTYPE;
 use App\Modules\Task\Enums\TASKPRIORITY;
+use App\Modules\Task\Services\TaskWorkflowService;
 use Illuminate\Support\Collection;
 
 class TaskService
 {
     protected LogInterface $logger;
     protected EventInterface $eventDispatcher;
+    protected TaskWorkflowService $workflowService;
 
     public function __construct(
         LogInterface $logger,
-        EventInterface $eventDispatcher
+        EventInterface $eventDispatcher,
+        TaskWorkflowService $workflowService
     ) {
         $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;
+        $this->workflowService = $workflowService;
     }
 
     /**
@@ -241,7 +245,17 @@ class TaskService
     public function startTask(Task $task): Task
     {
         $originalStatus = $task->status;
-        $task->start();
+
+        // 使用工作流服务执行状态转换
+        $success = $this->workflowService->transition($task, TASKSTATUS::IN_PROGRESS, [
+            'initiated_by' => 'service',
+            'method' => 'startTask',
+        ]);
+
+        if (!$success) {
+            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::IN_PROGRESS);
+            throw new \InvalidArgumentException('无法开始任务: ' . implode(', ', $errors));
+        }
 
         // 记录日志
         $this->logger->audit('task_started', $task->user_id, [
@@ -252,6 +266,11 @@ class TaskService
         // 分发事件
         $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskStarted($task));
 
+        // 自动开始子任务（如果配置启用）
+        if (config('task.automation.auto_start_sub_tasks', false)) {
+            $this->workflowService->autoStartSubTasks($task);
+        }
+
         return $task->fresh();
     }
 
@@ -261,7 +280,18 @@ class TaskService
     public function completeTask(Task $task, ?array $result = null): Task
     {
         $originalStatus = $task->status;
-        $task->complete();
+
+        // 使用工作流服务执行状态转换
+        $success = $this->workflowService->transition($task, TASKSTATUS::COMPLETED, [
+            'initiated_by' => 'service',
+            'method' => 'completeTask',
+            'has_result' => !empty($result),
+        ]);
+
+        if (!$success) {
+            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::COMPLETED);
+            throw new \InvalidArgumentException('无法完成任务: ' . implode(', ', $errors));
+        }
 
         // 保存结果
         if ($result) {
@@ -278,9 +308,9 @@ class TaskService
         // 分发事件
         $this->eventDispatcher->dispatch(new \App\Modules\Task\Events\TaskCompleted($task));
 
-        // 如果是子任务，检查父任务是否应该完成
+        // 如果是子任务，使用工作流服务检查父任务自动完成
         if ($task->isSubTask()) {
-            $this->checkParentTaskCompletion($task->parentTask);
+            $this->workflowService->autoCompleteParentTask($task);
         }
 
         return $task->fresh();
@@ -400,5 +430,131 @@ class TaskService
                 'error' => $e->getMessage(),
             ];
         }
+    }
+
+    /**
+     * 检查任务是否可以转换到指定状态
+     */
+    public function canTransition(Task $task, TASKSTATUS $toStatus, array $context = []): bool
+    {
+        return $this->workflowService->canTransition($task, $toStatus, $context);
+    }
+
+    /**
+     * 获取任务可用的状态转换
+     */
+    public function getAvailableTransitions(Task $task, array $context = []): array
+    {
+        return $this->workflowService->getAvailableTransitions($task, $context);
+    }
+
+    /**
+     * 验证状态转换并返回详细信息
+     */
+    public function validateTransition(Task $task, TASKSTATUS $toStatus, array $context = []): array
+    {
+        return $this->workflowService->validateTransition($task, $toStatus, $context);
+    }
+
+    /**
+     * 执行任务状态转换
+     */
+    public function transitionTo(Task $task, TASKSTATUS $toStatus, array $context = []): bool
+    {
+        $success = $this->workflowService->transition($task, $toStatus, $context);
+
+        if ($success) {
+            // 记录状态转换日志
+            $this->logger->audit('task_status_transition', $task->user_id, [
+                'task_id' => $task->id,
+                'to_status' => $toStatus->value,
+                'context' => $context,
+            ]);
+        }
+
+        return $success;
+    }
+
+    /**
+     * 检查任务工作流健康状态
+     */
+    public function checkWorkflowHealth(Task $task): array
+    {
+        return $this->workflowService->checkWorkflowHealth($task);
+    }
+
+    /**
+     * 阻塞任务
+     */
+    public function blockTask(Task $task, string $reason = ''): Task
+    {
+        $success = $this->workflowService->transition($task, TASKSTATUS::BLOCKED, [
+            'initiated_by' => 'service',
+            'method' => 'blockTask',
+            'reason' => $reason,
+        ]);
+
+        if (!$success) {
+            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::BLOCKED);
+            throw new \InvalidArgumentException('无法阻塞任务: ' . implode(', ', $errors));
+        }
+
+        // 记录日志
+        $this->logger->audit('task_blocked', $task->user_id, [
+            'task_id' => $task->id,
+            'reason' => $reason,
+        ]);
+
+        return $task->fresh();
+    }
+
+    /**
+     * 取消任务
+     */
+    public function cancelTask(Task $task, string $reason = ''): Task
+    {
+        $success = $this->workflowService->transition($task, TASKSTATUS::CANCELLED, [
+            'initiated_by' => 'service',
+            'method' => 'cancelTask',
+            'reason' => $reason,
+        ]);
+
+        if (!$success) {
+            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::CANCELLED);
+            throw new \InvalidArgumentException('无法取消任务: ' . implode(', ', $errors));
+        }
+
+        // 记录日志
+        $this->logger->audit('task_cancelled', $task->user_id, [
+            'task_id' => $task->id,
+            'reason' => $reason,
+        ]);
+
+        return $task->fresh();
+    }
+
+    /**
+     * 暂停任务
+     */
+    public function holdTask(Task $task, string $reason = ''): Task
+    {
+        $success = $this->workflowService->transition($task, TASKSTATUS::ON_HOLD, [
+            'initiated_by' => 'service',
+            'method' => 'holdTask',
+            'reason' => $reason,
+        ]);
+
+        if (!$success) {
+            $errors = $this->workflowService->getTransitionErrors($task, TASKSTATUS::ON_HOLD);
+            throw new \InvalidArgumentException('无法暂停任务: ' . implode(', ', $errors));
+        }
+
+        // 记录日志
+        $this->logger->audit('task_on_hold', $task->user_id, [
+            'task_id' => $task->id,
+            'reason' => $reason,
+        ]);
+
+        return $task->fresh();
     }
 }

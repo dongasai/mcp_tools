@@ -14,3 +14,6 @@ use Illuminate\Support\Facades\Route;
 | 3. UserAdmin panel for user functions
 |
 */
+
+// 包含Task模块测试路由
+require_once __DIR__ . '/../app/Modules/Task/routes/test.php';

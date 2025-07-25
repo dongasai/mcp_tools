@@ -112,22 +112,40 @@
 
 ### 资源命名示例
 
+#### 静态资源（McpResource）
+用于固定URI的资源：
+
 ```php
-// Task 模块
-#[McpResource(uri: 'task://{id}', name: 'task_info')]
-#[McpResource(uri: 'task://list', name: 'task_list')]
-
-// Database 模块
-#[McpResource(uri: 'db://connection/{id}', name: 'db_connection')]
-#[McpResource(uri: 'db://connections', name: 'db_connection_list')]
-#[McpResource(uri: 'db://log/{agent_id}', name: 'db_execution_log')]
-#[McpResource(uri: 'db://stats/{agent_id}', name: 'db_execution_stats')]
-
 // Agent 模块
 #[McpResource(uri: 'agent://info', name: 'agent_info')]
 
 // Time 模块
 #[McpResource(uri: 'time://current', name: 'time_current')]
+
+// Database 模块
+#[McpResource(uri: 'db://connections', name: 'db_connection_list')]
+```
+
+#### 动态资源模板（McpResourceTemplate）
+用于带参数的资源，遵循RFC 6570 URI模板标准：
+
+```php
+// Database 模块
+#[McpResourceTemplate(
+    uriTemplate: 'db://connection/{id}',
+    name: 'db_connection',
+    description: '获取数据库连接详细信息'
+)]
+#[McpResourceTemplate(
+    uriTemplate: 'db://log/{agentId}',
+    name: 'db_execution_log',
+    description: '获取Agent的SQL执行日志'
+)]
+#[McpResourceTemplate(
+    uriTemplate: 'db://stats/{agentId}',
+    name: 'db_execution_stats',
+    description: '获取SQL执行统计信息'
+)]
 ```
 
 ## 重构映射表

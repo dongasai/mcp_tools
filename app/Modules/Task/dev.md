@@ -161,24 +161,16 @@ Task任务模块是MCP Tools系统的核心业务模块，实现主任务和子�
 
 #### ✅ 已完成
 - **TaskStateMachine状态机类** (`app/Modules/Task/Workflows/TaskStateMachine.php`)
-  - ✅ 完整的状态转换管理
-  - ✅ 工作流规则系统集成
+  - ✅ 简化的状态转换管理
+  - ✅ 基础业务逻辑验证
   - ✅ 错误处理和回滚机制
   - ✅ 上下文管理和日志记录
-
-- **工作流规则系统** (`app/Modules/Task/Workflows/Rules/`)
-  - ✅ `WorkflowRuleInterface` - 规则接口定义
-  - ✅ `AbstractWorkflowRule` - 规则抽象基类
-  - ✅ `BasicTransitionRule` - 基础状态转换验证
-  - ✅ `SubTaskCompletionRule` - 子任务完成规则
-  - ✅ `ParentTaskStatusRule` - 父任务状态约束规则
 
 - **TaskWorkflowService工作流服务** (`app/Modules/Task/Services/TaskWorkflowService.php`)
   - ✅ 状态机实例管理
   - ✅ 批量状态转换支持
   - ✅ 自动化流程（自动完成父任务、自动开始子任务）
   - ✅ 工作流健康检查
-  - ✅ 自定义规则支持
 
 - **TaskService集成**
   - ✅ 完整集成工作流服务
@@ -188,14 +180,19 @@ Task任务模块是MCP Tools系统的核心业务模块，实现主任务和子�
 - **测试系统** (`app/Modules/Task/Controllers/TaskWorkflowTestController.php`)
   - ✅ 完整的测试接口
   - ✅ 状态机功能验证
-  - ✅ 工作流规则测试
   - ✅ 批量操作测试
+
+- **定时任务系统**
+  - ✅ `TaskAutoFlowCommand` - 自动流转命令
+  - ✅ `TaskWorkflowScheduleCommand` - 工作流调度命令
+  - ✅ Laravel调度配置
+  - ✅ 超时任务自动处理
 
 - **🎉 核心特性完成**
   - ✅ 状态转换验证和执行
-  - ✅ 复杂工作流规则支持
+  - ✅ 基础业务逻辑支持
   - ✅ 自动化触发机制
-  - ✅ 扩展性和可配置性
+  - ✅ 定时任务调度
   - ✅ 完善的监控和日志
 
 #### ⏳ 可选增强功能（低优先级）

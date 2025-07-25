@@ -128,7 +128,7 @@ class TaskWorkflowScheduleCommand extends Command
                         $this->warn("  ✗ 阻塞失败");
                     }
                 } else {
-                    $this->warn("  ✗ 无法阻塞（不符合转换规则）");
+                    $this->warn("  ✗ 无法阻塞（不符合转换条件）");
                 }
             }
         }

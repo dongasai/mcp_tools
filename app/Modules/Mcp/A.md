@@ -330,9 +330,41 @@ abstract class BaseMcpTool
 ```php
 interface McpExtensionInterface
 {
+    /**
+     * 注册模块的MCP工具
+     * @return array 工具类名数组，如 ['TaskAnalysisTool', 'TaskReportTool']
+     */
     public function registerTools(): array;
+
+    /**
+     * 注册模块的MCP资源
+     * @return array 资源类名数组，如 ['TaskMetricsResource', 'TaskHistoryResource']
+     */
     public function registerResources(): array;
+
+    /**
+     * 获取模块命名空间前缀
+     * @return string 如 'task_ext', 'agent_ext'
+     */
     public function getNamespace(): string;
+
+    /**
+     * 获取扩展配置
+     * @return array 扩展特定的配置项
+     */
+    public function getConfig(): array;
+
+    /**
+     * 检查扩展是否启用
+     * @return bool
+     */
+    public function isEnabled(): bool;
+
+    /**
+     * 获取扩展依赖
+     * @return array 依赖的其他扩展或服务
+     */
+    public function getDependencies(): array;
 }
 ```
 

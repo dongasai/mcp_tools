@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Dbcont\Resources;
+namespace App\Modules\Mcp\Resources;
 
 use PhpMcp\Server\Attributes\{McpResource, McpResourceTemplate};
 use App\Modules\Dbcont\Models\SqlExecutionLog;

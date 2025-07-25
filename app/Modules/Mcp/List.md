@@ -52,8 +52,8 @@
 #### 数据库资源 (4个)
 3. **db://connection/{id}** - 数据库连接详情 ✅
 4. **db://connections** - 数据库连接列表 ✅
-5. **sqllog://{agentId}** - SQL执行日志 ✅
-6. **sqllog://stats/{agentId}** - SQL执行统计 ✅
+5. **db://log/{agentId}** - SQL执行日志 ✅
+6. **db://stats/{agentId}** - SQL执行统计 ✅
 
 
 
@@ -187,7 +187,7 @@
 ### 1.6 数据库工具 ✅ 已注册/已实现
 
 #### execute_sql ✅ 已注册/已实现
-- **文件**: `app/Modules/Dbcont/Tools/SqlExecutionTool.php`
+- **文件**: `app/Modules/Mcp/Tools/SqlExecutionTool.php`
 - **方法**: `executeSql()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
@@ -201,7 +201,7 @@
 - **安全**: 包含SQL验证、权限检查、查询限制
 
 #### list_connections ✅ 已注册/已实现
-- **文件**: `app/Modules/Dbcont/Tools/SqlExecutionTool.php`
+- **文件**: `app/Modules/Mcp/Tools/SqlExecutionTool.php`
 - **方法**: `listConnections()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
@@ -210,7 +210,7 @@
 - **权限**: 只返回Agent有权限的连接
 
 #### test_connection ✅ 已注册/已实现
-- **文件**: `app/Modules/Dbcont/Tools/SqlExecutionTool.php`
+- **文件**: `app/Modules/Mcp/Tools/SqlExecutionTool.php`
 - **方法**: `testConnection()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
@@ -270,7 +270,7 @@
 ### 2.3 数据库资源 ✅ 已注册/已实现
 
 #### db://connection/{id} ✅ 已注册/已实现
-- **文件**: `app/Modules/Dbcont/Resources/DatabaseConnectionResource.php`
+- **文件**: `app/Modules/Mcp/Resources/DatabaseConnectionResource.php`
 - **方法**: `getDatabaseConnection()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
@@ -282,7 +282,7 @@
 - **权限**: Agent必须有对应连接的访问权限
 
 #### db://connections ✅ 已注册/已实现
-- **文件**: `app/Modules/Dbcont/Resources/DatabaseConnectionResource.php`
+- **文件**: `app/Modules/Mcp/Resources/DatabaseConnectionResource.php`
 - **方法**: `getDatabaseConnectionList()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
@@ -293,8 +293,8 @@
 - **返回**: Agent有权限的连接列表，包含连接信息和权限级别
 - **权限**: 只返回Agent有权限的连接
 
-#### sqllog://{agentId} ✅ 已注册/已实现
-- **文件**: `app/Modules/Dbcont/Resources/SqlExecutionLogResource.php`
+#### db://log/{agentId} ✅ 已注册/已实现
+- **文件**: `app/Modules/Mcp/Resources/SqlExecutionLogResource.php`
 - **方法**: `getSqlExecutionLog()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
@@ -306,7 +306,7 @@
 - **权限**: Agent只能访问自己的执行日志
 
 #### sqllog://stats/{agentId} ✅ 已注册/已实现
-- **文件**: `app/Modules/Dbcont/Resources/SqlExecutionLogResource.php`
+- **文件**: `app/Modules/Mcp/Resources/SqlExecutionLogResource.php`
 - **方法**: `getSqlExecutionStats()`
 - **注册状态**: ✅ 已通过属性自动发现注册
 - **实现状态**: ✅ 完整实现
@@ -455,6 +455,37 @@
 - 11个MCP工具 + 6个MCP资源，功能覆盖全面
 
 **设计原则**: ✅ MCP工具专注于Agent的核心交互需求，数据库功能通过安全的工具接口提供
+
+### 2025年07月25日 19:20 - 架构调整：MCP内容统一到MCP模块 ✅
+
+**调整内容**:
+1. **文件移动**:
+   - 将 `app/Modules/Dbcont/Tools/SqlExecutionTool.php` 移动到 `app/Modules/Mcp/Tools/`
+   - 将 `app/Modules/Dbcont/Resources/DatabaseConnectionResource.php` 移动到 `app/Modules/Mcp/Resources/`
+   - 将 `app/Modules/Dbcont/Resources/SqlExecutionLogResource.php` 移动到 `app/Modules/Mcp/Resources/`
+
+2. **命名空间更新**:
+   - 所有移动的文件命名空间从 `App\Modules\Dbcont\*` 更新为 `App\Modules\Mcp\*`
+   - 保持原有的依赖注入和服务调用不变
+
+3. **配置清理**:
+   - 从 `config/mcp.php` 中移除对 `app/Modules/Dbcont/Tools` 和 `app/Modules/Dbcont/Resources` 的发现配置
+   - 从 `.env` 文件中移除 Dbcont 相关的 MCP 发现目录
+   - 删除空的 Dbcont Tools 和 Resources 目录
+
+4. **文档更新**:
+   - 更新所有数据库工具和资源的文件路径引用
+   - 保持功能描述和技术规格不变
+
+**架构原则**: ✅
+- 所有MCP相关内容统一集中在MCP模块中
+- 业务模块（如Dbcont）专注于核心业务逻辑，不包含MCP注册内容
+- 保持模块职责清晰，避免跨模块的MCP注册
+
+**验证结果**: ✅
+- MCP发现功能正常，所有11个工具和6个资源都被正确识别
+- 功能完全不受影响，Agent仍可正常使用所有数据库功能
+- 架构更加清晰，符合模块分离原则
 
 
 

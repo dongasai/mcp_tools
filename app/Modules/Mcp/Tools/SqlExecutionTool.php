@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Dbcont\Tools;
+namespace App\Modules\Mcp\Tools;
 
 use PhpMcp\Server\Attributes\McpTool;
 use App\Modules\Dbcont\Services\SqlExecutionService;

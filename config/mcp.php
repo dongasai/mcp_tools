@@ -31,7 +31,7 @@ return [
         'base_path' => base_path(),
         'directories' => array_filter(
             explode(',',
-                env('MCP_DISCOVERY_DIRECTORIES', 'app/Modules/Mcp/Tools,app/Modules/Mcp/Resources,app/Modules/Dbcont/Tools,app/Modules/Dbcont/Resources')
+                env('MCP_DISCOVERY_DIRECTORIES', 'app/Modules/Mcp/Tools,app/Modules/Mcp/Resources')
             )
         ),
         'exclude_dirs' => [

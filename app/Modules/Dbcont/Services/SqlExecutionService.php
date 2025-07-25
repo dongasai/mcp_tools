@@ -152,10 +152,35 @@ class SqlExecutionService implements SqlExecutionInterface
      */
     private function createDatabaseConnection(DatabaseConnection $connection): \PDO
     {
-        $service = new DatabaseConnectionService();
-        $config = $service->buildConnectionConfig($connection);
-        
-        return $service->createPdoConnection($config);
+        // 解密密码
+        $password = $connection->password ? \Illuminate\Support\Facades\Crypt::decrypt($connection->password) : null;
+
+        // 构建DSN
+        $driver = strtolower($connection->driver);
+        $dsn = '';
+
+        switch ($driver) {
+            case 'mysql':
+            case 'mariadb':
+                $dsn = "mysql:host={$connection->host};port={$connection->port};dbname={$connection->database}";
+                break;
+            case 'sqlite':
+                $dsn = "sqlite:{$connection->database}";
+                break;
+            case 'pgsql':
+                $dsn = "pgsql:host={$connection->host};port={$connection->port};dbname={$connection->database}";
+                break;
+            default:
+                throw new \Exception("不支持的数据库驱动: {$driver}");
+        }
+
+        $options = array_merge([
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::ATTR_TIMEOUT => 30,
+        ], $connection->options ?? []);
+
+        return new \PDO($dsn, $connection->username, $password, $options);
     }
 
     /**
@@ -262,5 +287,74 @@ class SqlExecutionService implements SqlExecutionInterface
             'ip_address' => request()->ip() ?? '0.0.0.0',
             'executed_at' => now(),
         ]);
+    }
+
+    /**
+     * 测试数据库连接
+     */
+    public function testConnection(DatabaseConnection $connection): array
+    {
+        try {
+            $startTime = microtime(true);
+
+            // 创建数据库连接
+            $pdo = $this->createDatabaseConnection($connection);
+
+            // 执行简单的测试查询
+            $testSql = match($connection->driver) {
+                'mysql', 'mariadb' => 'SELECT 1 as test',
+                'sqlite' => 'SELECT 1 as test',
+                'pgsql' => 'SELECT 1 as test',
+                default => 'SELECT 1 as test'
+            };
+
+            $stmt = $pdo->prepare($testSql);
+            $stmt->execute();
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $testTime = round((microtime(true) - $startTime) * 1000, 2); // 毫秒
+
+            // 记录成功的连接测试
+            $this->logService->log('数据库连接测试成功', [
+                'action' => 'test_connection',
+                'connection_id' => $connection->id,
+                'connection_name' => $connection->name,
+                'test_time_ms' => $testTime,
+                'status' => 'success'
+            ]);
+
+            return [
+                'success' => true,
+                'message' => '连接测试成功',
+                'test_time_ms' => $testTime,
+                'test_result' => $result,
+                'connection_info' => [
+                    'driver' => $connection->driver,
+                    'host' => $connection->host,
+                    'database' => $connection->database,
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            // 记录失败的连接测试
+            $this->logService->log('数据库连接测试失败', [
+                'action' => 'test_connection',
+                'connection_id' => $connection->id,
+                'connection_name' => $connection->name,
+                'error' => $e->getMessage(),
+                'status' => 'failed'
+            ]);
+
+            return [
+                'success' => false,
+                'message' => '连接测试失败: ' . $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'connection_info' => [
+                    'driver' => $connection->driver,
+                    'host' => $connection->host,
+                    'database' => $connection->database,
+                ]
+            ];
+        }
     }
 }

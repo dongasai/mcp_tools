@@ -148,7 +148,7 @@ class AuthenticationService
         }
 
         // 检查Agent状态
-        if ($agent->status !== Agent::STATUS_ACTIVE) {
+        if ($agent->status !== 'active') {
             $this->logger->warning('Agent is not active', [
                 'agent_id' => $agent->identifier,
                 'status' => $agent->status
@@ -182,7 +182,7 @@ class AuthenticationService
         }
 
         // 检查Agent状态
-        if ($agent->status !== Agent::STATUS_ACTIVE) {
+        if ($agent->status !== 'active') {
             $this->logger->warning('Agent is not active', [
                 'agent_id' => $agent->identifier,
                 'status' => $agent->status
@@ -219,7 +219,7 @@ class AuthenticationService
             }
 
             // 检查Agent状态
-            if ($agent->status !== Agent::STATUS_ACTIVE) {
+            if ($agent->status !== 'active') {
                 return false;
             }
 
@@ -312,7 +312,7 @@ class AuthenticationService
         }
 
         return [
-            'valid' => !$agent->isTokenExpired() && $agent->status === Agent::STATUS_ACTIVE,
+            'valid' => !$agent->isTokenExpired() && $agent->status === 'active',
             'agent_id' => $agent->identifier,
             'agent_name' => $agent->name,
             'user_id' => $agent->user_id,

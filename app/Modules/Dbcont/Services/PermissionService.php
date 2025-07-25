@@ -202,4 +202,58 @@ class PermissionService
         
         return array_unique($tables);
     }
+
+    /**
+     * 获取Agent可访问的数据库连接
+     */
+    public function getAccessibleConnections(int $agentId)
+    {
+        $connectionIds = AgentDatabasePermission::where('agent_id', $agentId)
+            ->pluck('database_connection_id')
+            ->toArray();
+
+        return DatabaseConnection::whereIn('id', $connectionIds)
+            ->where('status', 'active')
+            ->get();
+    }
+
+    /**
+     * 获取Agent对特定连接的权限信息
+     */
+    public function getAgentPermission(int $agentId, int $connectionId): ?AgentDatabasePermission
+    {
+        return AgentDatabasePermission::where('agent_id', $agentId)
+            ->where('database_connection_id', $connectionId)
+            ->first();
+    }
+
+    /**
+     * 授予Agent权限
+     */
+    public function grantPermission(int $agentId, int $connectionId, PermissionLevel $level, array $options = []): AgentDatabasePermission
+    {
+        return AgentDatabasePermission::updateOrCreate(
+            [
+                'agent_id' => $agentId,
+                'database_connection_id' => $connectionId,
+            ],
+            [
+                'permission_level' => $level,
+                'allowed_tables' => $options['allowed_tables'] ?? null,
+                'denied_operations' => $options['denied_operations'] ?? null,
+                'max_query_time' => $options['max_query_time'] ?? 30,
+                'max_result_rows' => $options['max_result_rows'] ?? 1000,
+            ]
+        );
+    }
+
+    /**
+     * 撤销Agent权限
+     */
+    public function revokePermission(int $agentId, int $connectionId): bool
+    {
+        return AgentDatabasePermission::where('agent_id', $agentId)
+            ->where('database_connection_id', $connectionId)
+            ->delete() > 0;
+    }
 }

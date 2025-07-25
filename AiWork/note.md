@@ -6,6 +6,9 @@ npx -y @modelcontextprotocol/inspector
 modelcontextprotocol测试工具已经运行，网址 http://localhost:6274/ 
 对mcp进行测试 ，http://127.0.0.1:34004/mcp?token=123456&agent_id=test-agent-001
 
+使用testme 对  dbcont 的几个工具和资源 进行测试 
+目前
+
 
 https://packagist.org/packages/php-mcp/laravel
 

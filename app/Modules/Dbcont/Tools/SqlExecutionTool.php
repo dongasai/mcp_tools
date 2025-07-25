@@ -25,7 +25,7 @@ class SqlExecutionTool
      * @param int|null $timeout 查询超时时间（秒）
      * @param int|null $maxRows 最大返回行数
      */
-    #[McpTool(name: 'execute_sql', description: '执行SQL查询，连接ID可选（默认使用第一个可用连接）')]
+    #[McpTool(name: 'db_execute_sql', description: '执行SQL查询，连接ID可选（默认使用第一个可用连接）')]
     public function executeSql(
         string $sql,
         ?int $connectionId = null,
@@ -143,7 +143,7 @@ class SqlExecutionTool
     /**
      * 获取数据库连接列表
      */
-    #[McpTool(name: 'list_connections', description: '获取数据库连接列表')]
+    #[McpTool(name: 'db_list_connections', description: '获取数据库连接列表')]
     public function listConnections(): array
     {
         try {
@@ -208,7 +208,7 @@ class SqlExecutionTool
      *
      * @param int|null $connectionId 数据库连接ID，如果为null则自动选择第一个可用连接
      */
-    #[McpTool(name: 'test_connection', description: '测试数据库连接，连接ID可选（默认使用第一个可用连接）')]
+    #[McpTool(name: 'db_test_connection', description: '测试数据库连接，连接ID可选（默认使用第一个可用连接）')]
     public function testConnection(?int $connectionId = null): array
     {
         try {

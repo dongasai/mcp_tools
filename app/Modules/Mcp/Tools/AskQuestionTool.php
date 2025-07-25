@@ -19,7 +19,7 @@ class AskQuestionTool
     /**
      * Agent向用户提出问题，等待回答（阻塞式，超时600秒）
      */
-    #[McpTool(name: 'ask_question')]
+    #[McpTool(name: 'question_ask')]
     public function askQuestion(
         string $title,
         string $content,

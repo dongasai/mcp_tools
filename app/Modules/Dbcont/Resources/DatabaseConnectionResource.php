@@ -19,8 +19,8 @@ class DatabaseConnectionResource
      * 获取数据库连接详细信息
      */
     #[McpResource(
-        uri: 'dbconnection://{id}',
-        name: 'databaseConnection',
+        uri: 'db://connection/{id}',
+        name: 'db_connection',
         mimeType: 'application/json'
     )]
     public function getDatabaseConnection(string $id): array
@@ -118,8 +118,8 @@ class DatabaseConnectionResource
      * 获取所有可访问的数据库连接列表
      */
     #[McpResource(
-        uri: 'dbconnection://list',
-        name: 'databaseConnectionList',
+        uri: 'db://connections',
+        name: 'db_connection_list',
         mimeType: 'application/json'
     )]
     public function getDatabaseConnectionList(): array

@@ -16,8 +16,8 @@ class MyInfoResource
      * 获取我的完整信息（Agent + 项目）
      */
     #[McpResource(
-        uri: 'myinfo://get',
-        name: 'myInfo',
+        uri: 'agent://info',
+        name: 'agent_info',
         mimeType: 'application/json'
     )]
     public function getMyInfo(): array

@@ -25,7 +25,7 @@ class TaskTool
     /**
      * 创建主任务
      */
-    #[McpTool(name: 'create_main_task')]
+    #[McpTool(name: 'task_create_main')]
     public function createMainTask(string $title, string $description = '', string $priority = 'medium'): array
     {
         try {
@@ -85,7 +85,7 @@ class TaskTool
     /**
      * 创建子任务
      */
-    #[McpTool(name: 'create_sub_task')]
+    #[McpTool(name: 'task_create_sub')]
     public function createSubTask(string $parentTaskId, string $title, string $description = '', string $priority = 'medium'): array
     {
         try {
@@ -127,7 +127,7 @@ class TaskTool
     /**
      * 获取任务列表
      */
-    #[McpTool(name: 'list_tasks')]
+    #[McpTool(name: 'task_list')]
     public function listTasks(string $status = '', string $type = '', bool $assignedToMe = false, int $limit = 20): array
     {
         try {
@@ -174,7 +174,7 @@ class TaskTool
     /**
      * 获取任务详情
      */
-    #[McpTool(name: 'get_task')]
+    #[McpTool(name: 'task_get')]
     public function getTask(string $taskId): array
     {
         try {
@@ -215,7 +215,7 @@ class TaskTool
     /**
      * 完成任务
      */
-    #[McpTool(name: 'complete_task')]
+    #[McpTool(name: 'task_complete')]
     public function completeTask(string $taskId, string $result = ''): array
     {
         try {
@@ -254,7 +254,7 @@ class TaskTool
     /**
      * 添加评论
      */
-    #[McpTool(name: 'add_comment')]
+    #[McpTool(name: 'task_add_comment')]
     public function addComment(string $taskId, string $content, string $commentType = 'general', bool $isInternal = false): array
     {
         try {
@@ -291,7 +291,7 @@ class TaskTool
     /**
      * 获取分配给当前Agent的任务
      */
-    #[McpTool(name: 'get_assigned_tasks')]
+    #[McpTool(name: 'task_get_assigned')]
     public function getAssignedTasks(): array
     {
         try {

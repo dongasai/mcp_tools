@@ -17,8 +17,8 @@ class SqlExecutionLogResource
      * 获取Agent的SQL执行日志
      */
     #[McpResource(
-        uri: 'sqllog://{agentId}',
-        name: 'sqlExecutionLog',
+        uri: 'db://log/{agentId}',
+        name: 'db_execution_log',
         mimeType: 'application/json'
     )]
     public function getSqlExecutionLog(string $agentId, array $params = []): array
@@ -143,8 +143,8 @@ class SqlExecutionLogResource
      * 获取SQL执行统计信息
      */
     #[McpResource(
-        uri: 'sqllog://stats/{agentId}',
-        name: 'sqlExecutionStats',
+        uri: 'db://stats/{agentId}',
+        name: 'db_execution_stats',
         mimeType: 'application/json'
     )]
     public function getSqlExecutionStats(string $agentId, array $params = []): array

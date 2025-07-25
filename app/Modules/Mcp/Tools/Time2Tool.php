@@ -10,7 +10,8 @@ class Time2Tool
      * Get current time.
      */
     #[McpResource(
-        uri: 'time://get2',
+        uri: 'time://current',
+        name: 'time_current',
         mimeType: 'application/json'
     )]
     public function getTime2(): array

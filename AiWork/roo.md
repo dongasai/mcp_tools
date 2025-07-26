@@ -321,7 +321,7 @@
 - **后台管理**: dcat/laravel-admin 2.2.2-beta
 - **认证系统**: dcat/laravel-admin 双后台认证
 - **数据验证**: inhere/php-validate (Validation和Validator分离)
-- **路由**: spatie/laravel-route-attributes (路由属性注解)
+- **路由**: Laravel传统路由定义
 
 ### 模块化架构状态
 1. **Core核心模块** ✅ (100%) - 服务层架构、中间件系统、API控制器

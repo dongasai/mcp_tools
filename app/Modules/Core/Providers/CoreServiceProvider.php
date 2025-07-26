@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Modules\Core\Providers;
+namespace Modules\Core\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Core\Contracts\EventInterface;
-use App\Modules\Core\Contracts\CacheInterface;
-use App\Modules\Core\Contracts\ConfigInterface;
-use App\Modules\Core\Contracts\ValidationInterface;
-use App\Modules\Core\Services\LogService;
-use App\Modules\Core\Services\EventService;
-use App\Modules\Core\Services\CacheService;
-use App\Modules\Core\Services\ConfigService;
-use App\Modules\Core\Services\ValidationService;
+use Modules\Core\Contracts\LogInterface;
+use Modules\Core\Contracts\EventInterface;
+use Modules\Core\Contracts\CacheInterface;
+use Modules\Core\Contracts\ConfigInterface;
+use Modules\Core\Contracts\ValidationInterface;
+use Modules\Core\Services\LogService;
+use Modules\Core\Services\EventService;
+use Modules\Core\Services\CacheService;
+use Modules\Core\Services\ConfigService;
+use Modules\Core\Services\ValidationService;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -83,8 +83,8 @@ class CoreServiceProvider extends ServiceProvider
         $router = $this->app['router'];
 
         // 注册全局中间件
-        $router->aliasMiddleware('log.request', \App\Modules\Core\Middleware\LogRequestMiddleware::class);
-        $router->aliasMiddleware('validate.request', \App\Modules\Core\Middleware\ValidateRequestMiddleware::class);
+        $router->aliasMiddleware('log.request', \Modules\Core\Middleware\LogRequestMiddleware::class);
+        $router->aliasMiddleware('validate.request', \Modules\Core\Middleware\ValidateRequestMiddleware::class);
     }
 
     /**

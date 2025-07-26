@@ -1,0 +1,11 @@
+{
+    "name": "Dbcont",
+    "alias": "dbcont",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Dbcont\\Providers\\DbcontServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,11 @@
+{
+    "name": "MCP",
+    "alias": "mcp",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\MCP\\Providers\\MCPServiceProvider"
+    ],
+    "files": []
+}

@@ -53,11 +53,15 @@ class AgentDatabasePermissionController extends AdminController
                 'sqlite' => 'success',
             ]);
 
-            $grid->column('permission_level', '权限级别')->using([
-                'READ_ONLY' => '只读',
-                'READ_WRITE' => '读写',
-                'ADMIN' => '管理员',
-            ])->label([
+            $grid->column('permission_level', '权限级别')->display(function ($value) {
+                $labels = [
+                    'READ_ONLY' => '只读',
+                    'READ_WRITE' => '读写',
+                    'ADMIN' => '管理员',
+                ];
+                $key = $value instanceof \App\Modules\Dbcont\Enums\PermissionLevel ? $value->value : $value;
+                return $labels[$key] ?? $key;
+            })->label([
                 'READ_ONLY' => 'info',
                 'READ_WRITE' => 'warning',
                 'ADMIN' => 'danger',
@@ -193,11 +197,15 @@ class AgentDatabasePermissionController extends AdminController
             $show->field('databaseConnection.host', '数据库主机');
             $show->field('databaseConnection.database', '数据库名');
             
-            $show->field('permission_level', '权限级别')->using([
-                'READ_ONLY' => '只读',
-                'READ_WRITE' => '读写',
-                'ADMIN' => '管理员',
-            ]);
+            $show->field('permission_level', '权限级别')->as(function ($value) {
+                $labels = [
+                    'READ_ONLY' => '只读',
+                    'READ_WRITE' => '读写',
+                    'ADMIN' => '管理员',
+                ];
+                $key = $value instanceof \App\Modules\Dbcont\Enums\PermissionLevel ? $value->value : $value;
+                return $labels[$key] ?? $key;
+            });
 
             $show->field('allowed_tables', '允许的表')->as(function ($tables) {
                 if (empty($tables)) {

@@ -1,0 +1,17 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#6558
+    [34mall[39m: [
+      [34;4mApp\Modules\Dbcont\Models\AgentDatabasePermission[39;24m {#6562
+        [34mid[39m: [35m1[39m,
+        [34magent_id[39m: [35m1[39m,
+        [34mdatabase_connection_id[39m: [35m1[39m,
+        [34mpermission_level[39m: "[32mREAD_WRITE[39m",
+        [34mallowed_tables[39m: [36mnull[39m,
+        [34mdenied_operations[39m: [36mnull[39m,
+        [34mmax_query_time[39m: [35m300[39m,
+        [34mmax_result_rows[39m: [35m1000[39m,
+        [34mcreated_at[39m: "[32m2025-07-25 13:34:14[39m",
+        [34mupdated_at[39m: "[32m2025-07-25 13:34:14[39m",
+      },
+    ],
+  }
+

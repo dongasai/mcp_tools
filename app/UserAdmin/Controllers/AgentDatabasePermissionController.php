@@ -83,13 +83,15 @@ class AgentDatabasePermissionController extends AdminController
 
             // 筛选器
             $grid->filter(function($filter) use ($user) {
-                // Agent筛选
-                $agents = Agent::where('user_id', $user->id)->pluck('name', 'id');
-                $filter->equal('agent_id', 'Agent')->select($agents);
+                if ($user) {
+                    // Agent筛选
+                    $agents = Agent::where('user_id', $user->id)->pluck('name', 'id');
+                    $filter->equal('agent_id', 'Agent')->select($agents);
 
-                // 数据库连接筛选
-                $connections = DatabaseConnection::where('user_id', $user->id)->pluck('name', 'id');
-                $filter->equal('database_connection_id', '数据库连接')->select($connections);
+                    // 数据库连接筛选
+                    $connections = DatabaseConnection::where('user_id', $user->id)->pluck('name', 'id');
+                    $filter->equal('database_connection_id', '数据库连接')->select($connections);
+                }
 
                 // 权限级别筛选
                 $filter->equal('permission_level', '权限级别')->select([

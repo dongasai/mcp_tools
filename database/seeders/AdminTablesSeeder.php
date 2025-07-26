@@ -37,7 +37,11 @@ class AdminTablesSeeder extends Seeder
         ]);
 
         // add role to user.
-        Administrator::first()->roles()->save(Role::first());
+        $admin = Administrator::where('username', 'admin')->first();
+        $adminRole = Role::where('slug', Role::ADMINISTRATOR)->first();
+        if ($admin && $adminRole) {
+            $admin->roles()->save($adminRole);
+        }
 
         //create a permission
         Permission::truncate();

@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Modules\Project\Models\Project;
 use App\Modules\Task\Models\Task;
-use App\Modules\Agent\Models\Agent;
+use App\Modules\MCP\Models\Agent;
 use App\Modules\User\Models\User;
 use App\Modules\Dbcont\Models\DatabaseConnection;
 use App\Modules\Dbcont\Models\AgentDatabasePermission;

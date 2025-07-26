@@ -8,7 +8,7 @@ use Dcat\Admin\Widgets\Card;
 use App\Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
 use App\Modules\Task\Models\Task;
-use App\Modules\Agent\Models\Agent;
+use App\Modules\MCP\Models\Agent;
 
 class DashboardController extends AdminController
 {

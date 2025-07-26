@@ -2,7 +2,7 @@
 
 namespace App\UserAdmin\Actions\Grid;
 
-use App\Modules\Agent\Models\AgentQuestion;
+use App\Modules\MCP\Models\AgentQuestion;
 use Dcat\Admin\Actions\Response;
 use Dcat\Admin\Grid\RowAction;
 use Dcat\Admin\Widgets\Modal;

@@ -2,9 +2,9 @@
 
 namespace App\UserAdmin\Controllers;
 
-use App\Modules\Agent\Enums\QuestionPriority;
-use App\Modules\Agent\Models\AgentQuestion;
-use App\Modules\Agent\Models\Agent;
+use App\Modules\MCP\Enums\QuestionPriority;
+use App\Modules\MCP\Models\AgentQuestion;
+use App\Modules\MCP\Models\Agent;
 use App\Modules\Task\Models\Task;
 
 use Dcat\Admin\Http\Controllers\AdminController;

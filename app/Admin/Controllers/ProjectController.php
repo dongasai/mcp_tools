@@ -2,9 +2,9 @@
 
 namespace App\Admin\Controllers;
 
-use App\Modules\Project\Models\Project;
+use Modules\Project\Models\Project;
 use Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
+
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;

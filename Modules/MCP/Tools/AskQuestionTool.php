@@ -2,24 +2,24 @@
 
 namespace Modules\MCP\Tools;
 
-use PhpMCP\Server\Attributes\MCPTool;
-use App\Modules\Agent\Services\QuestionService;
-use App\Modules\Agent\Services\AuthenticationService;
-use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Agent\Models\AgentQuestion;
+use PhpMcp\Server\Attributes\McpTool;
+use Modules\MCP\Services\QuestionService;
+use Modules\MCP\Services\AuthenticationService;
+use Psr\Log\LoggerInterface;
+use Modules\MCP\Models\AgentQuestion;
 
 class AskQuestionTool
 {
     public function __construct(
         private QuestionService $questionService,
         private AuthenticationService $authService,
-        private LogInterface $logger
+        private LoggerInterface $logger
     ) {}
 
     /**
      * Agent向用户提出问题，等待回答（阻塞式，超时600秒）
      */
-    #[MCPTool(name: 'question_ask')]
+    #[McpTool(name: 'question_ask')]
     public function askQuestion(
         string $title,
         string $content,

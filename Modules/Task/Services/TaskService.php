@@ -3,12 +3,12 @@
 namespace Modules\Task\Services;
 
 use Modules\Task\Models\Task;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Project\Models\Project;
-use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Core\Contracts\EventInterface;
-use App\Modules\Core\Validators\SimpleValidator;
+use Psr\Log\LoggerInterface;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\Validator;
 use Modules\Task\Enums\TASKSTATUS;
 use Modules\Task\Enums\TASKTYPE;
 use Modules\Task\Enums\TASKPRIORITY;
@@ -16,12 +16,12 @@ use Illuminate\Support\Collection;
 
 class TaskService
 {
-    protected LogInterface $logger;
-    protected EventInterface $eventDispatcher;
+    protected LoggerInterface $logger;
+    protected Dispatcher $eventDispatcher;
 
     public function __construct(
-        LogInterface $logger,
-        EventInterface $eventDispatcher
+        LoggerInterface $logger,
+        Dispatcher $eventDispatcher
     ) {
         $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;
@@ -67,7 +67,9 @@ class TaskService
         $task = Task::create($taskData);
 
         // 记录日志
-        $this->logger->audit('task_created', $user->id, [
+        $this->logger->info('Task created', [
+            'action' => 'task_created',
+            'user_id' => $user->id,
             'task_id' => $task->id,
             'task_data' => $taskData,
         ]);
@@ -102,7 +104,9 @@ class TaskService
         $task->update($validatedData);
 
         // 记录日志
-        $this->logger->audit('task_updated', $task->user_id, [
+        $this->logger->info('Task updated', [
+            'action' => 'task_updated',
+            'user_id' => $task->user_id,
             'task_id' => $task->id,
             'updated_data' => $validatedData,
         ]);
@@ -123,7 +127,9 @@ class TaskService
 
         if ($deleted) {
             // 记录日志
-            $this->logger->audit('task_deleted', $userId, [
+            $this->logger->info('Task deleted', [
+                'action' => 'task_deleted',
+                'user_id' => $userId,
                 'task_id' => $taskId,
             ]);
         }
@@ -142,7 +148,9 @@ class TaskService
         $task->start();
 
         // 记录日志
-        $this->logger->audit('task_started', $task->user_id, [
+        $this->logger->info('Task started', [
+            'action' => 'task_started',
+            'user_id' => $task->user_id,
             'task_id' => $task->id,
             'previous_status' => $originalStatus,
         ]);
@@ -166,7 +174,9 @@ class TaskService
         }
 
         // 记录日志
-        $this->logger->audit('task_completed', $task->user_id, [
+        $this->logger->info('Task completed', [
+            'action' => 'task_completed',
+            'user_id' => $task->user_id,
             'task_id' => $task->id,
             'previous_status' => $originalStatus,
             'has_result' => !empty($result),

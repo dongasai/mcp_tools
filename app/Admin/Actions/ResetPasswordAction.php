@@ -2,7 +2,7 @@
 
 namespace App\Admin\Actions;
 
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use Dcat\Admin\Actions\Response;
 use Dcat\Admin\Grid\RowAction;
 use Illuminate\Http\Request;

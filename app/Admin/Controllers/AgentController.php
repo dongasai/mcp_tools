@@ -3,7 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Modules\MCP\Models\Agent;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;

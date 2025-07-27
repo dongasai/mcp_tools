@@ -8,7 +8,7 @@ use Modules\Task\Models\Task;
 use Modules\Task\Enums\TASKSTATUS;
 use Modules\Task\Enums\TASKTYPE;
 use Modules\Task\Enums\TASKPRIORITY;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
 
 class TaskModelTestController

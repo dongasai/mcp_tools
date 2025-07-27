@@ -9,7 +9,7 @@ use Dcat\Admin\Show;
 use Dcat\Admin\Layout\Content;
 use App\Modules\Project\Models\Project;
 use App\Modules\Project\Models\ProjectMember;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Services\MemberService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

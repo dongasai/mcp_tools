@@ -2,10 +2,10 @@
 
 namespace Modules\MCP\Services;
 
-use App\Modules\Agent\Enums\QuestionPriority;
+use Modules\MCP\Enums\QuestionPriority;
 use Modules\MCP\Models\AgentQuestion;
 use Modules\User\Models\User;
-use App\Modules\Core\Contracts\LogInterface;
+use Psr\Log\LoggerInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Notification;
 class QuestionNotificationService
 {
     public function __construct(
-        private LogInterface $logger
+        private LoggerInterface $logger
     ) {}
 
     /**

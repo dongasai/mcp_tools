@@ -6,14 +6,14 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Modules\MCP\Services\AuthorizationService;
-use App\Modules\Core\Services\LogService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProjectAccessMiddleware
 {
     public function __construct(
         private AuthorizationService $authzService,
-        private LogService $logger
+        private LoggerInterface $logger
     ) {}
 
     /**

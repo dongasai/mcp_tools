@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Modules\Agent\Enums\QuestionPriority;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Agent\Models\AgentQuestion;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Task\Models\Task;
 use App\Modules\Project\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;

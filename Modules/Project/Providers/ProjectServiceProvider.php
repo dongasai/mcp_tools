@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Project\Providers;
+namespace Modules\Project\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Modules\Project\Services\ProjectService;
+use Modules\Project\Services\ProjectService;
 
 class ProjectServiceProvider extends ServiceProvider
 {
@@ -89,3 +89,5 @@ class ProjectServiceProvider extends ServiceProvider
         $router->aliasMiddleware('project.active', \App\Modules\Project\Middleware\EnsureProjectActive::class);
     }
 }
+
+

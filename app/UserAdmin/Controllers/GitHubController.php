@@ -6,7 +6,7 @@ use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Widgets\Card;
 use Dcat\Admin\Widgets\Table;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 // 暂时注释掉不存在的模型
 // use App\Modules\GitHub\Models\GitHubConnection;
 // use App\Modules\GitHub\Models\GitHubRepository;

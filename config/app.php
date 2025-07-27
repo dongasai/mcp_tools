@@ -175,7 +175,10 @@ return [
         App\Providers\RouteServiceProvider::class,
         
         // 模块服务提供者
-        App\Modules\Dbcont\Providers\DbcontServiceProvider::class,
-        App\Modules\Task\Providers\TaskServiceProvider::class,
+        Modules\User\Providers\UserServiceProvider::class,
+        Modules\Project\Providers\ProjectServiceProvider::class,
+        Modules\Task\Providers\TaskServiceProvider::class,
+        Modules\MCP\Providers\MCPServiceProvider::class,
+        Modules\Dbcont\Providers\DbcontServiceProvider::class,
     ],
 ];

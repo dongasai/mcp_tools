@@ -5,6 +5,7 @@ namespace Modules\MCP\Commands;
 use Modules\MCP\Services\QuestionService;
 use Modules\MCP\Services\QuestionNotificationService;
 use Modules\MCP\Models\AgentQuestion;
+use Psr\Log\LoggerInterface;
 use Illuminate\Console\Command;
 
 class ProcessExpiredQuestionsCommand extends Command
@@ -17,7 +18,8 @@ class ProcessExpiredQuestionsCommand extends Command
 
     public function __construct(
         private QuestionService $questionService,
-        private QuestionNotificationService $notificationService
+        private QuestionNotificationService $notificationService,
+        private LoggerInterface $logger
     ) {
         parent::__construct();
     }

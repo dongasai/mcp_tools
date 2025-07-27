@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
 use App\Modules\MCP\Models\Agent;
 use Illuminate\Support\Facades\Hash;

@@ -9,7 +9,7 @@ use Dcat\Admin\Show;
 use Dcat\Admin\Layout\Content;
 use App\Modules\MCP\Models\Agent;
 use App\Modules\Project\Models\Project;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 
 class AgentController extends AdminController
 {

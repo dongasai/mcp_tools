@@ -3,7 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Actions\ResetPasswordAction;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;

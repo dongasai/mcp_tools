@@ -8,7 +8,7 @@ use Illuminate\Routing\Controller;
 use Modules\Task\Models\Task;
 use Modules\Task\Models\TaskComment;
 use Modules\Task\Services\TaskCommentService;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Agent\Models\Agent;
 
 class TaskCommentController extends Controller

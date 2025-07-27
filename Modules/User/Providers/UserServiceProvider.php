@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\User\Providers;
+namespace Modules\User\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Modules\User\Services\UserService;
-use App\Modules\User\Services\AuthService;
-use App\Modules\User\Services\ProfileService;
-use App\Modules\User\Services\SimpleAuthService;
+use Modules\User\Services\UserService;
+use Modules\User\Services\AuthService;
+use Modules\User\Services\ProfileService;
+use Modules\User\Services\SimpleAuthService;
 
 class UserServiceProvider extends ServiceProvider
 {

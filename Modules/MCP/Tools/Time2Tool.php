@@ -2,8 +2,8 @@
 
 namespace Modules\MCP\Tools;
 
-use PhpMCP\Server\Attributes\{MCPResource};
-use App\Modules\Agent\Services\AuthenticationService;
+use PhpMcp\Server\Attributes\{McpResource};
+use Modules\MCP\Services\AuthenticationService;
 use Modules\User\Models\User;
 use Carbon\Carbon;
 
@@ -16,7 +16,7 @@ class Time2Tool
     /**
      * Get current time with user timezone information.
      */
-    #[MCPResource(
+    #[McpResource(
         uri: 'time://current',
         name: 'time_current',
         mimeType: 'application/json'
@@ -77,7 +77,7 @@ class Time2Tool
     /**
      * 获取当前认证的Agent
      */
-    private function getCurrentAgent(): \App\Modules\Agent\Models\Agent
+    private function getCurrentAgent(): \Modules\MCP\Models\Agent
     {
         $authInfo = $this->authService->extractAuthFromRequest(request());
 

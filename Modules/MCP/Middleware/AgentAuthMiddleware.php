@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Modules\MCP\Services\AuthenticationService;
 use Modules\MCP\Services\AuthorizationService;
-use App\Modules\Core\Services\LogService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class AgentAuthMiddleware
@@ -15,7 +15,7 @@ class AgentAuthMiddleware
     public function __construct(
         private AuthenticationService $authService,
         private AuthorizationService $authzService,
-        private LogService $logger
+        private LoggerInterface $logger
     ) {}
 
     /**

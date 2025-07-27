@@ -4,20 +4,20 @@ namespace Modules\MCP\Services;
 
 use Modules\MCP\Models\Agent;
 use Modules\User\Models\User;
-use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Core\Contracts\EventInterface;
-use App\Modules\Core\Validators\SimpleValidator;
+use Psr\Log\LoggerInterface;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 
 class AgentService
 {
-    protected LogInterface $logger;
-    protected EventInterface $eventDispatcher;
+    protected LoggerInterface $logger;
+    protected Dispatcher $eventDispatcher;
 
     public function __construct(
-        LogInterface $logger,
-        EventInterface $eventDispatcher
+        LoggerInterface $logger,
+        Dispatcher $eventDispatcher
     ) {
         $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;
@@ -62,14 +62,16 @@ class AgentService
         ]);
 
         // 记录日志
-        $this->logger->audit('agent_created', $user->id, [
+        $this->logger->info('Agent created', [
+            'action' => 'agent_created',
+            'user_id' => $user->id,
             'agent_id' => $agent->id,
             'agent_identifier' => $agentId,
             'name' => $agent->name,
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\MCP\Events\AgentCreated($agent));
+        $this->eventDispatcher->dispatch(new \Modules\MCP\Events\AgentCreated($agent));
 
         return $agent;
     }
@@ -80,7 +82,7 @@ class AgentService
     public function update(Agent $agent, array $data): Agent
     {
         // 验证数据
-        $validatedData = SimpleValidator::check($data, [
+        $validator = Validator::make($data, [
             'name' => 'string|min:2|max:255',
             'description' => 'string|max:1000',
             'capabilities' => 'array',
@@ -88,16 +90,11 @@ class AgentService
             'status' => 'string|in:active,inactive,suspended,pending',
         ]);
 
-        if (empty($validatedData)) {
-            $validator = SimpleValidator::make($data, [
-                'name' => 'string|min:2|max:255',
-                'description' => 'string|max:1000',
-                'capabilities' => 'array',
-                'configuration' => 'array',
-                'status' => 'string|in:active,inactive,suspended,pending',
-            ]);
-            throw new \InvalidArgumentException('Validation failed: ' . $validator->getFirstError());
+        if ($validator->fails()) {
+            throw new \InvalidArgumentException('Validation failed: ' . implode(', ', $validator->errors()->all()));
         }
+
+        $validatedData = $validator->validated();
 
         // 记录原始状态
         $originalStatus = $agent->status;
@@ -107,17 +104,21 @@ class AgentService
 
         // 如果状态发生变化，记录日志和分发事件
         if (isset($validatedData['status']) && $originalStatus !== $validatedData['status']) {
-            $this->logger->audit('agent_status_changed', $agent->user_id, [
+            $this->logger->info('Agent status changed', [
+                'action' => 'agent_status_changed',
+                'user_id' => $agent->user_id,
                 'agent_id' => $agent->id,
                 'old_status' => $originalStatus,
                 'new_status' => $validatedData['status'],
             ]);
 
-            $this->eventDispatcher->dispatch(new \App\Modules\MCP\Events\AgentStatusChanged($agent, $originalStatus));
+            $this->eventDispatcher->dispatch(new \Modules\MCP\Events\AgentStatusChanged($agent, $originalStatus));
         }
 
         // 记录更新日志
-        $this->logger->audit('agent_updated', $agent->user_id, [
+        $this->logger->info('Agent updated', [
+            'action' => 'agent_updated',
+            'user_id' => $agent->user_id,
             'agent_id' => $agent->id,
             'updated_fields' => array_keys($validatedData),
         ]);
@@ -137,14 +138,16 @@ class AgentService
         }
 
         // 记录日志
-        $this->logger->audit('agent_deleted', $agent->user_id, [
+        $this->logger->info('Agent deleted', [
+            'action' => 'agent_deleted',
+            'user_id' => $agent->user_id,
             'agent_id' => $agent->id,
             'agent_identifier' => $agent->agent_id,
             'name' => $agent->name,
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\MCP\Events\AgentDeleted($agent));
+        $this->eventDispatcher->dispatch(new \Modules\MCP\Events\AgentDeleted($agent));
 
         // 删除Agent
         return $agent->delete();
@@ -195,13 +198,15 @@ class AgentService
         $agent->activate();
 
         // 记录日志
-        $this->logger->audit('agent_activated', $agent->user_id, [
+        $this->logger->info('Agent activated', [
+            'action' => 'agent_activated',
+            'user_id' => $agent->user_id,
             'agent_id' => $agent->id,
             'previous_status' => $originalStatus,
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\MCP\Events\AgentActivated($agent));
+        $this->eventDispatcher->dispatch(new \Modules\MCP\Events\AgentActivated($agent));
 
         return $agent->fresh();
     }
@@ -215,13 +220,15 @@ class AgentService
         $agent->deactivate();
 
         // 记录日志
-        $this->logger->audit('agent_deactivated', $agent->user_id, [
+        $this->logger->info('Agent deactivated', [
+            'action' => 'agent_deactivated',
+            'user_id' => $agent->user_id,
             'agent_id' => $agent->id,
             'previous_status' => $originalStatus,
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\MCP\Events\AgentDeactivated($agent));
+        $this->eventDispatcher->dispatch(new \Modules\MCP\Events\AgentDeactivated($agent));
 
         return $agent->fresh();
     }

@@ -2,14 +2,14 @@
 
 namespace Modules\MCP\Tools;
 
-use PhpMCP\Server\Attributes\MCPTool;
+use PhpMcp\Server\Attributes\McpTool;
 use Modules\Task\Services\TaskService;
 use Modules\Task\Services\TaskCommentService;
 use Modules\Task\Models\Task;
 use Modules\Task\Enums\TASKSTATUS;
 use Modules\Task\Enums\TASKTYPE;
-use App\Modules\Agent\Services\AuthenticationService;
-use App\Modules\Agent\Services\AuthorizationService;
+use Modules\MCP\Services\AuthenticationService;
+use Modules\MCP\Services\AuthorizationService;
 use Modules\MCP\Services\ErrorHandlerService;
 
 class TaskTool
@@ -25,7 +25,7 @@ class TaskTool
     /**
      * 创建主任务
      */
-    #[MCPTool(name: 'task_create_main')]
+    #[McpTool(name: 'task_create_main')]
     public function createMainTask(string $title, string $description = '', string $priority = 'medium'): array
     {
         try {
@@ -85,7 +85,7 @@ class TaskTool
     /**
      * 创建子任务
      */
-    #[MCPTool(name: 'task_create_sub')]
+    #[McpTool(name: 'task_create_sub')]
     public function createSubTask(string $parentTaskId, string $title, string $description = '', string $priority = 'medium'): array
     {
         try {
@@ -127,7 +127,7 @@ class TaskTool
     /**
      * 获取任务列表
      */
-    #[MCPTool(name: 'task_list')]
+    #[McpTool(name: 'task_list')]
     public function listTasks(string $status = '', string $type = '', bool $assignedToMe = false, int $limit = 20): array
     {
         try {
@@ -174,7 +174,7 @@ class TaskTool
     /**
      * 获取任务详情
      */
-    #[MCPTool(name: 'task_get')]
+    #[McpTool(name: 'task_get')]
     public function getTask(string $taskId): array
     {
         try {
@@ -215,7 +215,7 @@ class TaskTool
     /**
      * 完成任务
      */
-    #[MCPTool(name: 'task_complete')]
+    #[McpTool(name: 'task_complete')]
     public function completeTask(string $taskId, string $result = ''): array
     {
         try {
@@ -254,7 +254,7 @@ class TaskTool
     /**
      * 添加评论
      */
-    #[MCPTool(name: 'task_add_comment')]
+    #[McpTool(name: 'task_add_comment')]
     public function addComment(string $taskId, string $content, string $commentType = 'general', bool $isInternal = false): array
     {
         try {
@@ -291,7 +291,7 @@ class TaskTool
     /**
      * 获取分配给当前Agent的任务
      */
-    #[MCPTool(name: 'task_get_assigned')]
+    #[McpTool(name: 'task_get_assigned')]
     public function getAssignedTasks(): array
     {
         try {
@@ -355,7 +355,7 @@ class TaskTool
     /**
      * 获取当前认证的Agent
      */
-    private function getCurrentAgent(): \App\Modules\Agent\Models\Agent
+    private function getCurrentAgent(): \Modules\MCP\Models\Agent
     {
         $authInfo = $this->authService->extractAuthFromRequest(request());
 

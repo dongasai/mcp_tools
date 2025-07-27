@@ -8,7 +8,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Show;
 use Dcat\Admin\Layout\Content;
 use App\Modules\Project\Models\Project;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 
 class ProjectController extends AdminController
 {

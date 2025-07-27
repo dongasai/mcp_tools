@@ -10,7 +10,7 @@ use App\Modules\Dbcont\Enums\ConnectionStatus;
 use App\Modules\Dbcont\Models\AgentDatabasePermission;
 use App\Modules\Dbcont\Enums\PermissionLevel;
 use App\Modules\Project\Models\Project;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 
 class DatabaseConnectionSeeder extends Seeder
 {

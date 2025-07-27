@@ -5,10 +5,10 @@ namespace App\UserAdmin\Controllers;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Widgets\Card;
-use App\Modules\User\Models\User;
-use App\Modules\Project\Models\Project;
-use App\Modules\Task\Models\Task;
-use App\Modules\MCP\Models\Agent;
+use Modules\User\Models\User;
+use Modules\Project\Models\Project;
+use Modules\Task\Models\Task;
+use Modules\MCP\Models\Agent;
 
 class DashboardController extends AdminController
 {

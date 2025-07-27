@@ -4,7 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Modules\Task\Models\Task;
 use App\Modules\Task\Models\TaskComment;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Agent\Models\Agent;
 use App\Modules\Project\Models\Project;
 use App\Modules\Task\Enums\TASKTYPE;

@@ -76,7 +76,7 @@ class TestController extends Controller
     public function testDatabase(): JsonResponse
     {
         try {
-            $userCount = \App\Modules\User\Models\User::count();
+            $userCount = \Modules\User\Models\User::count();
 
             return response()->json([
                 'success' => true,

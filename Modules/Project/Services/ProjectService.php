@@ -3,21 +3,21 @@
 namespace Modules\Project\Services;
 
 use Modules\Project\Models\Project;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Agent\Models\Agent;
-use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Core\Contracts\EventInterface;
-use App\Modules\Core\Validators\SimpleValidator;
+use Psr\Log\LoggerInterface;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Collection;
 
 class ProjectService
 {
-    protected LogInterface $logger;
-    protected EventInterface $eventDispatcher;
+    protected LoggerInterface $logger;
+    protected Dispatcher $eventDispatcher;
 
     public function __construct(
-        LogInterface $logger,
-        EventInterface $eventDispatcher
+        LoggerInterface $logger,
+        Dispatcher $eventDispatcher
     ) {
         $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;

@@ -5,9 +5,9 @@ namespace Modules\Task\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Modules\Project\Models\Project;
-use App\Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
+use Modules\Project\Models\Project;
+use Modules\User\Models\User;
+use Modules\MCP\Models\Agent;
 use Modules\Task\Enums\TASKSTATUS;
 use Modules\Task\Enums\TASKTYPE;
 use Modules\Task\Enums\TASKPRIORITY;
@@ -140,7 +140,7 @@ class Task extends Model
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(\App\Modules\Task\Models\TaskComment::class);
+        return $this->hasMany(\Modules\Task\Models\TaskComment::class);
     }
 
     /**
@@ -148,7 +148,7 @@ class Task extends Model
      */
     public function agentTasks(): HasMany
     {
-        return $this->hasMany(\App\Modules\Task\Models\AgentTask::class, 'main_task_id');
+        return $this->hasMany(\Modules\Task\Models\AgentTask::class, 'main_task_id');
     }
 
     /**

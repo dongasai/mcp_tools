@@ -2,7 +2,7 @@
 
 namespace Modules\MCP\Services;
 
-use App\Modules\Core\Contracts\LogInterface;
+use Psr\Log\LoggerInterface;
 use Modules\MCP\Services\AgentService;
 use Modules\MCP\Services\AuthorizationService;
 use PhpMCP\Laravel\Facades\MCP;
@@ -10,13 +10,18 @@ use PhpMCP\Laravel\Facades\MCP;
 class MCPService
 {
     public function __construct(
-        private LogInterface $logger,
+        private LoggerInterface $logger,
         private AgentService $agentService,
         private AuthorizationService $authorizationService
-    ) {}
+    ) {
+        // MCP服务初始化
+    }
 
     /**
      * 启动MCP服务器
+     *
+     * @param array $options 服务器启动参数
+     * @return bool 服务器启动成功返回true，失败返回false
      */
     public function startServer(array $options = []): bool
     {
@@ -37,6 +42,11 @@ class MCPService
 
     /**
      * 验证Agent权限
+     *
+     * @param string $agentId Agent的唯一标识
+     * @param string $resource 要访问的资源
+     * @param string $action 要执行的操作
+     * @return bool 有权限返回true，无权限返回false
      */
     public function validateAgentAccess(string $agentId, string $resource, string $action): bool
     {
@@ -69,6 +79,8 @@ class MCPService
 
     /**
      * 获取MCP服务器状态
+     *
+     * @return array 包含服务器状态信息的数组
      */
     public function getServerStatus(): array
     {
@@ -84,6 +96,10 @@ class MCPService
 
     /**
      * 记录MCP会话
+     *
+     * @param string $agentId Agent的唯一标识
+     * @param string $action 执行的操作
+     * @param array $data 附加的会话数据
      */
     public function logSession(string $agentId, string $action, array $data = []): void
     {

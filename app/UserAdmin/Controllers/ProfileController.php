@@ -6,7 +6,7 @@ use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Widgets\Card;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use Illuminate\Http\Request;
 
 class ProfileController extends AdminController

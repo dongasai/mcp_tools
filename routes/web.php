@@ -7,7 +7,7 @@ Route::get('/', function () {
 });
 
 // Task模型测试路由
-require __DIR__ . '/../app/Modules/Task/routes/test.php';
+require __DIR__ . '/../Modules/Task/routes/test.php';
 
 Route::get('/timeout', function () {
     // 设置响应头，禁用缓冲

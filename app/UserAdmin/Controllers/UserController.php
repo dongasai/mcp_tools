@@ -2,7 +2,7 @@
 
 namespace App\UserAdmin\Controllers;
 
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;

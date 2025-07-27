@@ -4,7 +4,7 @@ namespace Modules\Project\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 
 class ProjectMember extends Model
 {

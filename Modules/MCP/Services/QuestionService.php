@@ -8,7 +8,7 @@ use Modules\MCP\Models\AgentQuestion;
 use Modules\MCP\Events\QuestionCreated;
 use Modules\MCP\Events\QuestionAnswered;
 use Modules\MCP\Events\QuestionIgnored;
-use App\Modules\Core\Contracts\LogInterface;
+use Psr\Log\LoggerInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
@@ -16,7 +16,7 @@ use Carbon\Carbon;
 class QuestionService
 {
     public function __construct(
-        private LogInterface $logger
+        private LoggerInterface $logger
     ) {}
 
     /**

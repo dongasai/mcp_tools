@@ -10,7 +10,7 @@ use Dcat\Admin\Layout\Content;
 use App\Modules\Task\Models\Task;
 use App\Modules\Task\Models\TaskComment;
 use App\Modules\Project\Models\Project;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Task\Services\TaskCommentService;
 use App\Modules\Task\Enums\COMMENTTYPE;
 use App\Modules\Task\Enums\TASKSTATUS;

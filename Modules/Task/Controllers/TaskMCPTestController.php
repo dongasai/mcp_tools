@@ -5,11 +5,11 @@ namespace Modules\Task\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Modules\MCP\Tools\TaskTool;
-use App\Modules\MCP\Resources\TaskResource;
-use App\Modules\MCP\Services\SessionService;
+use Modules\MCP\Tools\TaskTool;
+use Modules\MCP\Resources\TaskResource;
+use Modules\MCP\Services\SessionService;
 use Modules\Task\Models\Task;
-use App\Modules\User\Models\User;
+use Modules\User\Models\User;
 use App\Modules\Project\Models\Project;
 
 class TaskMCPTestController extends Controller

@@ -2,10 +2,10 @@
 
 namespace App\UserAdmin\Controllers;
 
-use App\Modules\Task\Models\Task;
-use App\Modules\Task\Models\TaskComment;
-use App\Modules\Task\Enums\COMMENTTYPE;
-use App\Modules\Task\Services\TaskCommentService;
+use Modules\Task\Models\Task;
+use Modules\Task\Models\TaskComment;
+use Modules\Task\Enums\COMMENTTYPE;
+use Modules\Task\Services\TaskCommentService;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -46,7 +46,7 @@ class TaskCommentController extends AdminController
                 // 确保$value是字符串
                 if (is_string($value)) {
                     $valueStr = $value;
-                } elseif ($value instanceof \App\Modules\Task\Enums\COMMENTTYPE) {
+                } elseif ($value instanceof \Modules\Task\Enums\COMMENTTYPE) {
                     $valueStr = $value->value;
                 } else {
                     $valueStr = (string)$value;

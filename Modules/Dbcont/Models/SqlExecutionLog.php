@@ -2,7 +2,7 @@
 
 namespace Modules\Dbcont\Models;
 
-use App\Modules\Agent\Models\Agent;
+use Modules\Agent\Models\Agent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

@@ -4,7 +4,7 @@ namespace Modules\Project\Services;
 
 use Modules\Project\Models\Project;
 use Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
+use Modules\Agent\Models\Agent;
 use Psr\Log\LoggerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\Validator;
@@ -82,7 +82,7 @@ class ProjectService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\Project\Events\ProjectCreated($project));
+        $this->eventDispatcher->dispatch(new \Modules\Project\Events\ProjectCreated($project));
 
         return $project;
     }
@@ -141,7 +141,7 @@ class ProjectService
                 'new_status' => $validatedData['status'],
             ]);
 
-            $this->eventDispatcher->dispatch(new \App\Modules\Project\Events\ProjectStatusChanged($project, $originalStatus));
+            $this->eventDispatcher->dispatch(new \Modules\Project\Events\ProjectStatusChanged($project, $originalStatus));
         }
 
         // 如果Agent发生变化，记录日志和分发事件
@@ -152,7 +152,7 @@ class ProjectService
                 'new_agent_id' => $validatedData['agent_id'],
             ]);
 
-            $this->eventDispatcher->dispatch(new \App\Modules\Project\Events\ProjectAgentChanged($project, $originalAgentId));
+            $this->eventDispatcher->dispatch(new \Modules\Project\Events\ProjectAgentChanged($project, $originalAgentId));
         }
 
         // 记录更新日志
@@ -182,7 +182,7 @@ class ProjectService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\Project\Events\ProjectDeleted($project));
+        $this->eventDispatcher->dispatch(new \Modules\Project\Events\ProjectDeleted($project));
 
         // 删除项目
         return $project->delete();

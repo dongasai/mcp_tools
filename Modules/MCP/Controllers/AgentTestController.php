@@ -5,8 +5,8 @@ namespace Modules\MCP\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Modules\Agent\Models\Agent;
-use App\Modules\Agent\Services\AgentService;
+use Modules\Agent\Models\Agent;
+use Modules\Agent\Services\AgentService;
 use Modules\User\Models\User;
 
 class AgentTestController extends Controller

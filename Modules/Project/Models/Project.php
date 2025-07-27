@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\User\Models\User;
-use App\Modules\Task\Models\Task;
-use App\Modules\Agent\Models\Agent;
+use Modules\Task\Models\Task;
+use Modules\Agent\Models\Agent;
 
 class Project extends Model
 {

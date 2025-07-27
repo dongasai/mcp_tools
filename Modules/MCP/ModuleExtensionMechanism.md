@@ -44,7 +44,7 @@
 ```php
 <?php
 
-namespace App\Modules\MCP\Contracts;
+namespace Modules\MCP\Contracts;
 
 interface MCPExtensionInterface
 {
@@ -103,9 +103,9 @@ interface MCPExtensionInterface
 ```php
 <?php
 
-namespace App\Modules\MCP\Extensions;
+namespace Modules\MCP\Extensions;
 
-use App\Modules\MCP\Contracts\MCPExtensionInterface;
+use Modules\MCP\Contracts\MCPExtensionInterface;
 
 abstract class BaseMCPExtension implements MCPExtensionInterface
 {
@@ -179,9 +179,9 @@ abstract class BaseMCPExtension implements MCPExtensionInterface
 ```php
 <?php
 
-namespace App\Modules\MCP\Services;
+namespace Modules\MCP\Services;
 
-use App\Modules\MCP\Contracts\MCPExtensionInterface;
+use Modules\MCP\Contracts\MCPExtensionInterface;
 use Illuminate\Support\Collection;
 
 class ExtensionRegistry
@@ -310,9 +310,9 @@ class ExtensionRegistry
 ```php
 <?php
 
-namespace App\Modules\MCP\Services;
+namespace Modules\MCP\Services;
 
-use App\Modules\MCP\Contracts\MCPExtensionInterface;
+use Modules\MCP\Contracts\MCPExtensionInterface;
 use Illuminate\Support\Facades\File;
 
 class ExtensionDiscoverer
@@ -492,9 +492,9 @@ class ExtensionDiscoverer
 ```php
 <?php
 
-namespace App\Modules\MCP\Extensions;
+namespace Modules\MCP\Extensions;
 
-use App\Modules\MCP\Tools\BaseMCPTool;
+use Modules\MCP\Tools\BaseMCPTool;
 
 abstract class ExtendedMCPTool extends BaseMCPTool
 {
@@ -556,9 +556,9 @@ abstract class ExtendedMCPTool extends BaseMCPTool
 ```php
 <?php
 
-namespace App\Modules\MCP\Extensions;
+namespace Modules\MCP\Extensions;
 
-use App\Modules\MCP\Resources\BaseMCPResource;
+use Modules\MCP\Resources\BaseMCPResource;
 
 abstract class ExtendedMCPResource extends BaseMCPResource
 {
@@ -607,9 +607,9 @@ abstract class ExtendedMCPResource extends BaseMCPResource
 ```php
 <?php
 
-namespace App\Modules\Task\Extensions;
+namespace Modules\Task\Extensions;
 
-use App\Modules\MCP\Extensions\BaseMCPExtension;
+use Modules\MCP\Extensions\BaseMCPExtension;
 
 class TaskExtension extends BaseMCPExtension
 {
@@ -669,9 +669,9 @@ class TaskExtension extends BaseMCPExtension
 ```php
 <?php
 
-namespace App\Modules\Task\Extensions;
+namespace Modules\Task\Extensions;
 
-use App\Modules\MCP\Extensions\ExtendedMCPTool;
+use Modules\MCP\Extensions\ExtendedMCPTool;
 use PhpMCP\Server\Attributes\MCPTool;
 
 class TaskAnalyticsTool extends ExtendedMCPTool
@@ -778,9 +778,9 @@ class TaskAnalyticsTool extends ExtendedMCPTool
 ```php
 <?php
 
-namespace App\Modules\Task\Extensions;
+namespace Modules\Task\Extensions;
 
-use App\Modules\MCP\Extensions\ExtendedMCPResource;
+use Modules\MCP\Extensions\ExtendedMCPResource;
 use PhpMCP\Server\Attributes\MCPResource;
 
 class TaskMetricsResource extends ExtendedMCPResource
@@ -916,11 +916,11 @@ return [
 ```php
 <?php
 
-namespace App\Modules\MCP\Providers;
+namespace Modules\MCP\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Modules\MCP\Services\ExtensionRegistry;
-use App\Modules\MCP\Services\ExtensionDiscoverer;
+use Modules\MCP\Services\ExtensionRegistry;
+use Modules\MCP\Services\ExtensionDiscoverer;
 
 class MCPServiceProvider extends ServiceProvider
 {
@@ -951,7 +951,7 @@ class MCPServiceProvider extends ServiceProvider
 ```php
 <?php
 
-namespace App\Modules\MCP\Services;
+namespace Modules\MCP\Services;
 
 use PhpMCP\Server\Utils\Discoverer;
 

@@ -8,7 +8,7 @@ use Illuminate\Routing\Controller;
 use Modules\Project\Models\Project;
 use Modules\Project\Services\ProjectService;
 use Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
+use Modules\Agent\Models\Agent;
 
 class ProjectTestController extends Controller
 {

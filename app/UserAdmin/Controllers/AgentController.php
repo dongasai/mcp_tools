@@ -7,8 +7,8 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Form;
 use Dcat\Admin\Show;
 use Dcat\Admin\Layout\Content;
-use App\Modules\MCP\Models\Agent;
-use App\Modules\Project\Models\Project;
+use Modules\MCP\Models\Agent;
+use Modules\Project\Models\Project;
 use Modules\User\Models\User;
 
 class AgentController extends AdminController
@@ -103,7 +103,7 @@ class AgentController extends AdminController
 
         // 项目选择 - 只显示当前用户的项目
         $user = auth('user-admin')->user();
-        $projects = $user ? \App\Modules\Project\Models\Project::where('user_id', $user->id)->pluck('name', 'id') : [];
+        $projects = $user ? \Modules\Project\Models\Project::where('user_id', $user->id)->pluck('name', 'id') : [];
         $form->select('project_id', '所属项目')->options($projects)->required()->help('选择此Agent所属的项目');
 
         $form->select('status', '状态')->options([

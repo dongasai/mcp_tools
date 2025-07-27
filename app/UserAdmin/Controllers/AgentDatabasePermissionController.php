@@ -2,10 +2,10 @@
 
 namespace App\UserAdmin\Controllers;
 
-use App\Modules\Dbcont\Models\AgentDatabasePermission;
-use App\Modules\Dbcont\Models\DatabaseConnection;
-use App\Modules\Dbcont\Enums\PermissionLevel;
-use App\Modules\MCP\Models\Agent;
+use Modules\Dbcont\Models\AgentDatabasePermission;
+use Modules\Dbcont\Models\DatabaseConnection;
+use Modules\Dbcont\Enums\PermissionLevel;
+use Modules\MCP\Models\Agent;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -59,7 +59,7 @@ class AgentDatabasePermissionController extends AdminController
                     'READ_WRITE' => '读写',
                     'ADMIN' => '管理员',
                 ];
-                $key = $value instanceof \App\Modules\Dbcont\Enums\PermissionLevel ? $value->value : $value;
+                $key = $value instanceof \Modules\Dbcont\Enums\PermissionLevel ? $value->value : $value;
                 return $labels[$key] ?? $key;
             })->label([
                 'READ_ONLY' => 'info',
@@ -203,7 +203,7 @@ class AgentDatabasePermissionController extends AdminController
                     'READ_WRITE' => '读写',
                     'ADMIN' => '管理员',
                 ];
-                $key = $value instanceof \App\Modules\Dbcont\Enums\PermissionLevel ? $value->value : $value;
+                $key = $value instanceof \Modules\Dbcont\Enums\PermissionLevel ? $value->value : $value;
                 return $labels[$key] ?? $key;
             });
 

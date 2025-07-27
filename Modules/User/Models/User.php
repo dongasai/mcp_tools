@@ -74,7 +74,7 @@ class User extends Authenticatable
      */
     public function projects(): HasMany
     {
-        return $this->hasMany(\App\Modules\Project\Models\Project::class, 'user_id');
+        return $this->hasMany(\Modules\Project\Models\Project::class, 'user_id');
     }
 
     /**
@@ -82,7 +82,7 @@ class User extends Authenticatable
      */
     public function createdTasks(): HasMany
     {
-        return $this->hasMany(\App\Modules\Task\Models\Task::class, 'created_by');
+        return $this->hasMany(\Modules\Task\Models\Task::class, 'created_by');
     }
 
     /**
@@ -90,7 +90,7 @@ class User extends Authenticatable
      */
     public function assignedTasks(): HasMany
     {
-        return $this->hasMany(\App\Modules\Task\Models\Task::class, 'assigned_to');
+        return $this->hasMany(\Modules\Task\Models\Task::class, 'assigned_to');
     }
 
     /**
@@ -98,7 +98,7 @@ class User extends Authenticatable
      */
     public function agents(): HasMany
     {
-        return $this->hasMany(\App\Modules\Agent\Models\Agent::class, 'user_id');
+        return $this->hasMany(\Modules\Agent\Models\Agent::class, 'user_id');
     }
 
     /**

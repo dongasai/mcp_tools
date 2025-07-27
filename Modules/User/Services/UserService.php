@@ -69,7 +69,7 @@ class UserService
             ]);
 
             // 分发事件
-            $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserCreated($user));
+            $this->eventDispatcher->dispatch(new \Modules\User\Events\UserCreated($user));
 
             DB::commit();
             return $user;
@@ -126,7 +126,7 @@ class UserService
             ]);
 
             // 分发事件
-            $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserUpdated($user, $oldData));
+            $this->eventDispatcher->dispatch(new \Modules\User\Events\UserUpdated($user, $oldData));
 
             DB::commit();
             return $user->fresh();
@@ -157,7 +157,7 @@ class UserService
             ]);
 
             // 分发事件
-            $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserDeleted($user));
+            $this->eventDispatcher->dispatch(new \Modules\User\Events\UserDeleted($user));
 
             DB::commit();
             return true;
@@ -211,7 +211,7 @@ class UserService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserStatusChanged($user, $oldStatus, $status));
+        $this->eventDispatcher->dispatch(new \Modules\User\Events\UserStatusChanged($user, $oldStatus, $status));
 
         return $user->fresh();
     }
@@ -229,7 +229,7 @@ class UserService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserEmailVerified($user));
+        $this->eventDispatcher->dispatch(new \Modules\User\Events\UserEmailVerified($user));
 
         return $user->fresh();
     }

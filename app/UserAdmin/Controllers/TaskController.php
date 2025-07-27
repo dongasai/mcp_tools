@@ -7,15 +7,15 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Form;
 use Dcat\Admin\Show;
 use Dcat\Admin\Layout\Content;
-use App\Modules\Task\Models\Task;
-use App\Modules\Task\Models\TaskComment;
-use App\Modules\Project\Models\Project;
+use Modules\Task\Models\Task;
+use Modules\Task\Models\TaskComment;
+use Modules\Project\Models\Project;
 use Modules\User\Models\User;
-use App\Modules\Task\Services\TaskCommentService;
-use App\Modules\Task\Enums\COMMENTTYPE;
-use App\Modules\Task\Enums\TASKSTATUS;
-use App\Modules\Task\Enums\TASKTYPE;
-use App\Modules\Task\Enums\TASKPRIORITY;
+use Modules\Task\Services\TaskCommentService;
+use Modules\Task\Enums\COMMENTTYPE;
+use Modules\Task\Enums\TASKSTATUS;
+use Modules\Task\Enums\TASKTYPE;
+use Modules\Task\Enums\TASKPRIORITY;
 use Illuminate\Http\Request;
 
 class TaskController extends AdminController

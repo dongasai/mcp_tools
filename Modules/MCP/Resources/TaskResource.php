@@ -4,8 +4,8 @@ namespace Modules\MCP\Resources;
 
 use PhpMCP\Server\Attributes\MCPResource;
 use Modules\Task\Services\TaskService;
-use App\Modules\Agent\Services\AuthenticationService;
-use App\Modules\Agent\Services\AuthorizationService;
+use Modules\Agent\Services\AuthenticationService;
+use Modules\Agent\Services\AuthorizationService;
 
 class TaskResource
 {
@@ -215,7 +215,7 @@ class TaskResource
     /**
      * 获取当前认证的Agent
      */
-    private function getCurrentAgent(): \App\Modules\Agent\Models\Agent
+    private function getCurrentAgent(): \Modules\Agent\Models\Agent
     {
         $authInfo = $this->authService->extractAuthFromRequest(request());
 

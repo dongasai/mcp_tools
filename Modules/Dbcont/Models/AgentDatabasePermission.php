@@ -3,7 +3,7 @@
 namespace Modules\Dbcont\Models;
 
 use Modules\Dbcont\Enums\PermissionLevel;
-use App\Modules\MCP\Models\Agent;
+use Modules\MCP\Models\Agent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

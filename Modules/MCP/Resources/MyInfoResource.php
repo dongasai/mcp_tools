@@ -3,7 +3,7 @@
 namespace Modules\MCP\Resources;
 
 use PhpMCP\Server\Attributes\MCPResource;
-use App\Modules\Agent\Services\AuthenticationService;
+use Modules\Agent\Services\AuthenticationService;
 use Modules\Project\Models\Project;
 
 class MyInfoResource
@@ -87,7 +87,7 @@ class MyInfoResource
     /**
      * 获取当前认证的Agent
      */
-    private function getCurrentAgent(): \App\Modules\Agent\Models\Agent
+    private function getCurrentAgent(): \Modules\Agent\Models\Agent
     {
         $authInfo = $this->authService->extractAuthFromRequest(request());
 

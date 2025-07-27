@@ -2,12 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Modules\Agent\Enums\QuestionPriority;
-use App\Modules\Agent\Models\Agent;
-use App\Modules\Agent\Models\AgentQuestion;
+use Modules\Agent\Enums\QuestionPriority;
+use Modules\Agent\Models\Agent;
+use Modules\Agent\Models\AgentQuestion;
 use Modules\User\Models\User;
-use App\Modules\Task\Models\Task;
-use App\Modules\Project\Models\Project;
+use Modules\Task\Models\Task;
+use Modules\Project\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AgentQuestionFactory extends Factory

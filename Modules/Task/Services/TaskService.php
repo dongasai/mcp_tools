@@ -4,8 +4,8 @@ namespace Modules\Task\Services;
 
 use Modules\Task\Models\Task;
 use Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
-use App\Modules\Project\Models\Project;
+use Modules\Agent\Models\Agent;
+use Modules\Project\Models\Project;
 use Psr\Log\LoggerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\Validator;

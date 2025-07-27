@@ -9,7 +9,7 @@ use Modules\Task\Enums\TASKSTATUS;
 use Modules\Task\Enums\TASKTYPE;
 use Modules\Task\Enums\TASKPRIORITY;
 use Modules\User\Models\User;
-use App\Modules\Project\Models\Project;
+use Modules\Project\Models\Project;
 
 class TaskModelTestController
 {

@@ -8,8 +8,8 @@ use Illuminate\Routing\Controller;
 use Modules\Task\Models\Task;
 use Modules\Task\Services\TaskService;
 use Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
-use App\Modules\Project\Models\Project;
+use Modules\Agent\Models\Agent;
+use Modules\Project\Models\Project;
 
 class TaskTestController extends Controller
 {

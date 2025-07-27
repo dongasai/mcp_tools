@@ -2,9 +2,9 @@
 
 namespace App\UserAdmin\Controllers;
 
-use App\Modules\Dbcont\Models\SqlExecutionLog;
-use App\Modules\Dbcont\Models\DatabaseConnection;
-use App\Modules\MCP\Models\Agent;
+use Modules\Dbcont\Models\SqlExecutionLog;
+use Modules\Dbcont\Models\DatabaseConnection;
+use Modules\MCP\Models\Agent;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;

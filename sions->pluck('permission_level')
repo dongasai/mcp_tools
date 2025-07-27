@@ -1,6 +1,6 @@
 [90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#6558
     [34mall[39m: [
-      [34;4mApp\Modules\Dbcont\Models\AgentDatabasePermission[39;24m {#6562
+      [34;4mModules\Dbcont\Models\AgentDatabasePermission[39;24m {#6562
         [34mid[39m: [35m1[39m,
         [34magent_id[39m: [35m1[39m,
         [34mdatabase_connection_id[39m: [35m1[39m,

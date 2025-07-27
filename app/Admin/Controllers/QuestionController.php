@@ -2,12 +2,12 @@
 
 namespace App\Admin\Controllers;
 
-use App\Modules\MCP\Enums\QuestionPriority;
-use App\Modules\MCP\Models\AgentQuestion;
-use App\Modules\MCP\Models\Agent;
+use Modules\MCP\Enums\QuestionPriority;
+use Modules\MCP\Models\AgentQuestion;
+use Modules\MCP\Models\Agent;
 use Modules\User\Models\User;
-use App\Modules\Project\Models\Project;
-use App\Modules\Task\Models\Task;
+use Modules\Project\Models\Project;
+use Modules\Task\Models\Task;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;

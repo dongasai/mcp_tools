@@ -2,7 +2,7 @@
 
 namespace Modules\MCP\Controllers;
 
-use App\Modules\Agent\Services\QuestionService;
+use Modules\Agent\Services\QuestionService;
 use App\Modules\Core\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;

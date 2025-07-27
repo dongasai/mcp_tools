@@ -4,7 +4,7 @@ namespace Modules\Task\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Modules\Agent\Models\Agent;
+use Modules\Agent\Models\Agent;
 use Modules\Task\Enums\TASKSTATUS;
 use Modules\Task\Enums\TASKPRIORITY;
 

@@ -465,7 +465,7 @@
    - 将 `app/Modules/Dbcont/Resources/SqlExecutionLogResource.php` 移动到 `app/Modules/MCP/Resources/`
 
 2. **命名空间更新**:
-   - 所有移动的文件命名空间从 `App\Modules\Dbcont\*` 更新为 `App\Modules\MCP\*`
+   - 所有移动的文件命名空间从 `Modules\Dbcont\*` 更新为 `Modules\MCP\*`
    - 保持原有的依赖注入和服务调用不变
 
 3. **配置清理**:

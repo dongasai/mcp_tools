@@ -2,8 +2,8 @@
 
 namespace App\UserAdmin\Controllers;
 
-use App\Modules\Dbcont\Models\DatabaseConnection;
-use App\Modules\Dbcont\Services\DatabaseConnectionService;
+use Modules\Dbcont\Models\DatabaseConnection;
+use Modules\Dbcont\Services\DatabaseConnectionService;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;

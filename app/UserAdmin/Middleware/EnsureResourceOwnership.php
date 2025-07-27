@@ -4,12 +4,12 @@ namespace App\UserAdmin\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Modules\Project\Models\Project;
-use App\Modules\Task\Models\Task;
-use App\Modules\MCP\Models\Agent;
+use Modules\Project\Models\Project;
+use Modules\Task\Models\Task;
+use Modules\MCP\Models\Agent;
 use Modules\User\Models\User;
-use App\Modules\Dbcont\Models\DatabaseConnection;
-use App\Modules\Dbcont\Models\AgentDatabasePermission;
+use Modules\Dbcont\Models\DatabaseConnection;
+use Modules\Dbcont\Models\AgentDatabasePermission;
 
 class EnsureResourceOwnership
 {

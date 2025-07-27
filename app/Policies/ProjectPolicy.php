@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Modules\Project\Models\Project;
-use App\Modules\Project\Models\ProjectMember;
+use Modules\Project\Models\Project;
+use Modules\Project\Models\ProjectMember;
 use Modules\User\Models\User;
 use Illuminate\Auth\Access\Response;
 

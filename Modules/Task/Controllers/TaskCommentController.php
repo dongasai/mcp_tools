@@ -9,7 +9,7 @@ use Modules\Task\Models\Task;
 use Modules\Task\Models\TaskComment;
 use Modules\Task\Services\TaskCommentService;
 use Modules\User\Models\User;
-use App\Modules\Agent\Models\Agent;
+use Modules\Agent\Models\Agent;
 
 class TaskCommentController extends Controller
 {

@@ -92,8 +92,8 @@ status: 执行状态
 ### 1. 创建数据库连接
 
 ```php
-use App\Modules\Dbcont\Services\DatabaseConnectionService;
-use App\Modules\Dbcont\Enums\DatabaseType;
+use Modules\Dbcont\Services\DatabaseConnectionService;
+use Modules\Dbcont\Enums\DatabaseType;
 
 $service = app(DatabaseConnectionService::class);
 
@@ -115,8 +115,8 @@ $connection = $service->createConnection([
 ### 2. 授予权限
 
 ```php
-use App\Modules\Dbcont\Services\PermissionService;
-use App\Modules\Dbcont\Enums\PermissionLevel;
+use Modules\Dbcont\Services\PermissionService;
+use Modules\Dbcont\Enums\PermissionLevel;
 
 $service = app(PermissionService::class);
 
@@ -130,7 +130,7 @@ $service->grantPermission(
 ### 3. 执行SQL
 
 ```php
-use App\Modules\Dbcont\Services\SqlExecutionService;
+use Modules\Dbcont\Services\SqlExecutionService;
 
 $service = app(SqlExecutionService::class);
 
@@ -209,7 +209,7 @@ php artisan migrate --path=app/Modules/Dbcont/database/migrations
 ## 操作日志示例
 
 ```php
-use App\Modules\Dbcont\Services\OperationLogService;
+use Modules\Dbcont\Services\OperationLogService;
 
 $logService = app(OperationLogService::class);
 

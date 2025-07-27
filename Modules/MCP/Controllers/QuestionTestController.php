@@ -2,11 +2,11 @@
 
 namespace Modules\MCP\Controllers;
 
-use App\Modules\Agent\Enums\QuestionPriority;
-use App\Modules\Agent\Services\QuestionService;
-use App\Modules\Agent\Services\QuestionNotificationService;
-use App\Modules\Agent\Models\Agent;
-use App\Modules\Agent\Models\AgentQuestion;
+use Modules\Agent\Enums\QuestionPriority;
+use Modules\Agent\Services\QuestionService;
+use Modules\Agent\Services\QuestionNotificationService;
+use Modules\Agent\Models\Agent;
+use Modules\Agent\Models\AgentQuestion;
 use Modules\User\Models\User;
 use App\Modules\Core\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;

@@ -125,7 +125,7 @@ class ProfileService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\User\Events\PasswordChanged($user));
+        $this->eventDispatcher->dispatch(new \Modules\User\Events\PasswordChanged($user));
     }
 
     /**

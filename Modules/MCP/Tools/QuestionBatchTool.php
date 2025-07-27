@@ -2,8 +2,8 @@
 
 namespace Modules\MCP\Tools;
 
-use App\Modules\Agent\Services\QuestionService;
-use App\Modules\Agent\Services\QuestionAnalyticsService;
+use Modules\Agent\Services\QuestionService;
+use Modules\Agent\Services\QuestionAnalyticsService;
 use App\Modules\Core\Contracts\LogInterface;
 use Illuminate\Support\Facades\Validator;
 

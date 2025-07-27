@@ -4,7 +4,7 @@ namespace Modules\MCP\Resources;
 
 use PhpMCP\Server\Attributes\{MCPResource, MCPResourceTemplate};
 use Modules\Dbcont\Models\SqlExecutionLog;
-use App\Modules\Agent\Services\AuthenticationService;
+use Modules\Agent\Services\AuthenticationService;
 use Illuminate\Support\Facades\Log;
 
 class SqlExecutionLogResource

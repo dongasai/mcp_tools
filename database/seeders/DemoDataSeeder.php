@@ -3,13 +3,13 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Modules\Dbcont\Models\DatabaseConnection;
-use App\Modules\MCP\Models\Agent;
-use App\Modules\Dbcont\Enums\DatabaseType;
-use App\Modules\Dbcont\Enums\ConnectionStatus;
-use App\Modules\Dbcont\Models\AgentDatabasePermission;
-use App\Modules\Dbcont\Enums\PermissionLevel;
-use App\Modules\Project\Models\Project;
+use Modules\Dbcont\Models\DatabaseConnection;
+use Modules\MCP\Models\Agent;
+use Modules\Dbcont\Enums\DatabaseType;
+use Modules\Dbcont\Enums\ConnectionStatus;
+use Modules\Dbcont\Models\AgentDatabasePermission;
+use Modules\Dbcont\Enums\PermissionLevel;
+use Modules\Project\Models\Project;
 use Modules\User\Models\User;
 use Illuminate\Support\Facades\Hash;
 

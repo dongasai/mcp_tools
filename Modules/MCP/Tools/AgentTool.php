@@ -2,7 +2,7 @@
 
 namespace Modules\MCP\Tools;
 
-use App\Modules\Agent\Services\AgentService;
+use Modules\Agent\Services\AgentService;
 use Modules\MCP\Services\MCPService;
 
 class AgentTool
@@ -135,7 +135,7 @@ class AgentTool
     {
         try {
             // 使用模型直接查询，因为 AgentService 没有 getAgents 方法
-            $query = \App\Modules\Agent\Models\Agent::with(['user']);
+            $query = \Modules\Agent\Models\Agent::with(['user']);
 
             // 应用过滤器
             if (isset($filters['status'])) {

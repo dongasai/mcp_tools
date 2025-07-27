@@ -2,7 +2,7 @@
 
 namespace App\UserAdmin\Actions\Question;
 
-use App\Modules\Agent\Models\AgentQuestion;
+use Modules\Agent\Models\AgentQuestion;
 use Dcat\Admin\Actions\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

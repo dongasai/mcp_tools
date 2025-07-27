@@ -60,20 +60,20 @@ class UserServiceProvider extends ServiceProvider
 
         // 用户创建事件
         $events->listen(
-            \App\Modules\User\Events\UserCreated::class,
-            \App\Modules\User\Listeners\SendWelcomeEmail::class
+            \Modules\User\Events\UserCreated::class,
+            \Modules\User\Listeners\SendWelcomeEmail::class
         );
 
         // 用户邮箱验证事件
         $events->listen(
-            \App\Modules\User\Events\UserEmailVerified::class,
-            \App\Modules\User\Listeners\ActivateUser::class
+            \Modules\User\Events\UserEmailVerified::class,
+            \Modules\User\Listeners\ActivateUser::class
         );
 
         // 用户状态变更事件
         $events->listen(
-            \App\Modules\User\Events\UserStatusChanged::class,
-            \App\Modules\User\Listeners\NotifyStatusChange::class
+            \Modules\User\Events\UserStatusChanged::class,
+            \Modules\User\Listeners\NotifyStatusChange::class
         );
     }
 
@@ -85,8 +85,8 @@ class UserServiceProvider extends ServiceProvider
         $router = $this->app['router'];
 
         // 注册用户认证中间件
-        $router->aliasMiddleware('auth.user', \App\Modules\User\Middleware\AuthenticateUser::class);
-        $router->aliasMiddleware('admin', \App\Modules\User\Middleware\AdminMiddleware::class);
-        $router->aliasMiddleware('verified', \App\Modules\User\Middleware\EnsureEmailIsVerified::class);
+        $router->aliasMiddleware('auth.user', \Modules\User\Middleware\AuthenticateUser::class);
+        $router->aliasMiddleware('admin', \Modules\User\Middleware\AdminMiddleware::class);
+        $router->aliasMiddleware('verified', \Modules\User\Middleware\EnsureEmailIsVerified::class);
     }
 }

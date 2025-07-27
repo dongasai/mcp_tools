@@ -2,7 +2,7 @@
 
 namespace App\Admin\Actions\Grid;
 
-use App\Modules\Agent\Models\AgentQuestion;
+use Modules\Agent\Models\AgentQuestion;
 use Dcat\Admin\Actions\Response;
 use Dcat\Admin\Grid\BatchAction;
 use Illuminate\Database\Eloquent\Collection;

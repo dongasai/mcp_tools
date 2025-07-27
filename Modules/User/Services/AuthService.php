@@ -82,7 +82,7 @@ class AuthService
             ]);
 
             // 分发事件
-            $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserRegistered($user, $verificationToken));
+            $this->eventDispatcher->dispatch(new \Modules\User\Events\UserRegistered($user, $verificationToken));
 
             DB::commit();
 
@@ -145,7 +145,7 @@ class AuthService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserLoggedIn($user));
+        $this->eventDispatcher->dispatch(new \Modules\User\Events\UserLoggedIn($user));
 
         return [
             'user' => $user,
@@ -168,7 +168,7 @@ class AuthService
             ]);
 
             // 分发事件
-            $this->eventDispatcher->dispatch(new \App\Modules\User\Events\UserLoggedOut($user));
+            $this->eventDispatcher->dispatch(new \Modules\User\Events\UserLoggedOut($user));
         }
 
         Auth::logout();
@@ -194,7 +194,7 @@ class AuthService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\User\Events\PasswordResetRequested($user, $token));
+        $this->eventDispatcher->dispatch(new \Modules\User\Events\PasswordResetRequested($user, $token));
     }
 
     /**
@@ -225,7 +225,7 @@ class AuthService
         ]);
 
         // 分发事件
-        $this->eventDispatcher->dispatch(new \App\Modules\User\Events\PasswordReset($user));
+        $this->eventDispatcher->dispatch(new \Modules\User\Events\PasswordReset($user));
     }
 
     /**

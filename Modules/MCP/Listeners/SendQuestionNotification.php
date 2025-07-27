@@ -5,7 +5,7 @@ namespace Modules\MCP\Listeners;
 use Modules\MCP\Events\QuestionCreated;
 use Modules\MCP\Events\QuestionAnswered;
 use Modules\MCP\Events\QuestionIgnored;
-use App\Modules\Agent\Services\QuestionNotificationService;
+use Modules\Agent\Services\QuestionNotificationService;
 use App\Modules\Core\Contracts\LogInterface;
 
 class SendQuestionNotification

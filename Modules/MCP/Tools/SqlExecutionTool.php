@@ -6,7 +6,7 @@ use PhpMCP\Server\Attributes\MCPTool;
 use Modules\Dbcont\Services\SqlExecutionService;
 use Modules\Dbcont\Services\PermissionService;
 use Modules\Dbcont\Models\DatabaseConnection;
-use App\Modules\Agent\Services\AuthenticationService;
+use Modules\Agent\Services\AuthenticationService;
 use Illuminate\Support\Facades\Log;
 
 class SqlExecutionTool

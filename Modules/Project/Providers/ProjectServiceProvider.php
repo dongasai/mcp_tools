@@ -54,26 +54,26 @@ class ProjectServiceProvider extends ServiceProvider
 
         // Project创建事件
         $events->listen(
-            \App\Modules\Project\Events\ProjectCreated::class,
-            \App\Modules\Project\Listeners\SendProjectCreatedNotification::class
+            \Modules\Project\Events\ProjectCreated::class,
+            \Modules\Project\Listeners\SendProjectCreatedNotification::class
         );
 
         // Project状态变更事件
         $events->listen(
-            \App\Modules\Project\Events\ProjectStatusChanged::class,
-            \App\Modules\Project\Listeners\HandleProjectStatusChange::class
+            \Modules\Project\Events\ProjectStatusChanged::class,
+            \Modules\Project\Listeners\HandleProjectStatusChange::class
         );
 
         // Project Agent变更事件
         $events->listen(
-            \App\Modules\Project\Events\ProjectAgentChanged::class,
-            \App\Modules\Project\Listeners\HandleProjectAgentChange::class
+            \Modules\Project\Events\ProjectAgentChanged::class,
+            \Modules\Project\Listeners\HandleProjectAgentChange::class
         );
 
         // Project删除事件
         $events->listen(
-            \App\Modules\Project\Events\ProjectDeleted::class,
-            \App\Modules\Project\Listeners\CleanupProjectData::class
+            \Modules\Project\Events\ProjectDeleted::class,
+            \Modules\Project\Listeners\CleanupProjectData::class
         );
     }
 
@@ -85,8 +85,8 @@ class ProjectServiceProvider extends ServiceProvider
         $router = $this->app['router'];
 
         // 注册Project相关中间件
-        $router->aliasMiddleware('project.owner', \App\Modules\Project\Middleware\EnsureProjectOwner::class);
-        $router->aliasMiddleware('project.active', \App\Modules\Project\Middleware\EnsureProjectActive::class);
+        $router->aliasMiddleware('project.owner', \Modules\Project\Middleware\EnsureProjectOwner::class);
+        $router->aliasMiddleware('project.active', \Modules\Project\Middleware\EnsureProjectActive::class);
     }
 }
 

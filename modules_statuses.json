@@ -3,5 +3,6 @@
     "MCP": true,
     "Project": true,
     "Task": true,
-    "User": true
+    "User": true,
+    "UserAdmin": true
 }

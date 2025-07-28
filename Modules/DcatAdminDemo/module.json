@@ -1,0 +1,11 @@
+{
+    "name": "DcatAdminDemo",
+    "alias": "dcatadmindemo",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "DcatAdminDemo\\Providers\\MAdminDemoServiceProvider"
+    ],
+    "files": []
+}

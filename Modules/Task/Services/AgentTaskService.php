@@ -5,9 +5,9 @@ namespace Modules\Task\Services;
 use Modules\Task\Models\AgentTask;
 use Modules\Task\Models\Task;
 use Modules\Agent\Models\Agent;
-use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Core\Contracts\EventInterface;
-use App\Modules\Core\Validators\SimpleValidator;
+use DLaravel\Contracts\LogInterface;
+use DLaravel\Contracts\EventInterface;
+use DLaravel\SimpleValidator;
 use Modules\Task\Enums\TASKPRIORITY;
 use Illuminate\Support\Collection;
 

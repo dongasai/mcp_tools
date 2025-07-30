@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\User\Services\AuthService;
-use App\Modules\Core\Contracts\LogInterface;
+use DLaravel\Contracts\LogInterface;
 
 class AuthController extends Controller
 {

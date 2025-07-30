@@ -8,7 +8,7 @@ use Modules\Agent\Services\QuestionNotificationService;
 use Modules\Agent\Models\Agent;
 use Modules\Agent\Models\AgentQuestion;
 use Modules\User\Models\User;
-use App\Modules\Core\Controllers\BaseController;
+use DLaravel\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 
 class QuestionTestController extends BaseController

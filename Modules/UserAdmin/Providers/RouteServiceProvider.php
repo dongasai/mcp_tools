@@ -27,20 +27,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map(): void
     {
+        // 注意：dcat-admin路由通过UserAdminServiceProvider中的Admin::routes()注册
+        // 这里只注册API路由
         $this->mapApiRoutes();
-        $this->mapWebRoutes();
-    }
-
-    /**
-     * Define the "web" routes for the application.
-     *
-     * These routes all receive session state, CSRF protection, etc.
-     */
-    protected function mapWebRoutes(): void
-    {
-        Route::middleware('web')
-            ->namespace($this->moduleNamespace)
-            ->group(module_path('UserAdmin', '/routes/web.php'));
     }
 
     /**

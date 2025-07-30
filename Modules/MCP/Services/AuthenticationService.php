@@ -4,7 +4,7 @@ namespace Modules\MCP\Services;
 
 use Modules\MCP\Models\Agent;
 use Modules\User\Models\User;
-use App\Modules\Core\Services\LogService;
+use DLaravel\Services\LogService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 

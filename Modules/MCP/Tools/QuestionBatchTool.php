@@ -4,7 +4,7 @@ namespace Modules\MCP\Tools;
 
 use Modules\Agent\Services\QuestionService;
 use Modules\Agent\Services\QuestionAnalyticsService;
-use App\Modules\Core\Contracts\LogInterface;
+use DLaravel\Contracts\LogInterface;
 use Illuminate\Support\Facades\Validator;
 
 /**

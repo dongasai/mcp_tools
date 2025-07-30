@@ -5,7 +5,7 @@ namespace Modules\MCP\Services;
 use Modules\MCP\Models\Agent;
 use Modules\Project\Models\Project;
 use Modules\Task\Models\Task;
-use App\Modules\Core\Services\LogService;
+use DLaravel\Services\LogService;
 use Illuminate\Support\Facades\Cache;
 
 class AuthorizationService

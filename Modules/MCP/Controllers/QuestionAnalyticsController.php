@@ -4,7 +4,7 @@ namespace Modules\MCP\Controllers;
 
 use Modules\Agent\Services\QuestionService;
 use Modules\Agent\Services\QuestionAnalyticsService;
-use App\Modules\Core\Controllers\BaseController;
+use DLaravel\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 

@@ -5,7 +5,7 @@ namespace Modules\User\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Modules\Core\Validators\SimpleValidator;
+use DLaravel\SimpleValidator;
 
 class TestController extends Controller
 {

@@ -3,9 +3,9 @@
 namespace Modules\User\Services;
 
 use Modules\User\Models\User;
-use App\Modules\Core\Contracts\LogInterface;
-use App\Modules\Core\Contracts\EventInterface;
-use App\Modules\Core\Contracts\ValidationInterface;
+use DLaravel\Contracts\LogInterface;
+use DLaravel\Contracts\EventInterface;
+use DLaravel\Contracts\ValidationInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;

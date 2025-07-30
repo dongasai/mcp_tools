@@ -26,6 +26,41 @@ class UserAdminServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
+
+        // 注册dcat-admin路由
+        $this->registerDcatAdminRoutes();
+    }
+
+    /**
+     * 注册dcat-admin路由
+     */
+    protected function registerDcatAdminRoutes(): void
+    {
+        if (class_exists(\Dcat\Admin\Admin::class)) {
+            // 确保user-admin配置已加载
+            if (! config('user-admin')) {
+                $this->mergeConfigFrom(
+                    module_path($this->moduleName, 'config/user-admin.php'),
+                    'user-admin'
+                );
+            }
+            
+            // 使用Application的routes方法注册多应用路由，这会正确处理auth路由
+            \Dcat\Admin\Admin::app()->routes(function () {
+                // 临时设置admin配置为user-admin配置，确保在路由注册时使用正确的配置
+                $originalAdminConfig = config('admin');
+                config(['admin' => config('user-admin')]);
+                
+                // 注册默认的admin路由（包含auth路由）
+                \Dcat\Admin\Admin::routes();
+                
+                // 注册模块特定路由
+                require module_path('UserAdmin', 'routes/user-admin.php');
+                
+                // 恢复原始配置
+                config(['admin' => $originalAdminConfig]);
+            });
+        }
     }
 
     /**
@@ -44,8 +79,12 @@ class UserAdminServiceProvider extends ServiceProvider
         $this->publishes([
             module_path($this->moduleName, 'config/user-admin.php') => config_path($this->moduleNameLower . '.php'),
         ], 'config');
-   
         
+        // 合并配置
+        $this->mergeConfigFrom(
+            module_path($this->moduleName, 'config/user-admin.php'),
+            'user-admin'
+        );
     }
 
     /**
@@ -89,7 +128,7 @@ class UserAdminServiceProvider extends ServiceProvider
     private function getPublishableViewPaths(): array
     {
         $paths = [];
-        foreach (\Config::get('view.paths') as $path) {
+        foreach (config('view.paths', []) as $path) {
             if (is_dir($path . '/modules/' . $this->moduleNameLower)) {
                 $paths[] = $path . '/modules/' . $this->moduleNameLower;
             }

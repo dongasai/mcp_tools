@@ -6,7 +6,7 @@ use Modules\MCP\Events\QuestionCreated;
 use Modules\MCP\Events\QuestionAnswered;
 use Modules\MCP\Events\QuestionIgnored;
 use Modules\Agent\Services\QuestionNotificationService;
-use App\Modules\Core\Contracts\LogInterface;
+use DLaravel\Contracts\LogInterface;
 
 class SendQuestionNotification
 {

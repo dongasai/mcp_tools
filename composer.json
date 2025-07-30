@@ -32,7 +32,8 @@
             "App\\": "app/",
             "Modules\\": "Modules/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "DLaravel\\": "../mcp-core-package/src/"
         }
     },
     "autoload-dev": {

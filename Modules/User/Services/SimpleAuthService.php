@@ -3,7 +3,7 @@
 namespace Modules\User\Services;
 
 use Modules\User\Models\User;
-use App\Modules\Core\Validators\SimpleValidator;
+use DLaravel\SimpleValidator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

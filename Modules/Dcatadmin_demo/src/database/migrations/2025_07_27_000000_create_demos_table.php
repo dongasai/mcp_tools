@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('demos', function (Blueprint $table) {
+        Schema::create('dcatadmin2demo_demos', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('名称');
             $table->text('description')->nullable()->comment('描述');
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('demos');
+        Schema::dropIfExists('dcatadmin2demo_demos');
     }
 };

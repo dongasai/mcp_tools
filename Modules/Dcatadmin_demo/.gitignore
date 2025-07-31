@@ -1,0 +1,208 @@
+# Laravel Module .gitignore
+# 适用于DCAT Admin模块的Git忽略规则
+
+# Composer
+/vendor/
+composer.phar
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.buildpath
+.settings/
+
+# 操作系统
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# PHP
+*.php~
+*.php#
+*.php_
+*.phpbak
+*.php-backup
+*.php.save
+*.php.swp
+*.php.swo
+*~
+*.swp
+*.swo
+*.tmp
+
+# 缓存
+.cache/
+.php_cs.cache
+.phpunit.result.cache
+.phpunit.cache/
+.nyc_output/
+coverage/
+build/
+temp/
+tmp/
+
+# 环境配置
+.env
+.env.local
+.env.*.local
+
+# 构建输出
+/dist/
+/build/
+/public/build/
+/public/dist/
+/public/hot/
+/public/storage/
+/storage/*.key
+/storage/pail/
+
+# Node.js (如果有前端资源)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.pnpm-store/
+
+# 前端构建
+/public/css/
+/public/js/
+/public/mix-manifest.json
+/webpack.mix.js.map
+
+# 备份文件
+*.backup
+*.bak
+*.orig
+*.rej
+*.tmp
+
+# 测试
+/tests/coverage/
+/tests/report/
+/tests/_output/
+/tests/_support/_generated/
+
+# 文档生成
+/docs/api/
+/docs/coverage/
+/docs/build/
+
+# 其他
+*.tgz
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.patch
+*.diff
+*.patch.gz
+*.diff.gz
+
+# 本地开发
+.env.testing
+.env.staging
+.env.production
+.env.backup
+.env.copy
+.env.example.backup
+
+# 数据库
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+
+# 临时文件
+*.temp
+*.tmp
+*.tempfile
+*.lockfile
+*.pid
+*.sock
+
+# 调试文件
+debug.log
+error.log
+access.log
+xdebug.log
+
+# 包管理器
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnpm-store/
+
+# 代码格式化
+.php-cs-fixer.cache
+.php-cs-fixer.php
+.phpcs-cache
+.psalm/
+.psalm/cache/
+.phpstan/
+.phpstan/cache/
+
+# 静态分析
+.phpunit.result.cache
+.phpunit.cache/
+.coverage/
+.coverage-html/
+.coverage-xml/
+.coverage-clover/
+.coverage-crap4j/
+.coverage-text/
+.coverage-php/
+
+# 部署相关
+.deploy/
+.deployignore
+.deploy_key
+.deploy_config
+
+# 本地配置
+local/
+local-config/
+config.local.php
+config.local.yml
+config.local.yaml
+config.local.json
+config.local.xml
+
+# 上传文件
+/uploads/
+/public/uploads/
+/storage/uploads/
+/storage/app/
+/storage/framework/
+/storage/logs/
+/storage/debugbar/
+
+# 缓存文件
+/bootstrap/cache/
+/bootstrap/cache/packages.php
+/bootstrap/cache/services.php
+/bootstrap/cache/config.php
+/bootstrap/cache/routes.php
+/bootstrap/cache/events.php
+
+# 会话文件
+/storage/framework/sessions/
+/storage/framework/views/
+/storage/framework/cache/

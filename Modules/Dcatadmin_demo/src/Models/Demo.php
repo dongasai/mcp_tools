@@ -1,6 +1,6 @@
 <?php
 
-namespace DcatAdminDemo\Entities;
+namespace DcatAdminDemo\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Demo extends Model
 {
     use HasFactory;
+    
+    /**
+     * 表名
+     *
+     * @var string
+     */
+    protected $table = 'dcatadmin2demo_demos';
     
     /**
      * 可批量赋值的属性

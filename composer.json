@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "dcatadmin2/module-dcatadmin_demo": "dev-main",
+        "dcatadmin2/dcatadmin_demo-module": "dev-main",
         "dongasai/dcat-admin2": "11.*",
         "dongasai/dlaravel": "dev-main",
         "laravel/framework": "^11.31",
@@ -153,7 +153,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true,
-            "wikimedia/composer-merge-plugin": true
+            "wikimedia/composer-merge-plugin": true,
+            "joshbrw/laravel-module-installer": true
         }
     },
     "minimum-stability": "dev",

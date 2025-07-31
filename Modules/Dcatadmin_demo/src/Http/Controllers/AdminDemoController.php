@@ -2,6 +2,8 @@
 
 namespace DcatAdminDemo\Http\Controllers;
 
+use DcatAdminDemo\Models\Demo;
+
 class AdminDemoController extends BaseController
 {
     /**
@@ -9,7 +11,8 @@ class AdminDemoController extends BaseController
      */
     public function index()
     {
-        return view('madmindemo::index');
+        $demos = Demo::paginate(10);
+        return view('madmindemo::index', compact('demos'));
     }
     
     /**
@@ -17,6 +20,7 @@ class AdminDemoController extends BaseController
      */
     public function show($id)
     {
-        return view('madmindemo::show', compact('id'));
+        $demo = Demo::findOrFail($id);
+        return view('madmindemo::show', compact('demo'));
     }
 }

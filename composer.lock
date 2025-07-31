@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e82fc2255bbb16d01fc680a88a4bb5c2",
+    "content-hash": "ac5d63fe8cf8cf6e93860218af09cbf2",
     "packages": [
         {
             "name": "brick/math",
@@ -134,6 +134,70 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "dcatadmin2/module-dcatadmin_demo",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dcatadmin2/module-dcatadmin_demo.git",
+                "reference": "de9a60fdc36739e7071d53c6b58aa2812ae04cd0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dcatadmin2/module-dcatadmin_demo/zipball/de9a60fdc36739e7071d53c6b58aa2812ae04cd0",
+                "reference": "de9a60fdc36739e7071d53c6b58aa2812ae04cd0",
+                "shasum": ""
+            },
+            "require": {
+                "dongasai/dcat-admin2": "11.*",
+                "laravel/framework": "^10.0|^11.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "DcatAdminDemo\\Providers\\MAdminDemoServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "DcatAdminDemo\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "DcatAdminDemo\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "dcatadmin2",
+                    "email": "admin@dcatadmin.com"
+                }
+            ],
+            "description": "Dcat Admin Demo Module - A comprehensive demonstration module for Dcat Admin",
+            "keywords": [
+                "dcat-admin",
+                "demo",
+                "laravel",
+                "module"
+            ],
+            "support": {
+                "source": "https://github.com/dcatadmin2/module-dcatadmin_demo/tree/main",
+                "issues": "https://github.com/dcatadmin2/module-dcatadmin_demo/issues"
+            },
+            "time": "2025-07-31T09:04:44+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -9561,16 +9625,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.27",
+            "version": "11.5.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "446d43867314781df7e9adf79c3ec7464956fd8f"
+                "reference": "93f30aa3889e785ac63493d4976df0ae9fdecb60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/446d43867314781df7e9adf79c3ec7464956fd8f",
-                "reference": "446d43867314781df7e9adf79c3ec7464956fd8f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/93f30aa3889e785ac63493d4976df0ae9fdecb60",
+                "reference": "93f30aa3889e785ac63493d4976df0ae9fdecb60",
                 "shasum": ""
             },
             "require": {
@@ -9642,7 +9706,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.27"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.28"
             },
             "funding": [
                 {
@@ -9666,7 +9730,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-07-11T04:10:06+00:00"
+            "time": "2025-07-31T07:10:28+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -10919,6 +10983,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "dcatadmin2/module-dcatadmin_demo": 20,
         "dongasai/dlaravel": 20
     },
     "prefer-stable": true,

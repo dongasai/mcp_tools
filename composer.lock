@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd4a81225185a1f32b0447be32f1f455",
+    "content-hash": "e82fc2255bbb16d01fc680a88a4bb5c2",
     "packages": [
         {
             "name": "brick/math",
@@ -604,6 +604,54 @@
                 "source": "https://github.com/dongasai/dcat-admin2/tree/11.0.1"
             },
             "time": "2025-07-18T10:19:36+00:00"
+        },
+        {
+            "name": "dongasai/dlaravel",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dongasai/dlaravel.git",
+                "reference": "b306aec307fb37fe53f5785050c14779f94fe2b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dongasai/dlaravel/zipball/b306aec307fb37fe53f5785050c14779f94fe2b8",
+                "reference": "b306aec307fb37fe53f5785050c14779f94fe2b8",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^11.0",
+                "php": "^8.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "DLaravel\\Providers\\CoreServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "DLaravel\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "dongasai",
+                    "email": "1514582970@qq.com"
+                }
+            ],
+            "description": "Dongasai Laravel Module",
+            "support": {
+                "source": "https://github.com/dongasai/dlaravel/tree/main",
+                "issues": "https://github.com/dongasai/dlaravel/issues"
+            },
+            "time": "2025-07-29T12:53:27+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
@@ -2694,16 +2742,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.5.0",
+            "version": "v5.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "ae59794362fe85e051a58ad36b289443f57be7a9"
+                "reference": "221b0d0fdf1369c71047ad1d18bb5880017bbc56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/ae59794362fe85e051a58ad36b289443f57be7a9",
-                "reference": "ae59794362fe85e051a58ad36b289443f57be7a9",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/221b0d0fdf1369c71047ad1d18bb5880017bbc56",
+                "reference": "221b0d0fdf1369c71047ad1d18bb5880017bbc56",
                 "shasum": ""
             },
             "require": {
@@ -2746,9 +2794,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.5.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.6.0"
             },
-            "time": "2025-05-31T08:24:38+00:00"
+            "time": "2025-07-27T20:03:57+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -10870,7 +10918,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "dongasai/dlaravel": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

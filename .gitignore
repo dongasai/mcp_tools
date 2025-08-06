@@ -24,6 +24,8 @@ yarn-error.log
 composer.local.yml
 public/phpinfo.php
 
+Modules/DcatadminDemo
+
 # YoYo AI version control directory
 .yoyo/
 # Ai

@@ -1,8 +1,10 @@
 {
     "Dbcont": true,
     "MCP": true,
-    "Project": true,
     "Task": true,
     "User": true,
-    "UserAdmin": true
+    "UserAdmin": true,
+    "Project": true,
+    "Test": false,
+    "dcatadmin_demo-module": true
 }

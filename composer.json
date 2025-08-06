@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "dcatadmin2/dcatadmin_demo-module": "dev-main",
+        "dcatadmin2/dcatadmin-demo-module": "dev-main",
         "dongasai/dcat-admin2": "11.*",
         "dongasai/dlaravel": "dev-main",
         "laravel/framework": "^11.31",
@@ -137,13 +137,13 @@
         }
     },
     "repositories": {
-        "dcat-admin-demo": {
-            "type": "vcs",
-            "url": "https://github.com/dcatadmin2/module-dcatadmin_demo.git"
-        },
         "dlaravel": {
             "type": "vcs",
             "url": "https://github.com/dongasai/dlaravel.git"
+        },
+          "dcatadmin_demo-module": {
+            "type": "git",
+            "url": "https://github.com/dcatadmin2/module-dcatadmin_demo.git"
         }
     },
     "config": {
